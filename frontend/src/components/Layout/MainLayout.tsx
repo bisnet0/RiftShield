@@ -8,6 +8,7 @@ import {
   VStack,
   Heading,
   useDisclosure,
+  Image,
 } from "@chakra-ui/react";
 import { useAuth } from "../../context/AuthContext";
 import { type AppMode } from "./nav-config";
@@ -47,23 +48,68 @@ export const MainLayout: React.FC = () => {
           overflowY="auto"
         >
           <VStack spacing={10} w="full" maxW="md">
-            <VStack spacing={2} textAlign="center">
-              <Heading
-                as="h1"
-                fontWeight="bold"
-                fontSize={{ base: "3xl", md: "5xl" }}
-                color={themeFx.textColor}
-                letterSpacing="tight"
-              >
-                RiftShield
-              </Heading>
-              <Text color={themeFx.textMuted} fontSize="md">
-                Plataforma de Diagnóstico
-              </Text>
-            </VStack>
+            <Flex align="center" justify="center" gap={4} w="full">
+               <Image
+                src="/public/Rift_Shield_Logo.png"
+                alt="Rift Shield Logo"
+                w={{ base: "80px", md: "110px" }} // Tamanho ajustado para parear com o texto
+                dropShadow="lg"
+              />
+              <Flex direction="column" align="flex-start" justify="center">
+                <Text
+                  fontFamily="'Poppins', sans-serif"
+                  fontWeight="400"
+                  fontSize={{ base: "sm", md: "lg" }}
+                  color={themeFx.textColor}
+                  mb="-1"
+                >
+                  Proteja seu ambiente com
+                </Text>
+
+                <Heading
+                  as="h1"
+                  fontFamily="'Poppins', sans-serif"
+                  fontWeight="100"
+                  fontSize={{ base: "4xl", md: "5xl" }}
+                  color={themeFx.textColor}
+                  letterSpacing="tight"
+                  lineHeight="1"
+                  display="flex"
+                  alignItems="baseline"
+                  gap={2}
+                >
+                 Rift{" "}
+                  <Text
+                    as="span"
+                    fontWeight="bold"
+                    color="yellow"
+                    fontSize={{ base: "3xl", md: "5xl" }}
+                  >
+                    Shield
+                  </Text>
+                </Heading>
+              </Flex>
+            </Flex>
+
+            {/* O Card do Login */}
             <LoginForm />
           </VStack>
         </Flex>
+        {/* LADO DIREITO: Imagem Hero */}
+        <Box
+          display={{ base: "none", lg: "block" }}
+          flex={1}
+          bg="gray.900"
+          position="relative"
+        >
+          <Image
+            src="/public/Rift_Shield_Hero.png"
+            alt="Login Hero"
+            objectFit="cover"
+            w="full"
+            h="full"
+          />
+        </Box>
       </Flex>
     );
   }

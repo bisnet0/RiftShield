@@ -22,7 +22,7 @@ export const Footer: React.FC = () => {
     >
       <Text color={themeFx.textMuted} fontSize="sm" textAlign="center">
         Desenvolvido por{" "}
-        <Text as="span" fontWeight="bold" color={themeFx.textColor}>
+        <Text as="span" fontWeight="bold" color={themeFx.navActiveColor}>
           Henrique Bisneto
         </Text>
       </Text>

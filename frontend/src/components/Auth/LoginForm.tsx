@@ -30,7 +30,7 @@ export const LoginForm: React.FC = () => {
         </Heading>
         <Text fontSize="md" color={themeFx.textMuted} mt={2}>
           {state.isLogin
-            ? "Plataforma de Diagnóstico"
+            ? "Detecção de Ameaças"
             : "Preencha seus dados para começar"}
         </Text>
       </Box>

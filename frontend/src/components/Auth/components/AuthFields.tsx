@@ -122,7 +122,9 @@ export const AuthFields: React.FC<AuthFieldsProps> = ({ state, setters, actions 
 
         <Button
           type="submit"
-          colorScheme="orange"
+          colorScheme="yellow"
+          bg="brand"
+          color="white"
           size="lg"
           w="full"
           mt={6}

@@ -1,5 +1,5 @@
 import React from "react";
-import { Flex, HStack, Text, IconButton, Icon } from "@chakra-ui/react";
+import { Flex, HStack, Text, IconButton, Icon, Image } from "@chakra-ui/react";
 import { UserCircle, LogOut, Menu } from "lucide-react";
 import ThemeToggle from "../Theme/ThemeToggle";
 import { useAppThemeFx } from "../../styles/app-theme-fx";
@@ -40,14 +40,23 @@ export const Navbar: React.FC<Props> = ({ onOpenSidebar }) => {
           icon={<Menu size={24} color={themeFx.textColor} />}
         />
 
-        <Flex align="center">
+         <Flex align="center">
+          <Image src="/public/Rift_Shield_Logo.png" alt="Logo" w="36px" mr={3} />
           <Text
             fontSize="xl"
-            fontWeight="bold"
+            fontWeight="light"
             color={themeFx.textColor}
             letterSpacing="tight"
           >
-            RiftShield
+            Rift
+          </Text>
+          <Text
+            fontSize="xl"
+            fontWeight="bold"
+            color="#FFD52B"
+            letterSpacing="tight"
+          >
+            Shield
           </Text>
         </Flex>
       </HStack>
