@@ -1,39 +1,29 @@
-import React from "react";
-import {
-  Box,
-  Flex,
-  Text,
-  Icon,
-  VStack,
-  Drawer,
-  DrawerBody,
-  DrawerHeader,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerCloseButton,
-} from "@chakra-ui/react";
-import { NAV_ITEMS, type AppMode } from "./nav-config";
+import { Box, Flex, Text, Icon, VStack, Drawer, DrawerBody, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton, Image } from "@chakra-ui/react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { NAV_ITEMS } from "./nav-config";
 import { useAppThemeFx } from "../../styles/app-theme-fx";
+import { ROUTES } from "../../router/paths";
 
 interface Props {
-  mode: AppMode;
-  setMode: (mode: AppMode) => void;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const Sidebar: React.FC<Props> = ({
-  mode,
-  setMode,
-  isOpen,
-  onClose,
-}) => {
+const NAV_PATH_MAP: Record<string, string> = {
+  dashboard: ROUTES.DASHBOARD,
+  profile: ROUTES.PROFILE,
+  settings: ROUTES.SETTINGS,
+};
+
+export function Sidebar({ isOpen, onClose }: Props) {
   const themeFx = useAppThemeFx();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const SidebarContent = () => (
     <VStack spacing={2} align="stretch" w="100%">
       {NAV_ITEMS.map((item) => {
-        const isActive = mode === item.id;
+        const isActive = location.pathname === NAV_PATH_MAP[item.id];
         return (
           <Flex
             key={item.id}
@@ -49,7 +39,7 @@ export const Sidebar: React.FC<Props> = ({
             transition="all 0.2s"
             _hover={{ bg: isActive ? themeFx.navActiveBg : themeFx.navHoverBg }}
             onClick={() => {
-              setMode(item.id as AppMode);
+              navigate(NAV_PATH_MAP[item.id]);
               onClose();
             }}
           >
@@ -81,17 +71,14 @@ export const Sidebar: React.FC<Props> = ({
 
       <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
         <DrawerOverlay display={{ base: "block", md: "none" }} />
-        <DrawerContent
-          bg={themeFx.sidebarBg}
-          display={{ base: "block", md: "none" }}
-        >
+        <DrawerContent bg={themeFx.sidebarBg} display={{ base: "block", md: "none" }}>
           <DrawerCloseButton color={themeFx.textColor} />
-          <DrawerHeader
-            borderBottomWidth="1px"
-            borderColor={themeFx.headerBorder}
-            color={themeFx.textColor}
-          >
-            Menu
+          <DrawerHeader borderBottomWidth="1px" borderColor={themeFx.headerBorder} color={themeFx.textColor}>
+            <Flex align="center">
+              <Image src="/public/Rift_Shield_Logo.png" alt="Logo" w="36px" mr={3} />
+              <Text fontWeight={"light"}>Rift</Text>
+              <Text marginLeft={1} fontSize="xl" fontWeight="bold" color="#FFD52B" letterSpacing="tight">Shield</Text>
+            </Flex>
           </DrawerHeader>
           <DrawerBody pt={6} px={0}>
             <SidebarContent />
@@ -100,4 +87,4 @@ export const Sidebar: React.FC<Props> = ({
       </Drawer>
     </>
   );
-};
+}

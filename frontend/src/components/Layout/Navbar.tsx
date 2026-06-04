@@ -40,8 +40,13 @@ export const Navbar: React.FC<Props> = ({ onOpenSidebar }) => {
           icon={<Menu size={24} color={themeFx.textColor} />}
         />
 
-         <Flex align="center">
-          <Image src="/public/Rift_Shield_Logo.png" alt="Logo" w="36px" mr={3} />
+        <Flex align="center">
+          <Image
+            src="/public/Rift_Shield_Logo.png"
+            alt="Logo"
+            w="36px"
+            mr={3}
+          />
           <Text
             fontSize="xl"
             fontWeight="light"
@@ -51,6 +56,7 @@ export const Navbar: React.FC<Props> = ({ onOpenSidebar }) => {
             Rift
           </Text>
           <Text
+            marginLeft={1}
             fontSize="xl"
             fontWeight="bold"
             color="#FFD52B"

@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../middleware/api";
+import { ROUTES } from "../router/paths";
 
 interface User {
   id: string;
@@ -48,7 +49,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   const signIn = (userData: User) => {
     setUser(userData);
-    navigate("/", { replace: true });
+    navigate(ROUTES.DASHBOARD, { replace: true });
   };
 
   const signOut = async () => {
@@ -58,7 +59,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       console.error("Erro no logout");
     } finally {
       setUser(null);
-      navigate("/login", { replace: true });
+      navigate(ROUTES.LOGIN, { replace: true });
     }
   };
 
