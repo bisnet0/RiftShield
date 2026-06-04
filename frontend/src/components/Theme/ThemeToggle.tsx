@@ -1,26 +1,24 @@
-import React from "react";
 import { IconButton, useColorMode } from "@chakra-ui/react";
 import { FiSun, FiMoon } from "react-icons/fi";
 
-const ThemeToggle: React.FC = () => {
+export default function ThemeToggle() {
   const { colorMode, toggleColorMode } = useColorMode();
+  const isDark = colorMode === "dark";
 
   return (
     <IconButton
-      aria-label="Alternar tema escuro/claro"
-      icon={colorMode === "dark" ? <FiSun /> : <FiMoon />}
+      aria-label={isDark ? "Mudar para tema claro" : "Mudar para tema escuro"}
+      icon={isDark ? <FiSun /> : <FiMoon />}
       onClick={toggleColorMode}
       variant="ghost"
-      bg={colorMode === "dark" ? "whiteAlpha.100" : "blackAlpha.100"}
-      color={colorMode === "dark" ? "yellow.400" : "#e65c00"}
+      bg={isDark ? "whiteAlpha.100" : "blackAlpha.50"}
+      color={isDark ? "yellow.400" : "#e65c00"}
       fontSize="20px"
       mr={3}
       _hover={{
-        bg: colorMode === "dark" ? "whiteAlpha.200" : "blackAlpha.100",
+        bg: isDark ? "whiteAlpha.200" : "blackAlpha.100",
       }}
       isRound
     />
   );
-};
-
-export default ThemeToggle;
+}

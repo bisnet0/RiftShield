@@ -1,4 +1,3 @@
-import React from "react";
 import { Flex, HStack, Text, IconButton, Icon, Image } from "@chakra-ui/react";
 import { UserCircle, LogOut, Menu } from "lucide-react";
 import ThemeToggle from "../Theme/ThemeToggle";
@@ -59,7 +58,7 @@ export const Navbar: React.FC<Props> = ({ onOpenSidebar }) => {
             marginLeft={1}
             fontSize="xl"
             fontWeight="bold"
-            color="#FFD52B"
+            color={themeFx.brandColor}
             letterSpacing="tight"
           >
             Shield
@@ -73,7 +72,7 @@ export const Navbar: React.FC<Props> = ({ onOpenSidebar }) => {
         <HStack
           color={themeFx.textColor}
           display={{ base: "none", md: "flex" }}
-          bg="whiteAlpha.100"
+          bg={themeFx.navHoverBg}
           px={3}
           py={1.5}
           borderRadius="full"

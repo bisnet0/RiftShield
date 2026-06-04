@@ -59,7 +59,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       console.error("Erro no logout");
     } finally {
       setUser(null);
-      navigate(ROUTES.LOGIN, { replace: true });
+      navigate("/", { replace: true });
     }
   };
 

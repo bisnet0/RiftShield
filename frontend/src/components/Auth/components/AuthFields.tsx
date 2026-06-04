@@ -128,6 +128,7 @@ export const AuthFields: React.FC<AuthFieldsProps> = ({ state, setters, actions 
           size="lg"
           w="full"
           mt={6}
+          _hover={{ bg: "brandHover" }}
           isLoading={state.loading}
           loadingText="Processando..."
         >

@@ -13,6 +13,7 @@ export function AppRouter() {
         <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
         <Route path={ROUTES.PROFILE} element={<Profile />} />
         <Route path={ROUTES.SETTINGS} element={<Settings />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
   );

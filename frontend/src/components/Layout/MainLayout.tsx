@@ -34,14 +34,14 @@ export function MainLayout() {
                 <Heading as="h1" fontFamily="'Poppins', sans-serif" fontWeight="100"
                   fontSize={{ base: "4xl", md: "5xl" }} color={themeFx.textColor} letterSpacing="tight" lineHeight="1" display="flex" alignItems="baseline" gap={2}>
                   Rift{" "}
-                  <Text as="span" fontWeight="bold" color="yellow" fontSize={{ base: "3xl", md: "5xl" }}>Shield</Text>
+                  <Text as="span" fontWeight="bold" color={themeFx.brandColor} fontSize={{ base: "3xl", md: "5xl" }}>Shield</Text>
                 </Heading>
               </Flex>
             </Flex>
             <LoginForm />
           </VStack>
         </Flex>
-        <Box display={{ base: "none", lg: "block" }} flex={1} bg="gray.900" position="relative">
+        <Box display={{ base: "none", lg: "block" }} flex={1} bg={themeFx.appBg} position="relative">
           <Image src="/public/Rift_Shield_Hero.png" alt="Login Hero" objectFit="cover" w="full" h="full" />
         </Box>
       </Flex>
