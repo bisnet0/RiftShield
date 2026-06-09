@@ -28,7 +28,7 @@ services:
       - .env
     volumes:
       - ./src:/usr/src/app/src
-      - ./package.json:/usr/src/app/package.json
+      - ./requirements.txt:/usr/src/app/requirements.txt
 
 volumes:
   mongo-data:

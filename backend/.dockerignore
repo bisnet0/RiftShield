@@ -1,6 +1,11 @@
 node_modules
 dist
+__pycache__
+*.pyc
+.mypy_cache
+.ruff_cache
+.venv
 .git
+.gitignore
 .env
 *.log
-.gitignore
