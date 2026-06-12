@@ -2,18 +2,11 @@ import { Box, Flex, Text, Icon, VStack, Drawer, DrawerBody, DrawerHeader, Drawer
 import { useNavigate, useLocation } from "react-router-dom";
 import { NAV_ITEMS } from "./nav-config";
 import { useAppThemeFx } from "../../styles/app-theme-fx";
-import { ROUTES } from "../../router/paths";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
 }
-
-const NAV_PATH_MAP: Record<string, string> = {
-  dashboard: ROUTES.DASHBOARD,
-  profile: ROUTES.PROFILE,
-  settings: ROUTES.SETTINGS,
-};
 
 export function Sidebar({ isOpen, onClose }: Props) {
   const themeFx = useAppThemeFx();
@@ -23,7 +16,7 @@ export function Sidebar({ isOpen, onClose }: Props) {
   const SidebarContent = () => (
     <VStack spacing={2} align="stretch" w="100%">
       {NAV_ITEMS.map((item) => {
-        const isActive = location.pathname === NAV_PATH_MAP[item.id];
+        const isActive = location.pathname === item.path;
         return (
           <Flex
             key={item.id}
@@ -39,7 +32,7 @@ export function Sidebar({ isOpen, onClose }: Props) {
             transition="all 0.2s"
             _hover={{ bg: isActive ? themeFx.navActiveBg : themeFx.navHoverBg }}
             onClick={() => {
-              navigate(NAV_PATH_MAP[item.id]);
+              navigate(item.path);
               onClose();
             }}
           >

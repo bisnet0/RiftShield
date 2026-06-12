@@ -3,4 +3,12 @@ export const ROUTES = {
   DASHBOARD: "/dashboard",
   PROFILE: "/profile",
   SETTINGS: "/settings",
+  INFERENCE: "/inference",
+  INFERENCE_REPORT: "/inference/:id",
+  THREATS: "/threats",
+  THREAT_DETAIL: "/threats/:inferenceId",
+  DATASET: "/dataset",
+  TRAINING: "/training",
+  VULNERABILITIES: "/vulnerabilities",
+  COUNTERMEASURES: "/countermeasures",
 } as const;
