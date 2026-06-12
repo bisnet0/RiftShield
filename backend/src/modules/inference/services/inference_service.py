@@ -6,19 +6,18 @@ import uuid
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-import cv2
-import numpy as np
 from ultralytics import YOLO
 
 from config.settings import get_settings
-from modules.inference.models.inference_model import InferenceResult
+from modules.inference.models.inference_model import DetectedComponent, InferenceResult
 
 settings = get_settings()
 
 UPLOAD_DIR = Path(__file__).resolve().parent.parent.parent / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-ACTIVE_MODEL_PATH = Path(__file__).resolve().parent / "train_results" / "best.pt"
+TRAIN_RESULTS_DIR = Path(__file__).resolve().parent.parent / "train_results"
+ACTIVE_MODEL_PATH = TRAIN_RESULTS_DIR / "best.pt"
 
 COMPONENT_CLASSES = [
     "user", "server", "database", "api", "load_balancer",
@@ -87,13 +86,15 @@ async def analyze_diagram(
             label = COMPONENT_CLASSES[cls_id] if cls_id < len(COMPONENT_CLASSES) else f"unknown_{cls_id}"
 
             x1, y1, x2, y2 = xyxy
-            components.append({
-                "class_id": cls_id,
-                "label": label,
-                "confidence": conf,
-                "bbox": [x1, y1, x2 - x1, y2 - y1],
-                "inference_id": str(inference.id),
-            })
+            components.append(
+                DetectedComponent(
+                    class_id=cls_id,
+                    label=label,
+                    confidence=conf,
+                    bbox=[x1, y1, x2 - x1, y2 - y1],
+                    inference_id=str(inference.id),
+                )
+            )
 
     elapsed = (time.time() - start_time) * 1000
 

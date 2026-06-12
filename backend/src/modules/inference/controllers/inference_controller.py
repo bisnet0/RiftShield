@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from fastapi import Depends, UploadFile
 
-from middleware.auth import get_current_user
-from modules.auth.models.user_model import User
 from modules.inference.schemas.inference_schema import (
     AnalyzeResponse,
     BoundingBox,
@@ -13,105 +11,74 @@ from modules.inference.schemas.inference_schema import (
 from modules.inference.services import inference_service
 
 
+def _current_user():
+    from middleware.auth import get_current_user
+    return Depends(get_current_user)
+
+
 async def analyze(
     file: UploadFile,
-    current_user: User = Depends(get_current_user),
+    user_id: str,
 ) -> AnalyzeResponse:
     image_data = await file.read()
     result = await inference_service.analyze_diagram(
         image_data=image_data,
         filename=file.filename or "diagram.png",
-        user_id=str(current_user.id),
+        user_id=user_id,
     )
+    return _build_analyze_response(result)
 
-    components = [
-        DetectedComponentResponse(
-            class_id=c["class_id"],
-            label=c["label"],
-            confidence=c["confidence"],
-            bbox=BoundingBox(x=c["bbox"][0], y=c["bbox"][1], width=c["bbox"][2], height=c["bbox"][3]),
+
+def _build_analyze_response(inference_result) -> AnalyzeResponse:
+    def _build_component(c):
+        return DetectedComponentResponse(
+            class_id=c.class_id,
+            label=c.label,
+            confidence=c.confidence,
+            bbox=BoundingBox(x=c.bbox[0], y=c.bbox[1], width=c.bbox[2], height=c.bbox[3]),
         )
-        for c in result.components
-    ]
 
     return AnalyzeResponse(
-        id=str(result.id),
-        filename=result.filename,
-        status=result.status,
-        components=components,
-        processing_time_ms=result.processing_time_ms,
-        created_at=result.created_at,
+        id=str(inference_result.id),
+        filename=inference_result.filename,
+        status=inference_result.status,
+        components=[_build_component(c) for c in inference_result.components],
+        processing_time_ms=inference_result.processing_time_ms,
+        created_at=inference_result.created_at,
     )
 
 
 async def list_reports(
     skip: int = 0,
     limit: int = 20,
-    current_user: User = Depends(get_current_user),
+    user_id: str = "",
 ) -> InferenceListResponse:
     items, total = await inference_service.list_inferences(
-        user_id=str(current_user.id),
+        user_id=user_id,
         limit=limit,
         skip=skip,
     )
 
     return InferenceListResponse(
         total=total,
-        items=[
-            AnalyzeResponse(
-                id=str(i.id),
-                filename=i.filename,
-                status=i.status,
-                components=[
-                    DetectedComponentResponse(
-                        class_id=c["class_id"],
-                        label=c["label"],
-                        confidence=c["confidence"],
-                        bbox=BoundingBox(
-                            x=c["bbox"][0], y=c["bbox"][1],
-                            width=c["bbox"][2], height=c["bbox"][3],
-                        ),
-                    )
-                    for c in i.components
-                ],
-                processing_time_ms=i.processing_time_ms,
-                created_at=i.created_at,
-            )
-            for i in items
-        ],
+        items=[_build_analyze_response(i) for i in items],
     )
 
 
 async def get_report(
     inference_id: str,
-    current_user: User = Depends(get_current_user),
+    user_id: str = "",
 ) -> AnalyzeResponse:
     result = await inference_service.get_inference(inference_id)
-
-    return AnalyzeResponse(
-        id=str(result.id),
-        filename=result.filename,
-        status=result.status,
-        components=[
-            DetectedComponentResponse(
-                class_id=c["class_id"],
-                label=c["label"],
-                confidence=c["confidence"],
-                bbox=BoundingBox(
-                    x=c["bbox"][0], y=c["bbox"][1],
-                    width=c["bbox"][2], height=c["bbox"][3],
-                ),
-            )
-            for c in result.components
-        ],
-        processing_time_ms=result.processing_time_ms,
-        created_at=result.created_at,
-    )
+    if not result:
+        from fastapi.exceptions import HTTPException
+        raise HTTPException(status_code=404, detail="Report not found")
+    return _build_analyze_response(result)
 
 
 async def delete_report(
     inference_id: str,
-    current_user: User = Depends(get_current_user),
+    user_id: str = "",
 ) -> dict:
     deleted = await inference_service.delete_inference(inference_id)
     return {"deleted": deleted}

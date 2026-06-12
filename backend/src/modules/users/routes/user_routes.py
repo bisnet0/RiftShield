@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Depends
 
-from middleware.auth import get_current_user
-from modules.auth.controllers.auth_controller import me
-from modules.auth.models.user_model import User
+from middleware.dependencies import get_current_user
+from modules.auth.controllers.auth_controller import _get_profile
 
 router = APIRouter()
 
 
 @router.get("/me")
-async def get_me(current_user: User = Depends(get_current_user)) -> dict:
-    return await me(current_user)
+async def get_me(user=Depends(get_current_user)) -> dict:
+    return await _get_profile(str(user.id))

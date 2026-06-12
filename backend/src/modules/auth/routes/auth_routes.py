@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Cookie, Depends, Response
 
+from middleware.dependencies import get_current_user
 from modules.auth.controllers import auth_controller
 from modules.auth.schemas.auth_schema import LoginInput, RegisterInput
-from middleware.auth import get_current_user
-from modules.auth.models.user_model import User
 
 router = APIRouter()
 
@@ -24,5 +23,5 @@ async def refresh(response: Response, refresh_token: str | None = Cookie(default
 
 
 @router.post("/logout")
-async def logout(response: Response, current_user: User = Depends(get_current_user)) -> dict:
-    return await auth_controller.logout(response, current_user)
+async def logout(response: Response, user=Depends(get_current_user)) -> dict:
+    return await auth_controller._logout(response, str(user.id))

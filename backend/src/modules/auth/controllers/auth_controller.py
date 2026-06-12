@@ -3,10 +3,14 @@ from __future__ import annotations
 from fastapi import Depends, Response
 
 from config.settings import get_settings
-from middleware.auth import get_current_user
-from modules.auth.models.user_model import User
 from modules.auth.schemas.auth_schema import LoginInput, RegisterInput
 from modules.auth.services import auth_service
+
+
+def _current_user():
+    from middleware.auth import get_current_user
+    return Depends(get_current_user)
+
 
 settings = get_settings()
 
@@ -46,20 +50,20 @@ async def login(data: LoginInput, response: Response) -> dict:
 async def refresh(response: Response, refresh_token: str | None = None) -> dict:
     if not refresh_token:
         from fastapi.exceptions import HTTPException
-        raise HTTPException(status_code=401, detail="Refresh token não fornecido")
+        raise HTTPException(status_code=401, detail="Refresh token n\u00e3o fornecido")
 
     result = await auth_service.refresh_tokens(refresh_token)
     _set_auth_cookies(response, result["accessToken"], result["refreshToken"])
     return {"message": "Tokens renovados"}
 
 
-async def logout(response: Response, current_user: User = Depends(get_current_user)) -> dict:
-    await auth_service.logout_user(str(current_user.id))
+async def _logout(response: Response, user_id: str) -> dict:
+    await auth_service.logout_user(user_id)
     response.delete_cookie("accessToken")
     response.delete_cookie("refreshToken", path="/api/auth")
     return {"message": "Logout realizado com sucesso"}
 
 
-async def me(current_user: User = Depends(get_current_user)) -> dict:
-    profile = await auth_service.get_profile(str(current_user.id))
+async def _get_profile(user_id: str) -> dict:
+    profile = await auth_service.get_profile(user_id)
     return {"user": profile.model_dump()}

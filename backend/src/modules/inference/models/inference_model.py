@@ -4,18 +4,15 @@ from datetime import datetime
 from typing import List, Optional
 
 from beanie import Document
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 
-class DetectedComponent(Document):
+class DetectedComponent(BaseModel):
     class_id: int
     label: str
     confidence: float
     bbox: List[float]
     inference_id: str
-
-    class Settings:
-        name = "detected_components"
 
 
 class InferenceResult(Document):
