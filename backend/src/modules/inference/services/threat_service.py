@@ -6,10 +6,9 @@ from modules.inference.agents.stride_kb import (
     COMPONENT_THREAT_MAP,
     STRIDE_CATEGORIES,
     STRIDE_DESCRIPTIONS,
-    get_countermeasures_for_vulnerabilities,
-    get_vulnerabilities_for_component,
 )
-from modules.inference.models.inference_model import DetectedComponent, InferenceResult
+from modules.inference.models.inference_model import InferenceResult
+from modules.inference.models.kb_model import KBCountermeasure, KBVulnerability
 from modules.inference.models.threat_model import (
     ComponentThreatAnalysis,
     Countermeasure,
@@ -17,6 +16,7 @@ from modules.inference.models.threat_model import (
     ThreatReport,
     Vulnerability,
 )
+from modules.inference.services import kb_service
 
 
 def _risk_from_cvss(cvss: Optional[float]) -> str:
@@ -29,6 +29,27 @@ def _risk_from_cvss(cvss: Optional[float]) -> str:
     if cvss >= 4.0:
         return "medium"
     return "low"
+
+
+def _kb_to_vulnerability(kb: KBVulnerability, label: str) -> Vulnerability:
+    return Vulnerability(
+        cve_id=kb.cve_id,
+        title=kb.title,
+        description=kb.description,
+        cvss_score=kb.cvss_score,
+        cwe=kb.cwe,
+        affected_component=label,
+    )
+
+
+def _kb_to_countermeasure(kb: KBCountermeasure) -> Countermeasure:
+    return Countermeasure(
+        title=kb.title,
+        description=kb.description,
+        priority=kb.priority,
+        implementation_guide=kb.implementation_guide,
+        references=kb.references,
+    )
 
 
 async def analyze_threats(inference: InferenceResult) -> ThreatReport:
@@ -63,8 +84,10 @@ async def analyze_threats(inference: InferenceResult) -> ThreatReport:
         for t in threats:
             stride_counts[t.category] = stride_counts.get(t.category, 0) + 1
 
-        vulnerabilities = get_vulnerabilities_for_component(label)
-        countermeasures = get_countermeasures_for_vulnerabilities(vulnerabilities)
+        kb_vulns = await kb_service.get_vulnerabilities_for_component(label)
+        vulnerabilities = [_kb_to_vulnerability(v, label) for v in kb_vulns]
+        kb_countermeasures = await kb_service.get_countermeasures_for_vulnerabilities(kb_vulns)
+        countermeasures = [_kb_to_countermeasure(c) for c in kb_countermeasures]
 
         component_analyses.append(
             ComponentThreatAnalysis(
