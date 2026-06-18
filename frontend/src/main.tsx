@@ -6,7 +6,7 @@ import {
 } from "@chakra-ui/react";
 import theme from "./theme";
 import App from "./components/App";
-import { ToastProvider } from "./components/Toast/ToastContext";
+import { ToastProvider } from "./components/Toast/components/ToastContext";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

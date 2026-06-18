@@ -2,11 +2,11 @@ import { Box, Heading, Text, VStack, Button, Icon, Badge, HStack, SimpleGrid, Co
 import { ShieldAlert, Eye, Trash2, RefreshCw, FileImage, Bug, ShieldCheck, AlertTriangle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useInferenceThemeFx } from "../../styles/inference-theme-fx";
-import { useAppThemeFx } from "../../styles/app-theme-fx";
-import { useToast } from "../Toast/components/ToastContext";
-import { listThreatReports, getThreatReport, type ThreatReport } from "../../services/inference-service";
-import { ROUTES } from "../../router/paths";
+import { useInferenceThemeFx } from "../styles/inference-theme-fx";
+import { useAppThemeFx } from "../styles/app-theme-fx";
+import { useToast } from "../components/Toast/components/ToastContext";
+import { listThreatReports, getThreatReport, type ThreatReport } from "../services/inference-service";
+import { ROUTES } from "../router/paths";
 
 export default function ThreatsPage() {
   const fx = useInferenceThemeFx();

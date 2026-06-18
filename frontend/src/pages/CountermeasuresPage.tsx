@@ -1,9 +1,9 @@
 import { Box, Heading, Text, VStack, Button, Icon, Badge, HStack, SimpleGrid, Flex, Select, Spinner, Tag, TagLabel, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Link, Divider } from "@chakra-ui/react";
 import { ShieldCheck, RefreshCw, ExternalLink, ArrowUpRight, Shield, Lock, Key, Eye, Globe, Server, HardDrive } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useAppThemeFx } from "../../styles/app-theme-fx";
-import { useInferenceThemeFx } from "../../styles/inference-theme-fx";
-import { listCountermeasures, type KBCountermeasure } from "../../services/kb-service";
+import { useAppThemeFx } from "../styles/app-theme-fx";
+import { useInferenceThemeFx } from "../styles/inference-theme-fx";
+import { listCountermeasures, type KBCountermeasure } from "../services/kb-service";
 
 const PRIORITY_COLORS: Record<string, string> = {
   critical: "red",

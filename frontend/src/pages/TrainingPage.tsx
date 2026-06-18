@@ -1,10 +1,10 @@
 import { Box, Heading, Text, VStack, Button, Icon, Badge, HStack, SimpleGrid, Flex, Spinner, Progress, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Stat, StatLabel, StatNumber, StatHelpText, NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper, FormControl, FormLabel, Select, Alert, AlertIcon } from "@chakra-ui/react";
 import { GraduationCap, Play, RefreshCw, CheckCircle, XCircle, Clock, Activity, BarChart3, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useAppThemeFx } from "../../styles/app-theme-fx";
-import { useInferenceThemeFx } from "../../styles/inference-theme-fx";
-import { useToast } from "../Toast/components/ToastContext";
-import { startTraining, listModels, activateModel, type TrainingLog } from "../../services/training-service";
+import { useAppThemeFx } from "../styles/app-theme-fx";
+import { useInferenceThemeFx } from "../styles/inference-theme-fx";
+import { useToast } from "../components/Toast/components/ToastContext";
+import { startTraining, listModels, activateModel, type TrainingLog } from "../services/training-service";
 
 export default function TrainingPage() {
   const fx = useInferenceThemeFx();

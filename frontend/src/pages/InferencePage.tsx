@@ -2,9 +2,9 @@ import { Box, Heading, Text, VStack, Button, Icon, Grid, Badge, SimpleGrid, HSta
 import { ScanSearch, Upload, FileImage, ShieldAlert, Bug, ShieldCheck, AlertTriangle, ArrowRight, RotateCcw, Trash2, Eye, BarChart3, Download, Plus, RefreshCw, Play, Activity, CheckCircle, XCircle } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { useInferenceThemeFx } from "../../styles/inference-theme-fx";
-import { useAppThemeFx } from "../../styles/app-theme-fx";
-import { useToast } from "../Toast/components/ToastContext";
+import { useInferenceThemeFx } from "../styles/inference-theme-fx";
+import { useAppThemeFx } from "../styles/app-theme-fx";
+import { useToast } from "../components/Toast/components/ToastContext";
 
 import {
   analyzeAndThreat,
@@ -16,7 +16,7 @@ import {
   type AnalyzeResponse,
   type ThreatReport,
   type ComponentThreatAnalysis,
-} from "../../services/inference-service";
+} from "../services/inference-service";
 
 type Tab = "upload" | "reports";
 

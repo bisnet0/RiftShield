@@ -1,4 +1,4 @@
-import api from "../../middleware/api";
+import api from "../middleware/api";
 
 export interface DetectedComponent {
   class_id: number;

@@ -2,10 +2,10 @@ import { Box, Heading, Text, VStack, Button, Icon, Badge, HStack, SimpleGrid, Fl
 import { LayoutDashboard, ScanSearch, ShieldAlert, Bug, ShieldCheck, AlertTriangle, Activity, BarChart3, TrendingUp, TrendingDown, FileImage, Database, GraduationCap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppThemeFx } from "../../styles/app-theme-fx";
-import { useInferenceThemeFx } from "../../styles/inference-theme-fx";
-import { getDashboardStats, type DashboardStats } from "../../services/dashboard-service";
-import { ROUTES } from "../../router/paths";
+import { useAppThemeFx } from "../styles/app-theme-fx";
+import { useInferenceThemeFx } from "../styles/inference-theme-fx";
+import { getDashboardStats, type DashboardStats } from "../services/dashboard-service";
+import { ROUTES } from "../router/paths";
 
 const STRIDE_LABELS: Record<string, string> = {
   spoofing: "Spoofing",

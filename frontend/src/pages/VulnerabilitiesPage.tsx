@@ -1,9 +1,9 @@
 import { Box, Heading, Text, VStack, Button, Icon, Badge, HStack, SimpleGrid, Flex, Input, InputGroup, InputLeftElement, Select, Spinner, Tag, TagLabel, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Divider, Link } from "@chakra-ui/react";
 import { Bug, Search, RefreshCw, ExternalLink, AlertTriangle, Info, Shield } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useAppThemeFx } from "../../styles/app-theme-fx";
-import { useInferenceThemeFx } from "../../styles/inference-theme-fx";
-import { listVulnerabilities, type KBVulnerability } from "../../services/kb-service";
+import { useAppThemeFx } from "../styles/app-theme-fx";
+import { useInferenceThemeFx } from "../styles/inference-theme-fx";
+import { listVulnerabilities, type KBVulnerability } from "../services/kb-service";
 
 const STRIDE_COLORS: Record<string, string> = {
   authentication: "red",
@@ -25,7 +25,6 @@ const STRIDE_COLORS: Record<string, string> = {
   resource: "yellow",
   privacy: "green",
   rce: "red",
-  injection: "purple",
   database: "blue",
 };
 

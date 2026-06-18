@@ -2,11 +2,11 @@ import { Box, Heading, Text, VStack, Button, Icon, Badge, HStack, SimpleGrid, Fl
 import { Database, Upload, RefreshCw, Trash2, Copy, Plus, BarChart3, Image as ImageIcon, Layers, FlipHorizontal, FlipVertical } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { useAppThemeFx } from "../../styles/app-theme-fx";
-import { useInferenceThemeFx } from "../../styles/inference-theme-fx";
+import { useAppThemeFx } from "../styles/app-theme-fx";
+import { useInferenceThemeFx } from "../styles/inference-theme-fx";
 
-import { useToast } from "../Toast/components/ToastContext";
-import { uploadEntry, listEntries, deleteEntry, augmentEntry, getDatasetStats, type DatasetEntry, type DatasetStats } from "../../services/dataset-service";
+import { useToast } from "../components/Toast/components/ToastContext";
+import { uploadEntry, listEntries, deleteEntry, augmentEntry, getDatasetStats, type DatasetEntry, type DatasetStats } from "../services/dataset-service";
 
 export default function DatasetPage() {
   const fx = useInferenceThemeFx();
