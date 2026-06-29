@@ -39,7 +39,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         const response = await api.get("/users/me");
         setUser(response.data.user);
       } catch (error) {
-        setUser(null);
+        try {
+          await api.post("/auth/refresh");
+          const response = await api.get("/users/me");
+          setUser(response.data.user);
+        } catch {
+          setUser(null);
+        }
       } finally {
         setLoadingAuth(false);
       }

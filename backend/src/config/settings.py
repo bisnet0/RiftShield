@@ -10,7 +10,6 @@ class Settings(BaseSettings):
     jwt_secret: str = "dev-jwt-secret"
     jwt_refresh_secret: str = "dev-jwt-refresh-secret"
     frontend_url: str = "http://localhost:1999"
-    master_key: str = "riftshield-master-key"
     port: int = 3000
     node_env: str = "development"
 

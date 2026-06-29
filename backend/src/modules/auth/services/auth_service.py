@@ -5,6 +5,7 @@ import bcrypt as _bcrypt
 from config.settings import get_settings
 from modules.auth.models.user_model import User
 from modules.auth.schemas.auth_schema import LoginInput, RegisterInput, UserResponse
+from modules.auth.services.invite_service import mark_invite_used, validate_and_use_invite
 from shared.utils.errors import AppError, UnauthorizedError
 from shared.utils.token import (
     generate_access_token,
@@ -32,8 +33,7 @@ async def register_user(data: RegisterInput) -> dict:
     if existing:
         raise AppError("E-mail já cadastrado", status_code=409)
 
-    if data.master_key and data.master_key != settings.master_key:
-        raise AppError("Chave-mestre inválida", status_code=403)
+    invite = await validate_and_use_invite(data.invite_code)
 
     hashed_password = _bcrypt.hashpw(data.password.encode("utf-8"), _bcrypt.gensalt()).decode("utf-8")
 
@@ -45,6 +45,7 @@ async def register_user(data: RegisterInput) -> dict:
         country=data.country,
         state=data.state,
         city=data.city,
+        role=invite.role,
     )
 
     access_token = generate_access_token(str(user.id), user.email)
@@ -52,6 +53,8 @@ async def register_user(data: RegisterInput) -> dict:
 
     user.refresh_token = refresh_token
     await user.insert()
+
+    await mark_invite_used(invite, str(user.id))
 
     return {
         "user": _build_user_response(user),

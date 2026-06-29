@@ -18,6 +18,21 @@ const refreshApi: AxiosInstance = axios.create({
 });
 
 let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (value: any) => void;
+  reject: (reason: any) => void;
+}> = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
 
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
@@ -29,18 +44,28 @@ api.interceptors.response.use(
     if (
       error.response?.status === 401 &&
       originalRequest &&
-      !originalRequest._retry
+      !originalRequest._retry &&
+      originalRequest.url !== "/auth/refresh" &&
+      originalRequest.url !== "/auth/login"
     ) {
-      if (isRefreshing) return Promise.reject(error);
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then((token) => {
+          return api(originalRequest);
+        });
+      }
 
       originalRequest._retry = true;
       isRefreshing = true;
 
       try {
         await refreshApi.post("/auth/refresh");
+        processQueue(null);
         isRefreshing = false;
         return api(originalRequest);
       } catch (refreshError) {
+        processQueue(refreshError);
         isRefreshing = false;
         return Promise.reject(refreshError);
       }

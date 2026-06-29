@@ -26,6 +26,13 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     await init_database(settings.database_url)
+    from modules.auth.models.invite_model import Invite
+    existing = await Invite.find_one({"used": False})
+    if not existing:
+        import secrets
+        code = secrets.token_hex(16)
+        await Invite(code=code, role="ADMIN").insert()
+        print(f"🔑 Invite code created: {code}")
     from modules.inference.services.kb_service import seed_knowledge_base
     seeded = await seed_knowledge_base()
     if seeded:

@@ -7,11 +7,11 @@ class RegisterInput(BaseModel):
     name: str
     email: EmailStr
     password: str
+    invite_code: str
     phone: str | None = None
     country: str | None = None
     state: str | None = None
     city: str | None = None
-    master_key: str | None = None
 
     @field_validator("name")
     @classmethod

@@ -6,11 +6,11 @@ export interface AuthPayload {
   country?: string;
   state?: string;
   city?: string;
-  masterKey?: string;
+  invite_code?: string;
 }
 
 export interface AuthResponse {
-  user: any; 
+  user: any;
   token?: string;
 }
 

@@ -5,6 +5,7 @@ from fastapi import Depends, Response
 from config.settings import get_settings
 from modules.auth.schemas.auth_schema import LoginInput, RegisterInput
 from modules.auth.services import auth_service
+from modules.auth.services.invite_service import create_invite
 
 
 def _current_user():
@@ -67,3 +68,8 @@ async def _logout(response: Response, user_id: str) -> dict:
 async def _get_profile(user_id: str) -> dict:
     profile = await auth_service.get_profile(user_id)
     return {"user": profile.model_dump()}
+
+
+async def _generate_invite(user_id: str) -> dict:
+    result = await create_invite()
+    return {"invite": result}

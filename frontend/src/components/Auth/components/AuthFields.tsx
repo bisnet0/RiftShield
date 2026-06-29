@@ -30,7 +30,7 @@ export const AuthFields: React.FC<AuthFieldsProps> = ({ state, setters, actions 
             </FormControl>
 
             <HStack w="full">
-              <FormControl isRequired>
+              <FormControl>
                 <FormLabel htmlFor="phone">Contato</FormLabel>
                 <Input
                   id="phone"
@@ -42,7 +42,7 @@ export const AuthFields: React.FC<AuthFieldsProps> = ({ state, setters, actions 
                 />
               </FormControl>
 
-              <FormControl isRequired>
+              <FormControl>
                 <FormLabel htmlFor="country">País</FormLabel>
                 <Input
                   id="country"
@@ -55,7 +55,7 @@ export const AuthFields: React.FC<AuthFieldsProps> = ({ state, setters, actions 
             </HStack>
 
             <HStack w="full">
-              <FormControl isRequired>
+              <FormControl>
                 <FormLabel htmlFor="state">Estado</FormLabel>
                 <Input
                   id="state"
@@ -67,7 +67,7 @@ export const AuthFields: React.FC<AuthFieldsProps> = ({ state, setters, actions 
                 />
               </FormControl>
 
-              <FormControl isRequired>
+              <FormControl>
                 <FormLabel htmlFor="city">Cidade</FormLabel>
                 <Input
                   id="city"
@@ -108,13 +108,13 @@ export const AuthFields: React.FC<AuthFieldsProps> = ({ state, setters, actions 
 
         {!state.isLogin && (
           <FormControl isRequired mt={2}>
-            <FormLabel htmlFor="masterKey">Chave-Mestre</FormLabel>
+            <FormLabel htmlFor="inviteCode">Código de Convite</FormLabel>
             <Input
-              id="masterKey"
+              id="inviteCode"
               type="text"
-              value={state.masterKey}
-              onChange={e => setters.setMasterKey(e.target.value)}
-              placeholder="Cole o token de liberação aqui"
+              value={state.inviteCode}
+              onChange={e => setters.setInviteCode(e.target.value)}
+              placeholder="Cole o código de convite aqui"
               focusBorderColor="brand"
             />
           </FormControl>

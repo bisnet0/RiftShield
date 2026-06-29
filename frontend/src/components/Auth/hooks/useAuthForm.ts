@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useAuth } from "../../../context/AuthContext"; // 🚀 1. DESCOMENTADO!
+import { useAuth } from "../../../context/AuthContext";
 import { loginApi, registerApi } from "../services/auth-service";
 import { type AuthPayload } from "../types";
 
 export const useAuthForm = () => {
-  const { signIn } = useAuth(); // 🚀 2. DESCOMENTADO!
+  const { signIn } = useAuth();
 
   const [isLogin, setIsLogin] = useState(true);
 
@@ -16,7 +16,7 @@ export const useAuthForm = () => {
   const [country, setCountry] = useState("Brasil");
   const [stateUF, setStateUF] = useState("");
   const [city, setCity] = useState("");
-  const [masterKey, setMasterKey] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -37,11 +37,11 @@ export const useAuthForm = () => {
           name,
           email,
           password,
+          invite_code: inviteCode,
           phone,
           country,
           state: stateUF,
           city,
-          masterKey,
         };
 
     try {
@@ -70,7 +70,7 @@ export const useAuthForm = () => {
       country,
       stateUF,
       city,
-      masterKey,
+      inviteCode,
       error,
       loading,
     },
@@ -82,7 +82,7 @@ export const useAuthForm = () => {
       setCountry,
       setStateUF,
       setCity,
-      setMasterKey,
+      setInviteCode,
       setError,
       setLoading,
     },

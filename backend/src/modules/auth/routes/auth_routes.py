@@ -25,3 +25,8 @@ async def refresh(response: Response, refresh_token: str | None = Cookie(default
 @router.post("/logout")
 async def logout(response: Response, user=Depends(get_current_user)) -> dict:
     return await auth_controller._logout(response, str(user.id))
+
+
+@router.post("/invite")
+async def generate_invite(user=Depends(get_current_user)) -> dict:
+    return await auth_controller._generate_invite(str(user.id))
