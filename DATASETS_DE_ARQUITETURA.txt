@@ -1,0 +1,131 @@
+================================================================================
+  DATASETS PARA DETECÇÃO DE COMPONENTES EM DIAGRAMAS DE ARQUITETURA
+================================================================================
+  Projeto: RiftShield — Hackathon FIAP Software Security
+================================================================================
+
+Todos os datasets abaixo estão disponíveis no Roboflow Universe e podem ser
+exportados em formato YOLOv8 PyTorch para treinamento direto.
+
+--------------------------------------------------------------------------------
+1. NETWORK TOPOLOGY DIAGRAM
+--------------------------------------------------------------------------------
+   Link: https://universe.roboflow.com/project-v2jjh/network-topology-diagram
+   Imagens: 78
+   Classes: router, switch, PC, server
+   Formato: Object Detection (YOLO)
+   Descrição: Diagramas de topologia de rede com dispositivos de rede.
+   ⭐ MAIS RELEVANTE — contém componentes reais de arquitetura de software.
+
+--------------------------------------------------------------------------------
+2. CLASS DIAGRAM DETECTION
+--------------------------------------------------------------------------------
+   Link: https://universe.roboflow.com/class-diagram-dataset/class-diagram-detection-covx5
+   Imagens: 810
+   Classes: class, arrow, InheritanceGroup, InheritanceLine
+   Formato: Object Detection (YOLO)
+   Descrição: Diagramas de classe UML com caixas e setas de herança.
+
+--------------------------------------------------------------------------------
+3. UML DIAGRAM ML
+--------------------------------------------------------------------------------
+   Link: https://universe.roboflow.com/uml-yoxue/uml-diagram-ml
+   Imagens: 70
+   Classes: class name, class attributes, association, inheritance, simple class
+   Formato: Object Detection (YOLO)
+   Descrição: Diagramas UML com classes, atributos e relacionamentos.
+
+--------------------------------------------------------------------------------
+4. DIAGRAM DETECTION (FORMAS GEOMÉTRICAS)
+--------------------------------------------------------------------------------
+   Link: https://universe.roboflow.com/train-ai-2d5az/diagram-detection-8ewyo
+   Imagens: 156
+   Classes: arrow, circle, rectangle, diamond, cloud, line, triangle, hexagon,
+            oval, parallelogram, pentagon, trapezium, icon
+   Formato: Object Detection (YOLO)
+   Descrição: Formas geométricas presentes em diagramas técnicos.
+
+--------------------------------------------------------------------------------
+5. DIAGRAM AUTOMATION 2
+--------------------------------------------------------------------------------
+   Link: https://universe.roboflow.com/diagram-automation/diagram-automation-2
+   Imagens: 159
+   Classes: rectangle, circle, diamond, arrow, line, parallelogram, triangle,
+            arrow_h, sticker, other
+   Formato: Object Detection (YOLO)
+   Descrição: Formas geométricas em diagramas com setas e conectores.
+
+--------------------------------------------------------------------------------
+6. CODE VS DIAGRAM
+--------------------------------------------------------------------------------
+   Link: https://universe.roboflow.com/bot-interactivo-tesis/code-vs-diagram
+   Imagens: 236
+   Classes: code, diagram
+   Formato: Object Detection (YOLO)
+   Descrição: Classificação entre código e diagrama (pode ajudar a filtrar).
+
+--------------------------------------------------------------------------------
+7. USECASE DIAGRAM
+--------------------------------------------------------------------------------
+   Link: https://universe.roboflow.com/rp-jpxpq/usecase-diagram
+   Imagens: 149
+   Classes: Actor, Use Case, Includes, Extends, Generalization
+   Formato: Object Detection (YOLO)
+   Descrição: Diagramas de caso de uso UML com atores.
+
+--------------------------------------------------------------------------------
+8. CLASS DIAGRAM INHERITANCE
+--------------------------------------------------------------------------------
+   Link: https://universe.roboflow.com/class-diagram-labeling/class-diagram-inheritance
+   Imagens: 46
+   Classes: class, Inheritance_Class, Inheritance_Line-Class_1-Class_2
+   Formato: Object Detection (YOLO)
+   Descrição: Herança entre classes em diagramas UML.
+
+================================================================================
+  ESTRATÉGIA RECOMENDADA
+================================================================================
+
+1. BAIXAR do Roboflow em formato YOLOv8 PyTorch:
+   - Network topology diagram (router, switch, PC, server)
+   - Class diagram detection (class, arrow)
+   - Diagram detection (shapes geométricos)
+   - UML diagram ML (class name, attributes, association)
+
+2. MERGE dos datasets em um único diretório com script Python:
+   - Unir arquivos train/images, train/labels, valid/images, valid/labels
+   - Combinar o data.yaml com todas as classes
+
+3. ADICIONAR as 12 imagens do Excalidraw:
+   - Exportar cada tela do arquivo .excalidraw como PNG
+   - Anotar manualmente os componentes (labeling via Roboflow ou LabelImg)
+   - Adicionar ao dataset combinado
+
+4. TREINAR YOLOv8 com o dataset mesclado
+
+================================================================================
+  CLASSES SUGERIDAS PARA O MODELO FINAL
+================================================================================
+
+Baseado nos componentes que aparecem em diagramas de arquitetura de software:
+
+   Componentes de infraestrutura:
+   - server / backend
+   - database / banco
+   - gateway / api-gateway
+   - load-balancer
+   - cache (redis/memcached)
+   - message-queue (rabbitmq/kafka)
+   - container / docker
+   - storage / cdn
+   - identity-provider / auth
+   - microservice
+   - user / client / browser
+
+   Elementos de diagrama:
+   - arrow / connector
+   - cloud (internet/external)
+   - rectangle / box (componente genérico)
+   - label / text
+
+================================================================================
