@@ -11,6 +11,7 @@ from config.database import init_database
 from config.settings import get_settings
 from middleware.error_handler import app_error_handler, validation_error_handler
 from modules.auth import auth_router
+from modules.hermes import hermes_router
 from modules.dashboard.routes.dashboard_routes import router as dashboard_router
 from modules.inference.dataset.dataset_routes import router as dataset_router
 from modules.inference.routes.inference_routes import router as inference_router
@@ -37,6 +38,10 @@ async def lifespan(_app: FastAPI):
     seeded = await seed_knowledge_base()
     if seeded:
         print(f"\U0001f4da Knowledge base seeded: {seeded} entries")
+    from modules.hermes.services.rag_service import build_knowledge_base
+    rag_built = await build_knowledge_base()
+    if rag_built:
+        print(f"📚 Hermes RAG knowledge base loaded")
     yield
 
 
@@ -66,3 +71,4 @@ app.include_router(inference_router, prefix="/api/inference")
 app.include_router(dataset_router, prefix="/api/dataset")
 app.include_router(kb_router, prefix="/api/kb")
 app.include_router(training_router, prefix="/api/training")
+app.include_router(hermes_router, prefix="/api/hermes")

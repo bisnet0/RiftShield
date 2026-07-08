@@ -9,6 +9,8 @@ from modules.inference.dataset.dataset_model import DatasetEntry
 from modules.inference.models.inference_model import InferenceResult, TrainingLog
 from modules.inference.models.kb_model import KBCountermeasure, KBVulnerability
 from modules.inference.models.threat_model import ThreatReport
+from modules.hermes.models.chat_model import HermesMessage
+from modules.hermes.models.llm_config import HermesConfig
 
 
 async def init_database(database_url: str) -> None:
@@ -17,6 +19,6 @@ async def init_database(database_url: str) -> None:
 
     await init_beanie(database=database, document_models=[
         User, Invite, DatasetEntry, InferenceResult, TrainingLog, ThreatReport,
-        KBVulnerability, KBCountermeasure,
+        KBVulnerability, KBCountermeasure, HermesMessage, HermesConfig,
     ])
     print("📦 Conectado ao MongoDB")
