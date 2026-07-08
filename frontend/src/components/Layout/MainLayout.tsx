@@ -5,6 +5,7 @@ import { useAppThemeFx } from "../../styles/app-theme-fx";
 import { Navbar } from "./Navbar";
 import { Sidebar } from "./Sidebar";
 import { Footer } from "./Footer";
+import { HermesLogDrawer } from "../HermesLogDrawer";
 import { LoginForm } from "../Auth/LoginForm";
 
 export function MainLayout() {
@@ -56,6 +57,7 @@ export function MainLayout() {
         <Box as="main" flex={1} p={{ base: 4, md: 8 }} w="100%" overflowX="hidden">
           <Outlet />
         </Box>
+        <HermesLogDrawer />
         <Footer />
       </Flex>
     </Flex>
