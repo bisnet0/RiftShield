@@ -25,6 +25,10 @@ def _build_user_response(user: User) -> UserResponse:
         state=user.state,
         city=user.city,
         role=user.role,
+        profession=user.profession,
+        seniority=user.seniority,
+        age=user.age,
+        total_days_active=user.total_days_active,
     )
 
 
@@ -114,4 +118,21 @@ async def get_profile(user_id: str) -> UserResponse:
     user = await User.get(user_id)
     if not user:
         raise AppError("Usuário não encontrado", status_code=404)
+    delta = (datetime.utcnow() - user.created_at).days
+    if delta > user.total_days_active:
+        user.total_days_active = min(delta, 30)
+        await user.save()
+    return _build_user_response(user)
+
+
+async def update_profile(user_id: str, data: dict) -> UserResponse:
+    user = await User.get(user_id)
+    if not user:
+        raise AppError("Usuário não encontrado", status_code=404)
+    allowed = {"name", "phone", "country", "state", "city", "profession", "seniority", "age"}
+    for key, value in data.items():
+        if key in allowed and value is not None:
+            setattr(user, key, value)
+    user.updated_at = datetime.utcnow()
+    await user.save()
     return _build_user_response(user)

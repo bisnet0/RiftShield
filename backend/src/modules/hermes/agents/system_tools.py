@@ -133,3 +133,25 @@ async def rag_kb_tool(query: str) -> str:
     """Search the security knowledge base (PDFs, articles, standards) for in-depth explanations about vulnerabilities, threats, and security practices."""
     result = await search_knowledge_base(query=query, k=4)
     return f"Knowledge base results:\n{result}"
+
+
+@tool("last_threat_report")
+async def last_threat_report_tool() -> str:
+    """Get the latest STRIDE threat report generated from the last diagram analysis. Use this when the user asks about their last analysis or STRIDE results."""
+    items, total = await list_threats(limit=1)
+    if not items:
+        return "Nenhum relatório STRIDE encontrado. Faça upload de um diagrama primeiro."
+    r = items[0]
+    comps = []
+    for ca in (r.component_analyses or []):
+        vulns = ", ".join(v.title for v in (ca.vulnerabilities or []))
+        cm = ", ".join(c.title for c in (ca.countermeasures or []))
+        comps.append(f"- {ca.component_label}: ameaças {[t.category for t in ca.stride_threats]}, vulnerabilidades: [{vulns}], contramedidas: [{cm}]")
+    return (
+        f"Relatório STRIDE #{r.id}\n"
+        f"Risco geral: {r.overall_risk_score}/10\n"
+        f"Resumo STRIDE: spoofing={r.stride_summary.get('spoofing',0)}, tampering={r.stride_summary.get('tampering',0)}, "
+        f"repudiation={r.stride_summary.get('repudiation',0)}, information_disclosure={r.stride_summary.get('information_disclosure',0)}, "
+        f"denial_of_service={r.stride_summary.get('denial_of_service',0)}, elevation_of_privilege={r.stride_summary.get('elevation_of_privilege',0)}\n"
+        f"Componentes analisados:\n" + "\n".join(comps)
+    )

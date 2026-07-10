@@ -42,3 +42,18 @@ class UserResponse(BaseModel):
     state: str | None = None
     city: str | None = None
     role: str
+    profession: str | None = None
+    seniority: str | None = None
+    age: int | None = None
+    total_days_active: int = 0
+
+
+class UpdateProfileInput(BaseModel):
+    name: str | None = None
+    phone: str | None = None
+    country: str | None = None
+    state: str | None = None
+    city: str | None = None
+    profession: str | None = None
+    seniority: str | None = None
+    age: int | None = None

@@ -70,6 +70,11 @@ async def _get_profile(user_id: str) -> dict:
     return {"user": profile.model_dump()}
 
 
+async def _update_profile(user_id: str, data: dict) -> dict:
+    profile = await auth_service.update_profile(user_id, data)
+    return {"user": profile.model_dump()}
+
+
 async def _generate_invite(user_id: str) -> dict:
     result = await create_invite()
     return {"invite": result}

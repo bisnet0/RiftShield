@@ -15,6 +15,10 @@ class User(Document):
     state: Optional[str] = None
     city: Optional[str] = None
     role: str = Field(default="USER", pattern=r"^(ADMIN|USER)$")
+    profession: Optional[str] = None
+    seniority: Optional[str] = Field(default=None, pattern=r"^(junior|mid-level|senior)$")
+    age: Optional[int] = None
+    total_days_active: int = 0
     refresh_token: Optional[str] = Field(default=None, alias="refreshToken")
     created_at: datetime = Field(default_factory=datetime.utcnow, alias="createdAt")
     updated_at: datetime = Field(default_factory=datetime.utcnow, alias="updatedAt")

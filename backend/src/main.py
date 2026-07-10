@@ -38,10 +38,6 @@ async def lifespan(_app: FastAPI):
     seeded = await seed_knowledge_base()
     if seeded:
         print(f"\U0001f4da Knowledge base seeded: {seeded} entries")
-    from modules.hermes.services.rag_service import build_knowledge_base
-    rag_built = await build_knowledge_base()
-    if rag_built:
-        print(f"📚 Hermes RAG knowledge base loaded")
     yield
 
 

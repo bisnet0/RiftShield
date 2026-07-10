@@ -45,6 +45,7 @@ class ThreatReport(Document):
     stride_summary: Dict[str, int] = Field(default_factory=dict)
     component_analyses: List[ComponentThreatAnalysis] = Field(default_factory=list)
     overall_risk_score: Optional[float] = None
+    summary_text: Optional[str] = None
     error_message: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)

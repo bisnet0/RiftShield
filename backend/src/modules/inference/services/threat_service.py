@@ -62,6 +62,7 @@ async def analyze_threats(inference: InferenceResult) -> ThreatReport:
 
     stride_counts = {cat: 0 for cat in STRIDE_CATEGORIES}
     component_analyses: List[ComponentThreatAnalysis] = []
+    seen_labels: set = set()
 
     for comp in (inference.components or []):
         if isinstance(comp, dict):
@@ -70,6 +71,10 @@ async def analyze_threats(inference: InferenceResult) -> ThreatReport:
         else:
             label = comp.label
             class_id = comp.class_id
+
+        if label in seen_labels:
+            continue
+        seen_labels.add(label)
 
         applicable_categories = COMPONENT_THREAT_MAP.get(label, [])
         threats = [
@@ -100,13 +105,25 @@ async def analyze_threats(inference: InferenceResult) -> ThreatReport:
         )
 
     total_threats = sum(stride_counts.values())
-    max_possible = len(inference.components or []) * 6
+    max_possible = len(seen_labels) * 6
     overall_risk = round((total_threats / max(max_possible, 1)) * 10, 2)
+
+    components_text = ", ".join(seen_labels)
+    threat_lines = [f"{cat}: {count}" for cat, count in stride_counts.items() if count > 0]
+    threat_text = ", ".join(threat_lines) if threat_lines else "nenhuma"
+    summary_text = (
+        f"Relatório STRIDE para o diagrama analisado.\n"
+        f"Componentes identificados: {components_text}.\n"
+        f"Ameaças STRIDE encontradas: {threat_text}.\n"
+        f"Risco geral: {overall_risk}/10.\n"
+        f"Total de {len(vulnerabilities)} vulnerabilidades e {len(countermeasures)} contramedidas recomendadas."
+    )
 
     report.stride_summary = stride_counts
     report.component_analyses = component_analyses
     report.overall_risk_score = overall_risk
     report.status = "completed"
+    report.summary_text = summary_text
     await report.save()
 
     return report

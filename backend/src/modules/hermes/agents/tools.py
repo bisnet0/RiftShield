@@ -8,6 +8,7 @@ from modules.hermes.agents.system_tools import (
     list_dataset_entries_tool,
     list_trained_models_tool,
     rag_kb_tool,
+    last_threat_report_tool,
 )
 
 HERMES_TOOLS = [
@@ -20,4 +21,5 @@ HERMES_TOOLS = [
     list_dataset_entries_tool,
     list_trained_models_tool,
     rag_kb_tool,
+    last_threat_report_tool,
 ]

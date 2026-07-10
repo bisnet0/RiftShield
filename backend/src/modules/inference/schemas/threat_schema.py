@@ -44,6 +44,7 @@ class ThreatReportResponse(BaseModel):
     stride_summary: Dict[str, int]
     component_analyses: List[ComponentThreatAnalysisResponse]
     overall_risk_score: Optional[float] = None
+    summary_text: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
