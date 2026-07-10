@@ -1,11 +1,11 @@
-from langchain.tools import tool
+from langchain_core.tools import tool
 from modules.inference.services.kb_service import list_vulnerabilities, list_countermeasures, get_vulnerabilities_for_component, get_countermeasures_for_vulnerabilities
 from modules.inference.models.kb_model import VulnerabilityFilter
 from modules.inference.services.inference_service import list_inferences
-from modules.inference.services.threat_service import list_threats
+from modules.inference.services.threat_service import list_threat_reports as list_threats
 from modules.dashboard.services.dashboard_service import get_dashboard_stats
-from modules.inference.dataset.dataset_service import list_entries, get_dataset_stats
-from modules.inference.services.training_service import list_trained_models
+from modules.inference.dataset.dataset_service import list_entries, get_stats as get_dataset_stats
+from modules.inference.services.training_service import list_training_logs as list_trained_models
 from modules.inference.models.inference_model import InferenceResult
 from modules.hermes.services.rag_service import search_knowledge_base
 from modules.auth.models.user_model import User

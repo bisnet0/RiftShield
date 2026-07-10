@@ -1,0 +1,31 @@
+================================================================================
+  COMANDOS PARA TREINAMENTO YOLOv8 NO WSL
+================================================================================
+
+1. ATIVAR AMBIENTE VIRTUAL E INSTALAR DEPENDÊNCIAS:
+   (executar uma vez)
+
+   cd /mnt/c/Users/root_/Documents/bisnet0-GitHub/RiftShield
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install ultralytics pyyaml
+
+2. TREINAR MODELO:
+   (sempre ativar o venv antes)
+
+   cd /mnt/c/Users/root_/Documents/bisnet0-GitHub/RiftShield
+   source venv/bin/activate
+   python3 -m backend.src.modules.inference.ml-workflow.ml_train_architecture
+
+3. OUTPUT:
+   Modelo treinado salvo em:
+   backend/models/architecture_yolo/weights/best.pt
+
+4. RODAR INFERÊNCIA (TESTAR O MODELO):
+   source venv/bin/activate
+   python3 -c "
+   from ultralytics import YOLO
+   model = YOLO('backend/models/architecture_yolo/weights/best.pt')
+   results = model('caminho/para/sua/imagem.png')
+   results[0].show()
+   "

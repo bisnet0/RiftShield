@@ -6,7 +6,10 @@ import uuid
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-from ultralytics import YOLO
+try:
+    from ultralytics import YOLO
+except ImportError:
+    YOLO = None
 
 from config.settings import get_settings
 from modules.inference.models.inference_model import DetectedComponent, InferenceResult
@@ -25,11 +28,13 @@ COMPONENT_CLASSES = [
     "microservice", "gateway", "storage", "container", "identity_provider",
 ]
 
-_model_instance: Optional[YOLO] = None
+_model_instance: Optional = None
 
 
-def _get_model() -> YOLO:
+def _get_model():
     global _model_instance
+    if YOLO is None:
+        raise ImportError("ultralytics not installed. Install with: pip install ultralytics")
     if _model_instance is not None:
         return _model_instance
 
@@ -43,6 +48,8 @@ def _get_model() -> YOLO:
 
 def set_active_model(model_path: str) -> None:
     global _model_instance
+    if YOLO is None:
+        raise ImportError("ultralytics not installed")
     _model_instance = YOLO(model_path)
 
 

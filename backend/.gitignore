@@ -12,3 +12,4 @@ datasets/
 *.datasets
 models/
 /models
+*.venv
