@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { useAppThemeFx } from "../styles/app-theme-fx";
 import { useInferenceThemeFx } from "../styles/inference-theme-fx";
+import { logSystemEvent } from "../utils/logger";
 
 import { useToast } from "../components/Toast/components/ToastContext";
 import { uploadEntry, listEntries, deleteEntry, augmentEntry, getDatasetStats, type DatasetEntry, type DatasetStats } from "../services/dataset-service";
@@ -49,6 +50,7 @@ export default function DatasetPage() {
     setUploading(true);
     try {
       await uploadEntry(file, labelsJson, split);
+      logSystemEvent("upload", `Dataset enviado: ${file.name}`, "dataset");
       showToast({ title: "Sucesso", message: "Entrada adicionada ao dataset", type: "success" });
       setFile(null);
       setPreview(null);

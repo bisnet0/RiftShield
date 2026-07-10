@@ -1,6 +1,6 @@
 import React from "react";
 import { Flex, HStack, Avatar, VStack, Text, IconButton, Badge } from "@chakra-ui/react";
-import { Bot, X } from "lucide-react";
+import { Shield, X } from "lucide-react";
 import { useHermesThemeFx } from "../styles/theme-fx";
 import { type ChatHeaderProps } from "../types";
 
@@ -17,7 +17,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ onClose }) => {
       borderColor={themeFx.borderColor}
     >
       <HStack>
-        <Avatar size="sm" name="Hermes" bg="orange.600" color="white" icon={<Bot size={16} />} />
+        <Avatar size="sm" name="Hermes" bg="orange.600" color="white" icon={<Shield size={16} />} />
         <VStack align="flex-start" spacing={0}>
           <Text fontWeight="bold" fontSize="md">Hermes</Text>
           <HStack>

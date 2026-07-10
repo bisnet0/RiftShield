@@ -3,6 +3,7 @@ import { ScanSearch, Upload, FileImage, ShieldAlert, Bug, ShieldCheck, AlertTria
 import { useState, useRef, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { useInferenceThemeFx } from "../styles/inference-theme-fx";
+import { logSystemEvent } from "../utils/logger";
 import { useAppThemeFx } from "../styles/app-theme-fx";
 import { useToast } from "../components/Toast/components/ToastContext";
 
@@ -40,12 +41,14 @@ export default function InferencePage() {
     setFile(f);
     setPreview(URL.createObjectURL(f));
     setAnalyzeResult(null);
+    logSystemEvent("upload", `Arquivo enviado: ${f.name}`, "upload");
   };
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: { "image/*": [".png", ".jpg", ".jpeg"] }, maxFiles: 1 });
 
   const handleAnalyze = async () => {
     if (!file) return;
     setLoading(true);
+    logSystemEvent("analyze", "Analisando diagrama...", "diagram");
     try {
       const result = await analyzeAndThreat(file);
       setAnalyzeResult(result);

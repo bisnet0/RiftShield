@@ -1,12 +1,12 @@
 import React from "react";
 import { IconButton, Tooltip } from "@chakra-ui/react";
-import { Bot } from "lucide-react";
+import { Shield } from "lucide-react";
 import { type ChatToggleButtonProps } from "../types";
 
 export const ChatToggleButton: React.FC<ChatToggleButtonProps> = ({ onOpen }) => (
   <Tooltip label="Abrir Hermes" placement="left">
     <IconButton
-      icon={<Bot size={24} />}
+      icon={<Shield size={24} />}
       colorScheme="orange"
       bg="brand"
       color="white"

@@ -24,6 +24,10 @@ export const useHermesChat = () => {
     }
   }, [isOpen]);
 
+  const notifyLog = () => {
+    window.dispatchEvent(new CustomEvent("hermes-message"));
+  };
+
   const loadHistory = async () => {
     try {
       const history = await fetchChatHistory();
@@ -76,6 +80,7 @@ export const useHermesChat = () => {
         content: data.response,
       };
       setMessages((prev) => [...prev, agentMsg]);
+      notifyLog();
     } catch {
       const errorMsg: Message = {
         id: Date.now().toString(),
@@ -83,6 +88,7 @@ export const useHermesChat = () => {
         content: "Desculpe, ocorreu um erro ao processar sua solicitação. Tente novamente.",
       };
       setMessages((prev) => [...prev, errorMsg]);
+      notifyLog();
     } finally {
       setIsLoading(false);
     }

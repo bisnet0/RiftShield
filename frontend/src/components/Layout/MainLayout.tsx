@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Box, Flex, Center, Spinner, Text, VStack, Heading, useDisclosure, Image } from "@chakra-ui/react";
 import { Outlet } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useAppThemeFx } from "../../styles/app-theme-fx";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { Navbar } from "./Navbar";
 import { Sidebar } from "./Sidebar";
 import { Footer } from "./Footer";
@@ -12,6 +14,8 @@ export function MainLayout() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const themeFx = useAppThemeFx();
   const { isAuthenticated, loadingAuth } = useAuth();
+  const [drawerH, setDrawerH] = useState(40);
+  const [hermesEnabled] = useLocalStorage("hermes_enabled", true);
 
   if (loadingAuth) {
     return (
@@ -57,7 +61,7 @@ export function MainLayout() {
         <Box as="main" flex={1} p={{ base: 4, md: 8 }} w="100%" overflowX="hidden">
           <Outlet />
         </Box>
-        <HermesLogDrawer />
+        <HermesLogDrawer onHeightChange={setDrawerH} />
         <Footer />
       </Flex>
     </Flex>

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useAppThemeFx } from "../styles/app-theme-fx";
 import { useInferenceThemeFx } from "../styles/inference-theme-fx";
 import { useToast } from "../components/Toast/components/ToastContext";
+import { logSystemEvent } from "../utils/logger";
 import { startTraining, listModels, activateModel, type TrainingLog } from "../services/training-service";
 
 export default function TrainingPage() {
@@ -30,6 +31,7 @@ export default function TrainingPage() {
     setTraining(true);
     try {
       const result = await startTraining(modelType, epochs);
+      logSystemEvent("training", `Treinamento iniciado: ${result.model_type}`, "training");
       showToast({ title: "Treinamento iniciado", message: `Modelo: ${result.model_type}`, type: "success" });
       load();
     } catch (err: any) {
