@@ -1,5 +1,7 @@
 venv/
+venv_wsl/
 .venv/
+train_txt_files/
 __pycache__/
 *.pyc
 .env

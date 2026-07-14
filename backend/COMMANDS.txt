@@ -1,0 +1,64 @@
+================================================================================
+  COMANDOS RiftShield
+================================================================================
+
+1. SUBIR APLICAÇÃO (DOCKER):
+   cd backend
+   docker compose up -d
+
+2. VER LOGS:
+   docker logs --tail 50 riftshield-backend
+
+3. REINICIAR BACKEND:
+   docker restart riftshield-backend
+
+4. REBUILD COMPLETO (QUANDO INSTALAR NOVOS PACOTES):
+   docker compose build --no-cache backend
+   docker compose up -d
+
+================================================================================
+  TREINAMENTO YOLOv8 COMPLETO (WSL / LINUX)
+  Baseado na técnica EpiScope: checkpoint por época, salva o melhor, progresso em JSON
+================================================================================
+
+PRÉ-REQUISITOS (UMA VEZ):
+   sudo apt update && sudo apt install -y python3.12-venv python3-pip
+   cd /mnt/c/Users/root_/Documents/bisnet0-GitHub/RiftShield
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install ultralytics pyyaml Pillow
+
+EXECUTAR TREINAMENTO COMPLETO:
+   source venv/bin/activate
+   python3 -m backend.src.modules.inference.ml-workflow.ml_train_full
+
+   Dataset usado: backend/datasets/architecture_merged/ (5019 imagens, 34 classes)
+   Modelo base: yolov8n.pt
+   Épocas: 100 | Batch: 16 | Imgsz: 640
+   Checkpoint a cada época, melhor modelo salvo automaticamente
+   Progresso em: backend/models/architecture_yolo/training_progress.json
+
+APÓS O TREINAMENTO:
+   O modelo final estará em: backend/models/architecture_yolo/weights/best.pt
+   Copie para o container:
+   docker cp backend/models/architecture_yolo/weights/best.pt riftshield-backend:/usr/src/app/src/modules/inference/train_results/best.pt
+
+   Ou copie manualmente para: backend/src/modules/inference/train_results/best.pt
+
+TESTAR INFERÊNCIA:
+   source venv/bin/activate
+   python3 -c "
+   from ultralytics import YOLO
+   model = YOLO('backend/models/architecture_yolo/weights/best.pt')
+   results = model('caminho/para/sua/imagem.png')
+   results[0].show()
+   "
+
+================================================================================
+  FINE-TUNE INCREMENTAL (VIA API)
+================================================================================
+
+   1. Vá em Dataset e faça upload de imagens com o split desejado
+   2. Vá em Treinamento e clique em "Treinar com Dataset"
+   3. O sistema usa o modelo base (best.pt) + as novas imagens
+   4. Fine-tune rápido (10 épocas) — apenas acopla, não treina do zero
