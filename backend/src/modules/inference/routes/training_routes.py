@@ -4,6 +4,7 @@ from middleware.dependencies import get_current_user
 from modules.inference.controllers import training_controller
 from modules.inference.schemas.training_schema import (
     ActivateModelRequest,
+    FineTuneRequest,
     StartTrainingRequest,
     TrainingLogListResponse,
     TrainingLogResponse,
@@ -18,6 +19,14 @@ async def start_training(
     user=Depends(get_current_user),
 ) -> TrainingLogResponse:
     return await training_controller.start_training(req, str(user.id))
+
+
+@router.post("/fine-tune", response_model=TrainingLogResponse)
+async def fine_tune(
+    req: FineTuneRequest,
+    user=Depends(get_current_user),
+) -> TrainingLogResponse:
+    return await training_controller.fine_tune_upload(req, str(user.id))
 
 
 @router.get("/models", response_model=TrainingLogListResponse)

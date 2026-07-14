@@ -6,6 +6,10 @@ from typing import Optional
 from pydantic import BaseModel
 
 
+class FineTuneRequest(BaseModel):
+    epochs: int = 10
+
+
 class StartTrainingRequest(BaseModel):
     model_type: str = "yolov8n"
     epochs: int = 100

@@ -1,26 +1,52 @@
 from __future__ import annotations
 
+from datetime import datetime
+from typing import List, Optional
+
+from modules.inference.models.inference_model import TrainingLog
 from modules.inference.schemas.training_schema import (
     ActivateModelRequest,
     StartTrainingRequest,
     TrainingLogListResponse,
     TrainingLogResponse,
-    TrainingMetricsResponse,
 )
 from modules.inference.services import training_service
+from modules.inference.schemas.training_schema import FineTuneRequest
+def _build_log_response(log: TrainingLog) -> TrainingLogResponse:
+    return TrainingLogResponse(
+        id=str(log.id),
+        model_type=log.model_type,
+        dataset_version=log.dataset_version,
+        hyperparameters=log.hyperparameters,
+        metrics=log.metrics,
+        model_path=log.model_path,
+        status=log.status,
+        started_at=log.started_at,
+        completed_at=log.completed_at,
+        created_at=log.created_at,
+    )
 
 
 async def start_training(
     req: StartTrainingRequest,
     user_id: str,
 ) -> TrainingLogResponse:
-    log = await training_service.start_training(
+    log = await training_service.fine_tune(
         user_id=user_id,
-        model_type=req.model_type,
+        image_paths=[],
+        labels=[],
         epochs=req.epochs,
-        imgsz=req.imgsz,
-        batch=req.batch,
-        patience=req.patience,
+    )
+    return _build_log_response(log)
+
+
+async def fine_tune_upload(
+    req: FineTuneRequest,
+    user_id: str = "",
+) -> TrainingLogResponse:
+    log = await training_service.fine_tune(
+        user_id=user_id,
+        epochs=req.epochs,
     )
     return _build_log_response(log)
 
@@ -30,7 +56,9 @@ async def list_training_logs(
     limit: int = 20,
     user_id: str = "",
 ) -> TrainingLogListResponse:
-    items, total = await training_service.list_training_logs(limit=limit, skip=skip)
+    items, total = await training_service.list_training_logs(
+        limit=limit, skip=skip
+    )
     return TrainingLogListResponse(
         total=total,
         items=[_build_log_response(i).model_dump() for i in items],
@@ -52,29 +80,5 @@ async def activate_model(
     req: ActivateModelRequest,
     user_id: str,
 ) -> dict:
-    success = await training_service.activate_model(req.model_path)
-    return {"activated": success}
-
-
-def _build_log_response(log) -> TrainingLogResponse:
-    metrics = log.metrics or {}
-    return TrainingLogResponse(
-        id=str(log.id),
-        model_type=log.model_type,
-        dataset_version=log.dataset_version,
-        hyperparameters=log.hyperparameters,
-        metrics=TrainingMetricsResponse(
-            mAP50=metrics.get("mAP50"),
-            mAP50_95=metrics.get("mAP50_95"),
-            precision=metrics.get("precision"),
-            recall=metrics.get("recall"),
-            f1_score=metrics.get("f1_score"),
-            epochs_completed=metrics.get("epochs_completed"),
-            error=metrics.get("error"),
-        ),
-        model_path=log.model_path,
-        status=log.status,
-        started_at=log.started_at,
-        completed_at=log.completed_at,
-        created_at=log.created_at,
-    )
+    ok = await training_service.activate_model(req.model_path)
+    return {"activated": ok}

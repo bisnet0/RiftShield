@@ -1,56 +1,116 @@
 from __future__ import annotations
 
-import tempfile
+import os
+import shutil
 from datetime import datetime
+from pathlib import Path
 from typing import List, Optional, Tuple
 
 from modules.inference.models.inference_model import TrainingLog
 
+BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
+TRAIN_RESULTS_DIR = Path(__file__).resolve().parent.parent / "train_results"
+BASE_MODEL_PATH = TRAIN_RESULTS_DIR / "best.pt"
+TRAIN_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-async def start_training(
+
+async def fine_tune(
     user_id: str,
-    model_type: str = "yolov8n",
-    epochs: int = 100,
-    imgsz: int = 640,
-    batch: int = 16,
-    patience: int = 20,
+    epochs: int = 10,
 ) -> TrainingLog:
     log = TrainingLog(
-        model_type=model_type,
-        dataset_version="latest",
-        hyperparameters={
-            "epochs": epochs,
-            "imgsz": imgsz,
-            "batch": batch,
-            "patience": patience,
-        },
+        model_type="yolov8n",
+        dataset_version="user_upload",
+        hyperparameters={"epochs": epochs, "fine_tune": True},
         status="running",
         started_at=datetime.utcnow(),
     )
     await log.insert()
 
     try:
-        from modules.inference.ml_workflow import ml_train_yolo
+        import tempfile, yaml
+        from ultralytics import YOLO
+        from modules.inference.dataset.dataset_model import DatasetEntry
 
-        with tempfile.TemporaryDirectory() as tmpdir:
-            yaml_path = await ml_train_yolo.export_dataset_to_yolo(tmpdir)
-            result = await ml_train_yolo.train_yolo(
-                dataset_yaml=yaml_path,
-                model_name=f"{model_type}.pt",
-                epochs=epochs,
-                imgsz=imgsz,
-                batch=batch,
-                patience=patience,
-            )
+        entries = await DatasetEntry.find({"split": "train"}).to_list()
+        val_entries = await DatasetEntry.find({"split": "val"}).to_list()
+
+        if not entries:
+            raise ValueError("Nenhuma imagem no split Treino. Adicione imagens no Dataset primeiro.")
+
+        tmpdir = tempfile.mkdtemp()
+
+        train_img = Path(tmpdir) / "train" / "images"
+        train_lbl = Path(tmpdir) / "train" / "labels"
+        val_img = Path(tmpdir) / "val" / "images"
+        val_lbl = Path(tmpdir) / "val" / "labels"
+        for d in [train_img, train_lbl, val_img, val_lbl]:
+            d.mkdir(parents=True)
+
+        if BASE_MODEL_PATH.exists():
+            model = YOLO(str(BASE_MODEL_PATH))
+        else:
+            model = YOLO("yolov8n.pt")
+
+        names = model.names if hasattr(model, "names") else {}
+        nc = len(names) if names else 15
+
+        for entry in entries + val_entries:
+            src = Path(entry.image_path)
+            if not src.exists():
+                continue
+            is_val = entry.split == "val"
+            dst_img = (val_img if is_val else train_img) / src.name
+            dst_lbl = (val_lbl if is_val else train_lbl) / f"{src.stem}.txt"
+            shutil.copy(str(src), str(dst_img))
+            label_lines = []
+            for lbl in (entry.labels or []):
+                label_lines.append(f"{lbl.class_id} {lbl.x_center:.6f} {lbl.y_center:.6f} {lbl.width:.6f} {lbl.height:.6f}")
+            if label_lines:
+                with open(dst_lbl, "w") as f:
+                    f.write("\n".join(label_lines) + "\n")
+
+        train_count = len(list(train_img.glob("*")))
+        val_count = len(list(val_img.glob("*")))
+        print(f"FINE-TUNE: train {train_count} imgs | val {val_count} imgs")
+
+        data_yaml_path = os.path.join(tmpdir, "dataset.yaml")
+        with open(data_yaml_path, "w") as f:
+            yaml.dump({
+                "path": tmpdir,
+                "train": "train",
+                "val": "val",
+                "nc": nc,
+                "names": list(names.values()) if isinstance(names, dict) else (names if names else [str(i) for i in range(nc)]),
+            }, f)
+
+        out_dir = TRAIN_RESULTS_DIR / "fine_tune"
+        model.train(
+            data=data_yaml_path,
+            epochs=epochs,
+            imgsz=640,
+            batch=8,
+            patience=5,
+            project=str(out_dir),
+            name="run",
+            exist_ok=True,
+            device="cpu",
+            workers=2,
+        )
+
+        best = out_dir / "run" / "weights" / "best.pt"
+        if best.exists():
+            shutil.copy(str(best), str(BASE_MODEL_PATH))
+            from modules.inference.services.inference_service import set_active_model
+            set_active_model(str(BASE_MODEL_PATH))
 
         log.status = "completed"
-        log.model_path = result["best_model_path"]
-        log.metrics = result.get("metrics", {})
+        log.model_path = str(BASE_MODEL_PATH)
+        log.metrics = {"fine_tune_epochs": epochs, "train_images": train_count, "val_images": val_count}
         log.completed_at = datetime.utcnow()
         await log.save()
 
-        from modules.inference.services.inference_service import set_active_model
-        set_active_model(result["best_model_path"])
+        shutil.rmtree(tmpdir, ignore_errors=True)
 
     except Exception as e:
         log.status = "failed"
@@ -59,10 +119,6 @@ async def start_training(
         await log.save()
 
     return log
-
-
-async def get_training_log(log_id: str) -> Optional[TrainingLog]:
-    return await TrainingLog.get(log_id)
 
 
 async def list_training_logs(
@@ -78,6 +134,10 @@ async def list_training_logs(
         .to_list()
     )
     return items, total
+
+
+async def get_training_log(log_id: str) -> Optional[TrainingLog]:
+    return await TrainingLog.get(log_id)
 
 
 async def activate_model(model_path: str) -> bool:

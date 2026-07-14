@@ -43,6 +43,7 @@ class TrainingLog(Document):
     status: str = Field(default="pending", pattern=r"^(pending|running|completed|failed)$")
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
+    progress_steps: list = Field(default_factory=list)
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     class Settings:
