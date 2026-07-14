@@ -1,13 +1,11 @@
-import { Box, Heading, Text, VStack, Button, Icon, Badge, HStack, SimpleGrid, Flex, Select, Tabs, TabList, TabPanels, Tab, TabPanel, Progress, Stat, StatLabel, StatNumber, StatHelpText, Image, Alert, AlertIcon, useDisclosure, Collapse, Input, FormLabel, FormControl, NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper } from "@chakra-ui/react";
-import { Database, Upload, RefreshCw, Trash2, Copy, Plus, BarChart3, Image as ImageIcon, Layers, FlipHorizontal, FlipVertical } from "lucide-react";
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useDropzone } from "react-dropzone";
+import { Box, Heading, Text, VStack, Button, Icon, Badge, HStack, SimpleGrid, Flex, Select, Progress, Stat, StatLabel, StatNumber, Image, Alert, AlertIcon, Tooltip, FormLabel, FormControl } from "@chakra-ui/react";
+import { Database, Upload, RefreshCw, Trash2, BarChart3, Image as ImageIcon, HelpCircle } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { useAppThemeFx } from "../styles/app-theme-fx";
 import { useInferenceThemeFx } from "../styles/inference-theme-fx";
 import { logSystemEvent } from "../utils/logger";
-
 import { useToast } from "../components/Toast/components/ToastContext";
-import { uploadEntry, listEntries, deleteEntry, augmentEntry, getDatasetStats, type DatasetEntry, type DatasetStats } from "../services/dataset-service";
+import { uploadEntry, listEntries, deleteEntry, getDatasetStats, type DatasetEntry, type DatasetStats } from "../services/dataset-service";
 
 export default function DatasetPage() {
   const fx = useInferenceThemeFx();
@@ -20,16 +18,15 @@ export default function DatasetPage() {
   const [splitFilter, setSplitFilter] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [labelsJson, setLabelsJson] = useState("[]");
   const [split, setSplit] = useState("train");
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  const onDrop = (accepted: File[]) => {
-    const f = accepted[0];
-    if (!f) return;
-    setFile(f);
-    setPreview(URL.createObjectURL(f));
+  const SPLIT_LABELS: Record<string, string> = { train: "Treino", val: "Validação", test: "Teste" };
+  const SPLIT_DESC: Record<string, string> = {
+    train: "Imagens usadas para o treinamento do modelo YOLO",
+    val: "Imagens usadas para validar a acurácia durante o treinamento",
+    test: "Imagens usadas para testar o modelo após o treinamento",
   };
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: { "image/*": [".png", ".jpg", ".jpeg"] }, maxFiles: 1 });
 
   const loadData = async () => {
     setLoading(true);
@@ -45,16 +42,22 @@ export default function DatasetPage() {
 
   useEffect(() => { loadData(); }, [splitFilter]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setFile(f);
+    setPreview(URL.createObjectURL(f));
+  };
+
   const handleUpload = async () => {
     if (!file) return;
     setUploading(true);
     try {
-      await uploadEntry(file, labelsJson, split);
+      await uploadEntry(file, "[]", split);
       logSystemEvent("upload", `Dataset enviado: ${file.name}`, "dataset");
-      showToast({ title: "Sucesso", message: "Entrada adicionada ao dataset", type: "success" });
+      showToast({ title: "Sucesso", message: "Imagem adicionada ao dataset", type: "success" });
       setFile(null);
       setPreview(null);
-      setLabelsJson("[]");
       loadData();
     } catch (err: any) {
       showToast({ title: "Erro", message: err?.response?.data?.error || "Falha no upload", type: "error" });
@@ -67,14 +70,6 @@ export default function DatasetPage() {
       showToast({ title: "Removido", message: "Entrada excluída", type: "info" });
       loadData();
     } catch { showToast({ title: "Erro", message: "Falha ao excluir", type: "error" }); }
-  };
-
-  const handleAugment = async (id: string) => {
-    try {
-      const res = await augmentEntry(id);
-      showToast({ title: "Aumentado", message: `${res.total} variações geradas`, type: "success" });
-      loadData();
-    } catch { showToast({ title: "Erro", message: "Falha ao aumentar", type: "error" }); }
   };
 
   return (
@@ -92,15 +87,15 @@ export default function DatasetPage() {
               <StatNumber color={appFx.textColor}>{stats.total}</StatNumber>
             </Stat>
             <Stat bg={fx.cardBg} p={4} borderRadius="lg" border="1px solid" borderColor={fx.cardBorder}>
-              <StatLabel color={appFx.textMuted}>Train</StatLabel>
+              <StatLabel color={appFx.textMuted}>Treino</StatLabel>
               <StatNumber color="green.400">{stats.train_count}</StatNumber>
             </Stat>
             <Stat bg={fx.cardBg} p={4} borderRadius="lg" border="1px solid" borderColor={fx.cardBorder}>
-              <StatLabel color={appFx.textMuted}>Val</StatLabel>
+              <StatLabel color={appFx.textMuted}>Validação</StatLabel>
               <StatNumber color="blue.400">{stats.val_count}</StatNumber>
             </Stat>
             <Stat bg={fx.cardBg} p={4} borderRadius="lg" border="1px solid" borderColor={fx.cardBorder}>
-              <StatLabel color={appFx.textMuted}>Test</StatLabel>
+              <StatLabel color={appFx.textMuted}>Teste</StatLabel>
               <StatNumber color="purple.400">{stats.test_count}</StatNumber>
             </Stat>
             <Stat bg={fx.cardBg} p={4} borderRadius="lg" border="1px solid" borderColor={fx.cardBorder}>
@@ -115,31 +110,38 @@ export default function DatasetPage() {
         )}
 
         <Box bg={fx.cardBg} p={6} borderRadius="xl" border="1px solid" borderColor={fx.cardBorder} boxShadow={fx.cardShadow}>
-          <Heading size="md" mb={4} color={appFx.textColor}>Upload de Imagem Rotulada</Heading>
+          <Heading size="md" mb={4} color={appFx.textColor}>Upload de Imagem</Heading>
           <VStack spacing={4}>
-            <Box {...getRootProps()} w="full" p={8} border="2px dashed" borderColor={isDragActive ? "orange.400" : fx.cardBorder} borderRadius="lg" textAlign="center" cursor="pointer">
-              <input {...getInputProps()} />
+            <input type="file" accept="image/*" onChange={handleFileChange} ref={fileRef} style={{ display: "none" }} />
+            <Box
+              w="full" p={8} border="2px dashed" borderColor={fx.cardBorder} borderRadius="lg" textAlign="center" cursor="pointer"
+              onClick={() => fileRef.current?.click()}
+              _hover={{ borderColor: "orange.400" }}
+            >
               <Icon as={ImageIcon} boxSize={10} color="orange.400" mb={2} />
-              <Text color={appFx.textColor}>{isDragActive ? "Solte aqui" : "Arraste a imagem do diagrama"}</Text>
+              <Text color={appFx.textColor}>{file ? file.name : "Clique para selecionar uma imagem"}</Text>
             </Box>
 
             {preview && <Image src={preview} alt="Preview" maxH="200px" borderRadius="md" />}
 
-            <FormControl>
-              <FormLabel color={appFx.textMuted} fontSize="sm">Labels (JSON: [{"{class_id, x_center, y_center, width, height}"}])</FormLabel>
-              <Input value={labelsJson} onChange={(e) => setLabelsJson(e.target.value)} fontFamily="mono" fontSize="sm" bg={appFx.navHoverBg} borderColor={fx.cardBorder} color={appFx.textColor} />
-            </FormControl>
-
             <HStack w="full">
               <FormControl>
-                <FormLabel color={appFx.textMuted} fontSize="sm">Split</FormLabel>
+                <FormLabel color={appFx.textMuted} fontSize="sm">
+                  Split
+                  <Tooltip label="Define como a imagem será usada no treinamento do YOLO" placement="top" hasArrow>
+                    <Icon as={HelpCircle} boxSize={3} color={appFx.textMuted} ml={1} style={{ cursor: "help" }} />
+                  </Tooltip>
+                </FormLabel>
                 <Select value={split} onChange={(e) => setSplit(e.target.value)} bg={appFx.navHoverBg} borderColor={fx.cardBorder} color={appFx.textColor}>
-                  <option value="train">Train</option>
-                  <option value="val">Val</option>
-                  <option value="test">Test</option>
+                  {Object.entries(SPLIT_LABELS).map(([k, v]) => (
+                    <option key={k} value={k}>{v}</option>
+                  ))}
                 </Select>
+                <Text fontSize="xs" color={appFx.textMuted} mt={1}>{SPLIT_DESC[split]}</Text>
               </FormControl>
-              <Button leftIcon={<Icon as={Upload} />} colorScheme="orange" mt="auto" isLoading={uploading} isDisabled={!file} onClick={handleUpload}>Upload</Button>
+              <Button leftIcon={<Icon as={Upload} />} colorScheme="orange" mt="auto" isLoading={uploading} isDisabled={!file} onClick={handleUpload}>
+                Upload
+              </Button>
             </HStack>
           </VStack>
         </Box>
@@ -148,11 +150,11 @@ export default function DatasetPage() {
           <Flex justify="space-between" align="center" mb={4}>
             <Heading size="md" color={appFx.textColor}>Entradas ({entries.length})</Heading>
             <HStack>
-              <Select size="sm" value={splitFilter} onChange={(e) => setSplitFilter(e.target.value)} bg={appFx.navHoverBg} borderColor={fx.cardBorder} color={appFx.textColor} w="120px">
+              <Select size="sm" value={splitFilter} onChange={(e) => setSplitFilter(e.target.value)} bg={appFx.navHoverBg} borderColor={fx.cardBorder} color={appFx.textColor} w="140px">
                 <option value="">Todos</option>
-                <option value="train">Train</option>
-                <option value="val">Val</option>
-                <option value="test">Test</option>
+                {Object.entries(SPLIT_LABELS).map(([k, v]) => (
+                  <option key={k} value={k}>{v}</option>
+                ))}
               </Select>
             </HStack>
           </Flex>
@@ -166,19 +168,12 @@ export default function DatasetPage() {
                   <VStack align="start" spacing={1}>
                     <Text fontWeight="bold" color={appFx.textColor} fontSize="sm">{e.filename}</Text>
                     <HStack>
-                      <Badge colorScheme={e.split === "train" ? "green" : e.split === "val" ? "blue" : "purple"}>{e.split}</Badge>
+                      <Badge colorScheme={e.split === "train" ? "green" : e.split === "val" ? "blue" : "purple"}>{SPLIT_LABELS[e.split] || e.split}</Badge>
                       <Badge colorScheme={e.augmented ? "cyan" : "gray"}>{e.source}</Badge>
                     </HStack>
-                    <Text fontSize="xs" color={appFx.textMuted}>{e.labels.length} label(s)</Text>
+                    <Text fontSize="xs" color={appFx.textMuted}>{e.labels?.length || 0} label(s)</Text>
                   </VStack>
-                  <HStack>
-                    {!e.augmented && (
-                      <Button size="xs" variant="ghost" onClick={() => handleAugment(e.id)} title="Aumentar">
-                        <Icon as={FlipHorizontal} boxSize={3} />
-                      </Button>
-                    )}
-                    <Button size="xs" variant="ghost" colorScheme="red" onClick={() => handleDelete(e.id)}><Icon as={Trash2} boxSize={3} /></Button>
-                  </HStack>
+                  <Button size="xs" variant="ghost" colorScheme="red" onClick={() => handleDelete(e.id)}><Icon as={Trash2} boxSize={3} /></Button>
                 </Flex>
               </Box>
             ))}

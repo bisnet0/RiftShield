@@ -18,6 +18,11 @@ export const startTraining = async (modelType = "yolov8n", epochs = 100): Promis
   return res.data;
 };
 
+export const fineTuneUpload = async (epochs = 10): Promise<TrainingLog> => {
+  const res = await api.post("/training/fine-tune", { epochs });
+  return res.data;
+};
+
 export const listModels = async (skip = 0, limit = 20): Promise<{ total: number; items: TrainingLog[] }> => {
   const res = await api.get(`/training/models?skip=${skip}&limit=${limit}`);
   return res.data;
