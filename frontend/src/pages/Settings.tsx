@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import {
   Text, VStack, HStack, Switch, Box, Divider, Heading, useColorModeValue,
-  Input, Button, Select, FormControl, FormLabel, useToast, Icon, Spinner,
+  Input, Button, Select, FormControl, FormLabel, Icon, Spinner,
 } from "@chakra-ui/react";
+import { useToast } from "../components/Toast/components/ToastContext";
 import { Check, AlertTriangle } from "lucide-react";
 import { useAppThemeFx } from "../styles/app-theme-fx";
 import api from "../middleware/api";
@@ -16,18 +17,20 @@ interface HermesConfig {
   google_model: string;
   openai_model: string;
   deepseek_model: string;
+  diag_fallback: string;
 }
 
 export default function Settings() {
   const themeFx = useAppThemeFx();
   const cardBg = useColorModeValue("#ffffff", "#1a1a1a");
   const cardBorder = useColorModeValue("rgba(230, 92, 0, 0.15)", "#333333");
-  const toast = useToast();
+  const { showToast } = useToast();
 
   const [config, setConfig] = useState<HermesConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [hermesEnabled, setHermesEnabled] = useState(true);
+  const [diagFallback, setDiagFallback] = useState("yolo");
 
   useEffect(() => {
     loadConfig();
@@ -38,6 +41,7 @@ export default function Settings() {
       const res = await api.get("/hermes/config");
       setConfig(res.data);
       setHermesEnabled(res.data.enabled);
+      setDiagFallback(res.data.diag_fallback || "yolo");
     } catch {
       setConfig({
         enabled: true, provider: "google",
@@ -55,10 +59,10 @@ export default function Settings() {
     if (!config) return;
     setSaving(true);
     try {
-      await api.put("/hermes/config", { ...config, enabled: hermesEnabled });
-      toast({ title: "Configurações salvas", status: "success", duration: 3000 });
+      await api.put("/hermes/config", { ...config, enabled: hermesEnabled, diag_fallback: diagFallback });
+      showToast({ title: "Configurações salvas", type: "success", duration: 3000 });
     } catch {
-      toast({ title: "Erro ao salvar", status: "error", duration: 3000 });
+      showToast({ title: "Erro ao salvar", type: "error", duration: 3000 });
     } finally {
       setSaving(false);
     }
@@ -94,6 +98,24 @@ export default function Settings() {
             onChange={(e) => setHermesEnabled(e.target.checked)}
           />
         </HStack>
+
+        <FormControl mb={4}>
+          <FormLabel color={themeFx.textColor}>Análise de Diagramas (Fallback)</FormLabel>
+          <Select
+            value={diagFallback}
+            onChange={(e) => setDiagFallback(e.target.value)}
+            bg={cardBg}
+            borderColor={cardBorder}
+            color={themeFx.textColor}
+          >
+            <option value="yolo">YOLO + Fallback Hermes (recomendado)</option>
+            <option value="hermes">Apenas Hermes (IA)</option>
+          </Select>
+          <Text fontSize="xs" color={themeFx.textMuted} mt={1}>
+            YOLO tenta detectar componentes primeiro. Se falhar, Hermes assume via IA.
+            "Apenas Hermes" ignora o YOLO e usa apenas visão computacional da IA.
+          </Text>
+        </FormControl>
 
         <Divider mb={4} />
 

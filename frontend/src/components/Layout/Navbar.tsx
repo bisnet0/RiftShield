@@ -39,7 +39,7 @@ export const Navbar: React.FC<Props> = ({ onOpenSidebar }) => {
           icon={<Menu size={24} color={themeFx.textColor} />}
         />
 
-        <Flex align="center">
+        <Flex align="center" cursor="pointer" onClick={() => window.dispatchEvent(new CustomEvent("toggle-test-toast"))} title="Testar Toasts">
           <Image
             src="/public/Rift_Shield_Logo.png"
             alt="Logo"

@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 
-export type ToastType = 'success' | 'error' | 'info';
+export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 export interface ToastProps {
   title?: string;

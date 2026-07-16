@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Flex, Heading, Text } from "@chakra-ui/react";
+import { Box, Flex, Heading, Text, useColorModeValue } from "@chakra-ui/react";
 import { type ToastProps } from "./types";
 import { TOAST_CONFIG } from "./utils/constants";
 import { useToastThemeFx } from "./styles/theme-fx";
@@ -22,6 +22,13 @@ const Toast: React.FC<ToastProps> = ({
   );
   const themeFx = useToastThemeFx();
   const styleConfig = TOAST_CONFIG[type] || TOAST_CONFIG.info;
+  const borderColors: Record<string, string> = {
+    success: useColorModeValue('rgba(34, 197, 94, 0.4)', 'rgba(74, 222, 128, 0.5)'),
+    error: useColorModeValue('rgba(239, 68, 68, 0.4)', 'rgba(248, 113, 113, 0.5)'),
+    info: useColorModeValue('rgba(59, 130, 246, 0.4)', 'rgba(96, 165, 250, 0.5)'),
+    warning: useColorModeValue('rgba(234, 179, 8, 0.5)', 'rgba(250, 204, 21, 0.6)'),
+  };
+  const dynamicBorder = borderColors[type] || themeFx.cardBorder;
 
   return (
     <Box
@@ -42,7 +49,7 @@ const Toast: React.FC<ToastProps> = ({
         bg={themeFx.cardBg}
         backdropFilter="blur(20px)"
         border="1px solid"
-        borderColor={themeFx.cardBorder}
+        borderColor={dynamicBorder}
         boxShadow={themeFx.cardShadow}
         transform={
           isVisible ? "translateY(0) scale(1)" : "translateY(-20px) scale(0.95)"

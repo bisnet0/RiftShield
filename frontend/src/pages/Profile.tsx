@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import {
   Box, VStack, HStack, Text, Input, Button, Divider, Heading, useColorModeValue,
-  Flex, Icon, Badge, Spinner, useToast,
+  Flex, Icon, Badge, Spinner,
 } from "@chakra-ui/react";
+import { useToast } from "../components/Toast/components/ToastContext";
 import { User, Mail, Phone, MapPin, Briefcase, Calendar, Shield, Zap } from "lucide-react";
 import { useAppThemeFx } from "../styles/app-theme-fx";
 import api from "../middleware/api";
@@ -39,7 +40,7 @@ function ProgressingText() {
 
 export default function Profile() {
   const themeFx = useAppThemeFx();
-  const toast = useToast();
+  const { showToast } = useToast();
   const cardBg = useColorModeValue("#ffffff", "#1a1a1a");
   const cardBorder = useColorModeValue("rgba(230, 92, 0, 0.15)", "#333333");
   const progressBg = useColorModeValue("#f0f0f0", "#1a1a1a");
@@ -77,11 +78,11 @@ export default function Profile() {
       if (form.profession !== (user.profession || "")) payload.profession = form.profession;
       if (form.seniority !== (user.seniority || "")) payload.seniority = form.seniority;
       if (form.age !== (user.age?.toString() || "")) payload.age = form.age ? parseInt(form.age) : null;
-      if (Object.keys(payload).length === 0) { toast({ title: "Nenhuma alteração", status: "info", duration: 2000 }); return; }
+      if (Object.keys(payload).length === 0) { showToast({ title: "Nenhuma alteração", type: "info", duration: 2000 }); return; }
       const res = await api.put("/users/me", payload);
       setUser(res.data.user);
-      toast({ title: "Perfil atualizado", status: "success", duration: 3000 });
-    } catch { toast({ title: "Erro ao salvar", status: "error", duration: 3000 }); }
+      showToast({ title: "Perfil atualizado", type: "success", duration: 3000 });
+    } catch { showToast({ title: "Erro ao salvar", type: "error", duration: 3000 }); }
     setSaving(false);
   };
 

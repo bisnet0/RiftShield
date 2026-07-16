@@ -45,8 +45,12 @@ export default function TrainingPage() {
       logSystemEvent("training", `Treinando com ${trainEntries.length} imagem(ns)`, "training");
       setProgress({ stage: "training", message: "Fine-tuning em andamento..." });
       const result = await fineTuneUpload(epochs);
-      setProgress({ stage: "done", message: "Fine-tune concluído!" });
-      showToast({ title: "Sucesso", message: `Modelo atualizado com ${trainEntries.length} imagem(ns)`, type: "success" });
+      if (result.status === "failed") {
+        showToast({ title: "Erro", message: result.metrics?.error || "Falha no treinamento", type: "error" });
+      } else {
+        setProgress({ stage: "done", message: "Fine-tune concluído!" });
+        showToast({ title: "Sucesso", message: `Modelo atualizado com ${trainEntries.length} imagem(ns)`, type: "success" });
+      }
       loadAll();
     } catch (err: any) {
       showToast({ title: "Erro", message: err?.response?.data?.error || "Falha no treinamento", type: "error" });
