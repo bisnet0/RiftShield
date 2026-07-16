@@ -74,5 +74,7 @@
 
 ---
 
+![alt text](image.png)
+
 > Projeto: **RiftShield** — Hackathon FIAP Software Security
 > Autor: **Henrique Bisneto — 2026**
