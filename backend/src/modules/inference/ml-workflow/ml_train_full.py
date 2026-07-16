@@ -23,7 +23,7 @@ MODELS_DIR = BASE_DIR / "models" / "architecture_yolo"
 FINAL_MODEL_DIR = BASE_DIR / "backend" / "src" / "modules" / "inference" / "train_results"
 
 DATASET_YAML = DATASET_DIR / "dataset.yaml"
-EPOCHS = 100
+EPOCHS = 10
 
 def _detect_device() -> str:
     try:
@@ -63,7 +63,23 @@ def log_progress(pct: float, status: str, message: str = ""):
         pass
 
 
+def _fix_yaml_path():
+    if not DATASET_YAML.exists():
+        return
+    import yaml
+    with open(DATASET_YAML) as f:
+        data = yaml.safe_load(f)
+    if data and "path" in data and "C:" in str(data["path"]):
+        win = str(data["path"])
+        wsl = win.replace("C:\\Users\\root_\\Documents\\bisnet0-GitHub", "/mnt/c/Users/root_/Documents/bisnet0-GitHub").replace("\\", "/")
+        data["path"] = wsl
+        with open(DATASET_YAML, "w") as f:
+            yaml.dump(data, f)
+        print(f"YAML path corrigido: {win} -> {wsl}")
+
+
 def train():
+    _fix_yaml_path()
     if not DATASET_YAML.exists():
         print(f"ERRO: Dataset não encontrado em {DATASET_YAML}")
         sys.exit(1)

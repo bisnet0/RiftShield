@@ -113,7 +113,7 @@ async def save_config(user_id: str, data: dict) -> dict:
     config = await HermesConfig.find_one(HermesConfig.user_id == user_id)
     if config:
         for key in ("enabled", "provider", "google_api_key", "openai_api_key",
-                     "deepseek_api_key", "google_model", "openai_model", "deepseek_model"):
+                     "deepseek_api_key", "google_model", "openai_model", "deepseek_model", "diag_fallback"):
             if key in data:
                 setattr(config, key, data[key])
         await config.save()
@@ -135,6 +135,7 @@ async def get_config(user_id: str) -> dict:
             "google_model": "gemini-2.5-flash-lite",
             "openai_model": "gpt-4o-mini",
             "deepseek_model": "deepseek-chat",
+            "diag_fallback": "yolo",
         }
     return {
         "enabled": config.enabled,
@@ -145,6 +146,7 @@ async def get_config(user_id: str) -> dict:
         "google_model": config.google_model,
         "openai_model": config.openai_model,
         "deepseek_model": config.deepseek_model,
+        "diag_fallback": config.diag_fallback,
     }
 
 

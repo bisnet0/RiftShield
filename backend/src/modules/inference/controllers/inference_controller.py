@@ -17,6 +17,8 @@ from modules.inference.schemas.threat_schema import (
     VulnerabilityResponse,
 )
 from modules.inference.services import inference_service, threat_service
+from modules.inference.services.hermes_fallback import analyze_with_llm
+from modules.hermes.models.llm_config import HermesConfig
 
 
 def _build_component(c):
@@ -57,11 +59,42 @@ async def analyze_and_threat(
     user_id: str,
 ) -> dict:
     image_data = await file.read()
-    inference = await inference_service.analyze_diagram(
-        image_data=image_data,
-        filename=file.filename or "diagram.png",
-        user_id=user_id,
-    )
+    filename = file.filename or "diagram.png"
+
+    llm_config = {}
+    try:
+        llm_config_data = await HermesConfig.find_one(HermesConfig.user_id == user_id)
+        if llm_config_data:
+            llm_config = {
+                "provider": llm_config_data.provider,
+                "google_api_key": llm_config_data.google_api_key,
+                "openai_api_key": llm_config_data.openai_api_key,
+                "deepseek_api_key": llm_config_data.deepseek_api_key,
+                "diag_fallback": llm_config_data.diag_fallback,
+            }
+    except:
+        pass
+
+    use_hermes_only = llm_config.get("diag_fallback") == "hermes"
+
+    if use_hermes_only:
+        inference = await analyze_with_llm(image_data, filename, user_id, llm_config)
+        if inference is None:
+            inference = await inference_service.analyze_diagram(
+                image_data=image_data, filename=filename, user_id=user_id,
+            )
+    else:
+        inference = await inference_service.analyze_diagram(
+            image_data=image_data, filename=filename, user_id=user_id,
+        )
+        if not inference.components:
+            try:
+                fallback = await analyze_with_llm(image_data, filename, user_id, llm_config)
+                if fallback:
+                    inference = fallback
+            except Exception as e:
+                print(f"Fallback error: {e}")
+
     threat_report = await threat_service.analyze_threats(inference)
     return {
         "inference": _build_analyze_response(inference).model_dump(),

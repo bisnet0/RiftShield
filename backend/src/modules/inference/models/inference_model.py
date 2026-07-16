@@ -25,6 +25,7 @@ class InferenceResult(Document):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     processing_time_ms: Optional[float] = None
+    fallback_used: bool = False
 
     class Settings:
         name = "inference_results"

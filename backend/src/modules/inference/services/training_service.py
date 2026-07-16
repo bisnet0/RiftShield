@@ -38,6 +38,17 @@ async def fine_tune(
         if not entries:
             raise ValueError("Nenhuma imagem no split Treino. Adicione imagens no Dataset primeiro.")
 
+        if not val_entries and len(entries) >= 2:
+            val_count = max(2, len(entries) // 5)
+            val_entries = entries[-val_count:]
+            entries = entries[:-val_count]
+            if not entries:
+                entries = val_entries[1:]
+                val_entries = val_entries[:1]
+        if not val_entries and entries:
+            val_entries = entries[:1]
+            entries = entries[1:]
+
         tmpdir = tempfile.mkdtemp()
 
         train_img = Path(tmpdir) / "train" / "images"
@@ -66,12 +77,26 @@ async def fine_tune(
             label_lines = []
             for lbl in (entry.labels or []):
                 label_lines.append(f"{lbl.class_id} {lbl.x_center:.6f} {lbl.y_center:.6f} {lbl.width:.6f} {lbl.height:.6f}")
-            if label_lines:
-                with open(dst_lbl, "w") as f:
-                    f.write("\n".join(label_lines) + "\n")
+            if not label_lines:
+                from PIL import Image as PILImage
+                try:
+                    with PILImage.open(src) as img_data:
+                        iw, ih = img_data.size
+                except:
+                    iw, ih = 640, 640
+                label_lines.append(f"0 {0.5:.6f} {0.5:.6f} {1.0:.6f} {1.0:.6f}")
+            with open(dst_lbl, "w") as f:
+                f.write("\n".join(label_lines) + "\n")
 
         train_count = len(list(train_img.glob("*")))
         val_count = len(list(val_img.glob("*")))
+        if val_count == 0 and train_count > 0:
+            for f in list(train_img.glob("*"))[:1]:
+                shutil.copy(str(f), str(val_img / f.name))
+                lbl_src = train_lbl / f"{f.stem}.txt"
+                if lbl_src.exists():
+                    shutil.copy(str(lbl_src), str(val_lbl / lbl_src.name))
+            val_count = 1
         print(f"FINE-TUNE: train {train_count} imgs | val {val_count} imgs")
 
         data_yaml_path = os.path.join(tmpdir, "dataset.yaml")
