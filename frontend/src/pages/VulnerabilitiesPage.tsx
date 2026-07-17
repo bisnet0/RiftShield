@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useAppThemeFx } from "../styles/app-theme-fx";
 import { useInferenceThemeFx } from "../styles/inference-theme-fx";
 import { listVulnerabilities, type KBVulnerability } from "../services/kb-service";
+import { useT } from "../hooks/useT";
 
 const STRIDE_COLORS: Record<string, string> = {
   authentication: "red",
@@ -35,6 +36,7 @@ export default function VulnerabilitiesPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [componentFilter, setComponentFilter] = useState("");
+  const t = useT();
 
   const load = async () => {
     setLoading(true);
@@ -59,14 +61,14 @@ export default function VulnerabilitiesPage() {
   return (
     <Box w="full" maxW="1800px" mx="auto" pb={10}>
       <VStack spacing={8} align="stretch">
-        <Heading size="lg" color={appFx.textColor}>Base de Vulnerabilidades</Heading>
+        <Heading size="lg" color={appFx.textColor}>{t("vuln.title")}</Heading>
 
         <HStack spacing={4} wrap="wrap">
           <InputGroup maxW="400px">
             <InputLeftElement><Icon as={Search} color={appFx.textMuted} /></InputLeftElement>
-            <Input placeholder="Buscar vulnerabilidade..." value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearch()} bg={appFx.navHoverBg} borderColor={fx.cardBorder} color={appFx.textColor} _placeholder={{ color: appFx.textMuted }} />
+            <Input placeholder={t("vuln.buscar") + "..."} value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearch()} bg={appFx.navHoverBg} borderColor={fx.cardBorder} color={appFx.textColor} _placeholder={{ color: appFx.textMuted }} />
           </InputGroup>
-          <Select placeholder="Filtrar por componente" value={componentFilter} onChange={(e) => setComponentFilter(e.target.value)} w="200px" bg={appFx.navHoverBg} borderColor={fx.cardBorder} color={appFx.textColor}>
+          <Select placeholder={t("vuln.filtrar")} value={componentFilter} onChange={(e) => setComponentFilter(e.target.value)} w="200px" bg={appFx.navHoverBg} borderColor={fx.cardBorder} color={appFx.textColor}>
             <option value="api">API</option>
             <option value="server">Server</option>
             <option value="database">Database</option>
@@ -79,7 +81,7 @@ export default function VulnerabilitiesPage() {
             <option value="message_queue">Message Queue</option>
             <option value="identity_provider">Identity Provider</option>
           </Select>
-          <Button size="sm" variant="ghost" leftIcon={<Icon as={RefreshCw} />} onClick={load}>Atualizar</Button>
+          <Button size="sm" variant="ghost" leftIcon={<Icon as={RefreshCw} />} onClick={load}>{t("geral.atualizar")}</Button>
         </HStack>
 
         {loading && <Spinner />}
@@ -87,7 +89,7 @@ export default function VulnerabilitiesPage() {
         {!loading && vulns.length === 0 && (
           <Box textAlign="center" py={16}>
             <Icon as={Bug} boxSize={16} color={appFx.textMuted} mb={4} />
-            <Text color={appFx.textMuted}>Nenhuma vulnerabilidade encontrada</Text>
+            <Text color={appFx.textMuted}>{t("vuln.sem_resultados")}</Text>
           </Box>
         )}
 

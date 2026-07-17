@@ -6,6 +6,7 @@ import { useAppThemeFx } from "../styles/app-theme-fx";
 import { useInferenceThemeFx } from "../styles/inference-theme-fx";
 import { getDashboardStats, type DashboardStats } from "../services/dashboard-service";
 import { ROUTES } from "../router/paths";
+import { useT } from "../hooks/useT";
 
 const STRIDE_LABELS: Record<string, string> = {
   spoofing: "Spoofing",
@@ -19,6 +20,7 @@ const STRIDE_LABELS: Record<string, string> = {
 export default function Dashboard() {
   const fx = useInferenceThemeFx();
   const appFx = useAppThemeFx();
+  const t = useT();
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,14 +39,14 @@ export default function Dashboard() {
   return (
     <Box w="full" maxW="1800px" mx="auto" pb={10}>
       <VStack spacing={8} align="stretch">
-        <Heading size="lg" color={appFx.textColor}>Dashboard</Heading>
+        <Heading size="lg" color={appFx.textColor}>{t("dash.title")}</Heading>
 
         <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} spacing={4}>
           <Box bg={fx.cardBg} p={6} borderRadius="xl" border="1px solid" borderColor={fx.cardBorder} boxShadow={fx.cardShadow} cursor="pointer" onClick={() => navigate(ROUTES.INFERENCE)} _hover={{ borderColor: "orange.400", transform: "translateY(-2px)", transition: "all 0.2s" }}>
             <HStack spacing={4}>
               <Icon as={ScanSearch} boxSize={8} color="orange.400" />
               <Stat>
-                <StatLabel color={appFx.textMuted}>Análises</StatLabel>
+                <StatLabel color={appFx.textMuted}>{t("dash.total_analises")}</StatLabel>
                 <StatNumber color={appFx.textColor}>{stats?.total_analyses || 0}</StatNumber>
                 <StatHelpText color={appFx.textMuted} fontSize="xs">{stats?.completed_analyses} concluídas</StatHelpText>
               </Stat>
@@ -55,7 +57,7 @@ export default function Dashboard() {
             <HStack spacing={4}>
               <Icon as={ShieldAlert} boxSize={8} color="red.400" />
               <Stat>
-                <StatLabel color={appFx.textMuted}>Ameaças</StatLabel>
+                <StatLabel color={appFx.textMuted}>{t("dash.total_ameacas")}</StatLabel>
                 <StatNumber color={appFx.textColor}>{stats?.total_threats || 0}</StatNumber>
                 <StatHelpText color={appFx.textMuted} fontSize="xs">{stats?.total_components_analyzed} componentes</StatHelpText>
               </Stat>
@@ -79,9 +81,9 @@ export default function Dashboard() {
             <HStack spacing={4}>
               <Icon as={Bug} boxSize={8} color="purple.400" />
               <Stat>
-                <StatLabel color={appFx.textMuted}>Vulnerabilidades</StatLabel>
+                <StatLabel color={appFx.textMuted}>{t("vuln.title")}</StatLabel>
                 <StatNumber color={appFx.textColor}>KB</StatNumber>
-                <StatHelpText color={appFx.textMuted} fontSize="xs">Base de conhecimento</StatHelpText>
+                <StatHelpText color={appFx.textMuted} fontSize="xs">{t("vuln.title")}</StatHelpText>
               </Stat>
             </HStack>
           </Box>
@@ -107,12 +109,12 @@ export default function Dashboard() {
                 })}
               </VStack>
             ) : (
-              <Text color={appFx.textMuted} fontSize="sm" textAlign="center" py={4}>Nenhum dado STRIDE disponível</Text>
+              <Text color={appFx.textMuted} fontSize="sm" textAlign="center" py={4}>{t("thr.sem_relatorios")}</Text>
             )}
           </Box>
 
           <Box bg={fx.cardBg} p={6} borderRadius="xl" border="1px solid" borderColor={fx.cardBorder} boxShadow={fx.cardShadow}>
-            <Heading size="sm" mb={4} color={appFx.textColor}>Componentes Mais Detectados</Heading>
+            <Heading size="sm" mb={4} color={appFx.textColor}>{t("inf.componentes")}</Heading>
             {stats && stats.top_components.length > 0 ? (
               <VStack spacing={3} align="stretch">
                 {stats.top_components.map((c) => {
@@ -130,7 +132,7 @@ export default function Dashboard() {
                 })}
               </VStack>
             ) : (
-              <Text color={appFx.textMuted} fontSize="sm" textAlign="center" py={4}>Nenhum componente detectado ainda</Text>
+              <Text color={appFx.textMuted} fontSize="sm" textAlign="center" py={4}>{t("inf.nenhum_relatorio")}</Text>
             )}
           </Box>
         </SimpleGrid>
@@ -153,15 +155,15 @@ export default function Dashboard() {
               ))}
             </VStack>
           ) : (
-            <Text color={appFx.textMuted} fontSize="sm" textAlign="center" py={4}>Nenhuma análise realizada. Faça upload de um diagrama.</Text>
+            <Text color={appFx.textMuted} fontSize="sm" textAlign="center" py={4}>{t("inf.nenhum_relatorio")}</Text>
           )}
         </Box>
 
         <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
-          <Button leftIcon={<Icon as={ScanSearch} />} colorScheme="orange" variant="outline" onClick={() => navigate(ROUTES.INFERENCE)}>Analisar Diagrama</Button>
-          <Button leftIcon={<Icon as={ShieldAlert} />} colorScheme="red" variant="outline" onClick={() => navigate(ROUTES.THREATS)}>Ver Ameaças</Button>
-          <Button leftIcon={<Icon as={Database} />} colorScheme="blue" variant="outline" onClick={() => navigate(ROUTES.DATASET)}>Gerenciar Dataset</Button>
-          <Button leftIcon={<Icon as={GraduationCap} />} colorScheme="green" variant="outline" onClick={() => navigate(ROUTES.TRAINING)}>Treinar Modelo</Button>
+          <Button leftIcon={<Icon as={ScanSearch} />} colorScheme="orange" variant="outline" onClick={() => navigate(ROUTES.INFERENCE)}>{t("inf.analisar")}</Button>
+          <Button leftIcon={<Icon as={ShieldAlert} />} colorScheme="red" variant="outline" onClick={() => navigate(ROUTES.THREATS)}>{t("thr.title")}</Button>
+          <Button leftIcon={<Icon as={Database} />} colorScheme="blue" variant="outline" onClick={() => navigate(ROUTES.DATASET)}>{t("ds.title")}</Button>
+          <Button leftIcon={<Icon as={GraduationCap} />} colorScheme="green" variant="outline" onClick={() => navigate(ROUTES.TRAINING)}>{t("tr.title")}</Button>
         </SimpleGrid>
       </VStack>
     </Box>

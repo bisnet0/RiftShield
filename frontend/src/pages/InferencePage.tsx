@@ -6,6 +6,7 @@ import { useInferenceThemeFx } from "../styles/inference-theme-fx";
 import { logSystemEvent } from "../utils/logger";
 import { useAppThemeFx } from "../styles/app-theme-fx";
 import { useToast } from "../components/Toast/components/ToastContext";
+import { useT } from "../hooks/useT";
 
 import {
   analyzeAndThreat,
@@ -25,6 +26,7 @@ export default function InferencePage() {
   const fx = useInferenceThemeFx();
   const appFx = useAppThemeFx();
   const { showToast } = useToast();
+  const t = useT();
   const [tab, setTab] = useState<Tab>("upload");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -91,10 +93,10 @@ export default function InferencePage() {
     <Box w="full" maxW="1800px" mx="auto" pb={10}>
       <VStack spacing={8} align="stretch">
         <Flex justify="space-between" align="center" wrap="wrap" gap={4}>
-          <Heading size="lg" color={appFx.textColor}>Análise de Arquitetura</Heading>
+          <Heading size="lg" color={appFx.textColor}>{t("inf.title")}</Heading>
           <HStack>
-            <Button size="sm" variant={tab === "upload" ? "solid" : "ghost"} colorScheme="orange" onClick={() => setTab("upload")} leftIcon={<Icon as={Upload} />}>Upload</Button>
-            <Button size="sm" variant={tab === "reports" ? "solid" : "ghost"} colorScheme="orange" onClick={() => { setTab("reports"); loadReports(); }} leftIcon={<Icon as={BarChart3} />}>Relatórios</Button>
+            <Button size="sm" variant={tab === "upload" ? "solid" : "ghost"} colorScheme="orange" onClick={() => setTab("upload")} leftIcon={<Icon as={Upload} />}>{t("inf.upload")}</Button>
+            <Button size="sm" variant={tab === "reports" ? "solid" : "ghost"} colorScheme="orange" onClick={() => { setTab("reports"); loadReports(); }} leftIcon={<Icon as={BarChart3} />}>{t("inf.reports")}</Button>
           </HStack>
         </Flex>
 
@@ -105,7 +107,7 @@ export default function InferencePage() {
                 <input {...getInputProps()} />
                 <VStack spacing={3}>
                   <Icon as={FileImage} boxSize={12} color="orange.400" />
-                  <Text color={appFx.textColor} fontWeight="bold">{isDragActive ? "Solte aqui" : "Arraste um diagrama de arquitetura"}</Text>
+                  <Text color={appFx.textColor} fontWeight="bold">{isDragActive ? "Solte aqui" : t("inf.arraste_imagem")}</Text>
                   <Text fontSize="sm" color={appFx.textMuted}>PNG ou JPEG</Text>
                 </VStack>
               </Box>
@@ -117,7 +119,7 @@ export default function InferencePage() {
               )}
 
               <Button leftIcon={<Icon as={ScanSearch} />} colorScheme="orange" size="lg" w="full" isLoading={loading} loadingText="Analisando..." isDisabled={!file} onClick={handleAnalyze}>
-                Analisar Diagrama + STRIDE
+                {t("inf.analisar")}
               </Button>
             </VStack>
           </Box>
@@ -126,7 +128,7 @@ export default function InferencePage() {
         {analyzeResult && (
           <VStack spacing={6}>
             <Box bg={fx.cardBg} p={6} borderRadius="xl" border="1px solid" borderColor={fx.cardBorder} boxShadow={fx.cardShadow}>
-              <Heading size="md" mb={4} color={appFx.textColor}>Componentes Detectados</Heading>
+              <Heading size="md" mb={4} color={appFx.textColor}>{t("inf.componentes")}</Heading>
               <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={3}>
                 {analyzeResult.inference.components.map((c, i) => (
                   <HStack key={i} p={3} bg={appFx.navHoverBg} borderRadius="md" justify="space-between">
@@ -138,15 +140,15 @@ export default function InferencePage() {
                 ))}
               </SimpleGrid>
               {analyzeResult.inference.processing_time_ms && (
-                <Text mt={3} fontSize="sm" color={appFx.textMuted}>Processado em {analyzeResult.inference.processing_time_ms}ms</Text>
+                <Text mt={3} fontSize="sm" color={appFx.textMuted}>{t("inf.processado_em")} {analyzeResult.inference.processing_time_ms}ms</Text>
               )}
             </Box>
 
             <Box bg={fx.cardBg} p={6} borderRadius="xl" border="1px solid" borderColor={fx.cardBorder} boxShadow={fx.cardShadow}>
               <Flex justify="space-between" align="center" mb={4}>
-                <Heading size="md" color={appFx.textColor}>Relatório STRIDE</Heading>
+                <Heading size="md" color={appFx.textColor}>{t("thr.title")}</Heading>
                 <HStack>
-                  <Text fontSize="sm" color={appFx.textMuted}>Risco Geral:</Text>
+                  <Text fontSize="sm" color={appFx.textMuted}>{t("thr.risco_geral")}:</Text>
                   <Badge fontSize="md" px={3} py={1} colorScheme={analyzeResult.threat_report.overall_risk_score && analyzeResult.threat_report.overall_risk_score > 7 ? "red" : analyzeResult.threat_report.overall_risk_score && analyzeResult.threat_report.overall_risk_score > 4 ? "orange" : "green"}>
                     {analyzeResult.threat_report.overall_risk_score?.toFixed(1) || "N/A"}/10
                   </Badge>
@@ -171,7 +173,7 @@ export default function InferencePage() {
 
                   {ca.stride_threats.length > 0 && (
                     <>
-                      <Text fontSize="sm" fontWeight="bold" mt={2} mb={1} color={appFx.textMuted}>Ameaças STRIDE:</Text>
+                      <Text fontSize="sm" fontWeight="bold" mt={2} mb={1} color={appFx.textMuted}>{t("thr.ameacas")}:</Text>
                       <HStack wrap="wrap">
                         {ca.stride_threats.map((t, ti) => (
                           <Tag key={ti} size="sm" variant="subtle" colorScheme={t.risk_level === "critical" ? "red" : t.risk_level === "high" ? "orange" : t.risk_level === "medium" ? "yellow" : "green"}>
@@ -184,7 +186,7 @@ export default function InferencePage() {
 
                   {ca.vulnerabilities.length > 0 && (
                     <>
-                      <Text fontSize="sm" fontWeight="bold" mt={3} mb={1} color={appFx.textMuted}>Vulnerabilidades:</Text>
+                      <Text fontSize="sm" fontWeight="bold" mt={3} mb={1} color={appFx.textMuted}>{t("thr.vulnerabilidades")}:</Text>
                       {ca.vulnerabilities.slice(0, 3).map((v, vi) => (
                         <HStack key={vi} spacing={2} mb={1}>
                           <Icon as={Bug} boxSize={3} color="red.400" />
@@ -196,7 +198,7 @@ export default function InferencePage() {
 
                   {ca.countermeasures.length > 0 && (
                     <>
-                      <Text fontSize="sm" fontWeight="bold" mt={3} mb={1} color={appFx.textMuted}>Contramedidas:</Text>
+                      <Text fontSize="sm" fontWeight="bold" mt={3} mb={1} color={appFx.textMuted}>{t("thr.contramedidas")}:</Text>
                       {ca.countermeasures.slice(0, 2).map((cm, mi) => (
                         <HStack key={mi} spacing={2} mb={1}>
                           <Icon as={ShieldCheck} boxSize={3} color="green.400" />
@@ -214,20 +216,20 @@ export default function InferencePage() {
         {tab === "reports" && (
           <Box bg={fx.cardBg} p={6} borderRadius="xl" border="1px solid" borderColor={fx.cardBorder} boxShadow={fx.cardShadow}>
             <Flex justify="space-between" align="center" mb={4}>
-              <Heading size="md" color={appFx.textColor}>Relatórios Salvos</Heading>
-              <Button size="sm" variant="ghost" leftIcon={<Icon as={RefreshCw} />} onClick={loadReports} isLoading={reportsLoading}>Atualizar</Button>
+              <Heading size="md" color={appFx.textColor}>{t("inf.reports")}</Heading>
+              <Button size="sm" variant="ghost" leftIcon={<Icon as={RefreshCw} />} onClick={loadReports} isLoading={reportsLoading}>{t("geral.atualizar")}</Button>
             </Flex>
 
             <VStack spacing={3} align="stretch">
               {threatReports.length === 0 && reports.length === 0 && (
-                <Text color={appFx.textMuted} textAlign="center" py={8}>Nenhum relatório encontrado. Faça upload de um diagrama.</Text>
+                <Text color={appFx.textMuted} textAlign="center" py={8}>{t("inf.nenhum_relatorio")}</Text>
               )}
 
               {threatReports.map((tr) => (
                 <Box key={tr.id} p={4} bg={appFx.navHoverBg} borderRadius="md">
                   <Flex justify="space-between" align="center" wrap="wrap" gap={2}>
                     <VStack align="start" spacing={1}>
-                      <Text fontWeight="bold" color={appFx.textColor}>Relatório STRIDE</Text>
+                      <Text fontWeight="bold" color={appFx.textColor}>{t("thr.title")}</Text>
                       <Text fontSize="sm" color={appFx.textMuted}>{new Date(tr.created_at).toLocaleString("pt-BR")}</Text>
                       <HStack wrap="wrap" gap={1}>
                         {Object.entries(tr.stride_summary).filter(([, c]) => c > 0).map(([cat]) => (
@@ -237,7 +239,7 @@ export default function InferencePage() {
                     </VStack>
                     <HStack>
                       <Badge fontSize="md" px={3} colorScheme={tr.overall_risk_score && tr.overall_risk_score > 7 ? "red" : tr.overall_risk_score && tr.overall_risk_score > 4 ? "orange" : "green"}>
-                        Risco: {tr.overall_risk_score?.toFixed(1) || "N/A"}
+                        {t("thr.risco_geral")}: {tr.overall_risk_score?.toFixed(1) || "N/A"}
                       </Badge>
                       <Button size="sm" variant="ghost" leftIcon={<Icon as={Eye} />} onClick={() => setSelectedThreat(selectedThreat?.id === tr.id ? null : tr)}>Ver</Button>
                       <Button size="sm" variant="ghost" colorScheme="red" onClick={() => handleDelete(tr.inference_id)}><Icon as={Trash2} /></Button>
@@ -257,7 +259,7 @@ export default function InferencePage() {
                             ))}
                           </HStack>
                           {ca.vulnerabilities.length > 0 && (
-                            <Text fontSize="sm" color={appFx.textMuted} mt={1}>{ca.vulnerabilities.length} vulnerabilidade(s)</Text>
+                            <Text fontSize="sm" color={appFx.textMuted} mt={1}>{ca.vulnerabilities.length} {t("thr.vulnerabilidades")}</Text>
                           )}
                         </Box>
                       ))}

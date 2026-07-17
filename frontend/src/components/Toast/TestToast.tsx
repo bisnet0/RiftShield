@@ -11,7 +11,7 @@ const COLORS = [
 export function TestToast() {
   const { showToast } = useToast();
   const [idx, setIdx] = useState(0);
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     if (!visible) return;

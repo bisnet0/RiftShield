@@ -3,6 +3,7 @@ import {
   Box, Flex, Text, IconButton, Collapse, useColorModeValue, HStack, Badge, Spinner,
 } from "@chakra-ui/react";
 import { ChevronUp, ChevronDown, Terminal, Trash2, Lock, Unlock, FileUp, Search, AlertTriangle, Upload, Activity } from "lucide-react";
+import { useT } from "../hooks/useT";
 import { useAppThemeFx } from "../styles/app-theme-fx";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import api from "../middleware/api";
@@ -32,6 +33,7 @@ function stripMd(t: string): string {
 export function HermesLogDrawer({ onHeightChange }: { onHeightChange?: (h: number) => void }) {
   const themeFx = useAppThemeFx();
   const [hermesEnabled] = useLocalStorage("hermes_enabled", true);
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [h, setH] = useState(MIN_H);
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -42,13 +44,14 @@ export function HermesLogDrawer({ onHeightChange }: { onHeightChange?: (h: numbe
   const sy = useRef(0);
   const sh = useRef(MIN_H);
 
-  const bg = useColorModeValue("#0d1117", "#0a0a0a");
-  const bc = useColorModeValue("rgba(48, 209, 144, 0.3)", "rgba(48, 209, 144, 0.3)");
-  const ac = useColorModeValue("#30d190", "#30d190");
-  const uc = useColorModeValue("#58a6ff", "#58a6ff");
-  const mc = useColorModeValue("#484f58", "#484f58");
+  const bg = useColorModeValue("#e8e0d5", "#1A1A1A");
+  const bc = useColorModeValue("rgba(230, 92, 0, 0.3)", "rgba(230, 184, 0, 0.3)");
+  const ac = useColorModeValue("#e65c00", "#e6b800");
+  const uc = useColorModeValue("#2563eb", "#58a6ff");
+  const mc = useColorModeValue("#6b6b6b", "#484f58");
   const gc = useColorModeValue("#8b949e", "#8b949e");
-  const brand = useColorModeValue("#30d190", "#30d190");
+  const brand = useColorModeValue("#e65c00", "#e6b800");
+  const navColor = useColorModeValue("#d97706", "#eab308");
 
   const expanded = open && h > SNAP;
 
@@ -73,13 +76,15 @@ export function HermesLogDrawer({ onHeightChange }: { onHeightChange?: (h: numbe
   useEffect(() => {
     const handler = (e: CustomEvent<SystemEvent>) => {
       const ev = e.detail;
-      setLogs((prev) => [...prev, {
+      const entry = {
         id: `sys-${Date.now()}`,
-        role: "system",
+        role: "system" as const,
         content: ev.label,
         icon: ev.icon || ev.type,
         created_at: new Date().toISOString(),
-      }].slice(-20));
+      };
+      setLogs((prev) => [...prev, entry].slice(-20));
+      api.post("/hermes/chat", { message: ev.label, attachment: null }).catch(() => {});
     };
     window.addEventListener("hermes-system-event", handler as EventListener);
     return () => window.removeEventListener("hermes-system-event", handler as EventListener);
@@ -144,7 +149,7 @@ export function HermesLogDrawer({ onHeightChange }: { onHeightChange?: (h: numbe
       >
         <HStack spacing={2}>
           <Terminal size={14} color={brand} />
-          <Text fontSize="11px" fontWeight="600" color={gc} letterSpacing="0.5px">HERMES LOG</Text>
+          <Text fontSize="11px" fontWeight="600" color={gc} letterSpacing="0.5px">{t("hlog.titulo")}</Text>
           {loading && <Spinner size="xs" color={brand} />}
           {!loading && logs.length > 0 && (
             <Badge bg="rgba(48,209,144,0.15)" color={ac} fontSize="10px" borderRadius="sm" px={1.5}>{logs.length}</Badge>
@@ -169,23 +174,25 @@ export function HermesLogDrawer({ onHeightChange }: { onHeightChange?: (h: numbe
           css={{ "&::-webkit-scrollbar": { width: "4px" }, "&::-webkit-scrollbar-thumb": { background: "rgba(48,209,144,0.2)", borderRadius: "4px" } }}
         >
           {logs.length === 0 && !loading && (
-            <Flex justify="center" align="center" h="full"><Text fontSize="11px" color={mc}>── no logs ──</Text></Flex>
+            <Flex justify="center" align="center" h="full"><Text fontSize="11px" color={mc}>{t("hlog.sem_logs")}</Text></Flex>
           )}
           {logs.map((e) => {
             const isSystem = e.role === "system";
+            const isNavigation = isSystem && e.icon === "navigation";
             const clean = isSystem ? [e.content] : stripMd(e.content).split("\n").filter(Boolean);
-            const sysColor = "#a0a0a0";
-            const iconMap: Record<string, any> = { upload: FileUp, analyze: Search, diagram: Search, threat: AlertTriangle, dataset: Upload, training: Activity };
+            const sysColor = mc;
+            const displayColor = isNavigation ? navColor : isSystem ? sysColor : e.role === "agent" ? ac : uc;
+            const iconMap: Record<string, any> = { upload: FileUp, analyze: Search, diagram: Search, threat: AlertTriangle, dataset: Upload, training: Activity, activity: Activity, navigation: Activity };
             const Icon = e.icon ? iconMap[e.icon] : null;
             return (
               <Box key={e.id} mb={2}>
                 <Flex align="center" gap={1.5} mb={0.5}>
-                  {isSystem && Icon && <Icon size={10} color={sysColor} style={{ opacity: 0.7 }} />}
+                  {isSystem && Icon && <Icon size={10} color={displayColor} style={{ opacity: 0.7 }} />}
                   <Text fontSize="10px" fontWeight="700"
-                    color={isSystem ? sysColor : e.role === "agent" ? ac : uc}
+                    color={displayColor}
                     fontStyle={isSystem ? "italic" : "normal"}
                   >
-                    {isSystem ? "SYS" : e.role === "agent" ? "HERMES" : "USER"}
+                    {isNavigation ? "NAV" : isSystem ? "SYS" : e.role === "agent" ? "HERMES" : "USER"}
                   </Text>
                   <Text fontSize="9px" color={mc}>
                     {e.created_at ? new Date(e.created_at).toLocaleTimeString() : ""}
@@ -193,7 +200,7 @@ export function HermesLogDrawer({ onHeightChange }: { onHeightChange?: (h: numbe
                 </Flex>
                 {clean.slice(0, 5).map((l, i) => (
                   <Text key={i} fontSize="11px"
-                    color={isSystem ? sysColor : e.role === "agent" ? ac : uc}
+                    color={displayColor}
                     fontStyle={isSystem ? "italic" : "normal"}
                     lineHeight="1.6" opacity={i === 4 && clean.length > 5 ? 0.5 : 0.85} pl={2}
                     sx={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
@@ -206,7 +213,7 @@ export function HermesLogDrawer({ onHeightChange }: { onHeightChange?: (h: numbe
             );
           })}
           {logs.length > 0 && (
-            <Flex justify="center" mt={3}><Text fontSize="10px" color={mc}>── end of log ──</Text></Flex>
+            <Flex justify="center" mt={3}><Text fontSize="10px" color={mc}>{t("hlog.fim_log")}</Text></Flex>
           )}
         </Box>
       </Collapse>

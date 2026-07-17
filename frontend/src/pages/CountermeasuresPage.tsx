@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useAppThemeFx } from "../styles/app-theme-fx";
 import { useInferenceThemeFx } from "../styles/inference-theme-fx";
 import { listCountermeasures, type KBCountermeasure } from "../services/kb-service";
+import { useT } from "../hooks/useT";
 
 const PRIORITY_COLORS: Record<string, string> = {
   critical: "red",
@@ -18,6 +19,7 @@ export default function CountermeasuresPage() {
   const [items, setItems] = useState<KBCountermeasure[]>([]);
   const [loading, setLoading] = useState(true);
   const [cweFilter, setCweFilter] = useState("");
+  const t = useT();
 
   const load = async () => {
     setLoading(true);
@@ -33,21 +35,21 @@ export default function CountermeasuresPage() {
     <Box w="full" maxW="1800px" mx="auto" pb={10}>
       <VStack spacing={8} align="stretch">
         <Flex justify="space-between" align="center" wrap="wrap" gap={4}>
-          <Heading size="lg" color={appFx.textColor}>Base de Contramedidas</Heading>
+          <Heading size="lg" color={appFx.textColor}>{t("cm.title")}</Heading>
           <HStack>
-            <Select placeholder="Filtrar por CWE" value={cweFilter} onChange={(e) => setCweFilter(e.target.value)} w="200px" bg={appFx.navHoverBg} borderColor={fx.cardBorder} color={appFx.textColor}>
-              <option value="CWE-287">CWE-287 (Autenticação)</option>
-              <option value="CWE-89">CWE-89 (SQL Injection)</option>
-              <option value="CWE-79">CWE-79 (XSS)</option>
-              <option value="CWE-400">CWE-400 (DoS)</option>
-              <option value="CWE-200">CWE-200 (Exposição)</option>
-              <option value="CWE-269">CWE-269 (Privilégios)</option>
-              <option value="CWE-798">CWE-798 (Credenciais)</option>
-              <option value="CWE-918">CWE-918 (SSRF)</option>
-              <option value="CWE-22">CWE-22 (Path Traversal)</option>
-              <option value="CWE-502">CWE-502 (Desserialização)</option>
+            <Select placeholder={t("cm.filtrar_cwe")} value={cweFilter} onChange={(e) => setCweFilter(e.target.value)} w="200px" bg={appFx.navHoverBg} borderColor={fx.cardBorder} color={appFx.textColor}>
+              <option value="CWE-287">{t("cm.cwe_287")}</option>
+              <option value="CWE-89">{t("cm.cwe_89")}</option>
+              <option value="CWE-79">{t("cm.cwe_79")}</option>
+              <option value="CWE-400">{t("cm.cwe_400")}</option>
+              <option value="CWE-200">{t("cm.cwe_200")}</option>
+              <option value="CWE-269">{t("cm.cwe_269")}</option>
+              <option value="CWE-798">{t("cm.cwe_798")}</option>
+              <option value="CWE-918">{t("cm.cwe_918")}</option>
+              <option value="CWE-22">{t("cm.cwe_22")}</option>
+              <option value="CWE-502">{t("cm.cwe_502")}</option>
             </Select>
-            <Button size="sm" variant="ghost" leftIcon={<Icon as={RefreshCw} />} onClick={load} isLoading={loading}>Atualizar</Button>
+            <Button size="sm" variant="ghost" leftIcon={<Icon as={RefreshCw} />} onClick={load} isLoading={loading}>{t("geral.atualizar")}</Button>
           </HStack>
         </Flex>
 
@@ -56,7 +58,7 @@ export default function CountermeasuresPage() {
         {!loading && items.length === 0 && (
           <Box textAlign="center" py={16}>
             <Icon as={ShieldCheck} boxSize={16} color={appFx.textMuted} mb={4} />
-            <Text color={appFx.textMuted}>Nenhuma contramedida encontrada</Text>
+            <Text color={appFx.textMuted}>{t("cm.sem_resultados")}</Text>
           </Box>
         )}
 
@@ -83,7 +85,7 @@ export default function CountermeasuresPage() {
 
                 {cm.implementation_guide && (
                   <Box mb={4} p={4} bg={fx.cardBg} borderRadius="md" border="1px solid" borderColor={fx.cardBorder}>
-                    <Text fontWeight="bold" color={appFx.textColor} mb={2}>Guia de Implementação</Text>
+                    <Text fontWeight="bold" color={appFx.textColor} mb={2}>{t("cm.guia_implementacao")}</Text>
                     <Text color={appFx.textColor} fontSize="sm">{cm.implementation_guide}</Text>
                   </Box>
                 )}
@@ -98,7 +100,7 @@ export default function CountermeasuresPage() {
 
                 {cm.references.length > 0 && (
                   <>
-                    <Text fontWeight="bold" color={appFx.textColor} mb={2} fontSize="sm">Referências</Text>
+                    <Text fontWeight="bold" color={appFx.textColor} mb={2} fontSize="sm">{t("cm.referencias")}</Text>
                     <VStack align="start" spacing={1}>
                       {cm.references.map((ref, i) => (
                         <Link key={i} href={ref} isExternal fontSize="sm" color="orange.400">

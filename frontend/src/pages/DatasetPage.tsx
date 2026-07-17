@@ -6,11 +6,13 @@ import { useInferenceThemeFx } from "../styles/inference-theme-fx";
 import { logSystemEvent } from "../utils/logger";
 import { useToast } from "../components/Toast/components/ToastContext";
 import { uploadEntry, listEntries, deleteEntry, getDatasetStats, type DatasetEntry, type DatasetStats } from "../services/dataset-service";
+import { useT } from "../hooks/useT";
 
 export default function DatasetPage() {
   const fx = useInferenceThemeFx();
   const appFx = useAppThemeFx();
   const { showToast } = useToast();
+  const t = useT();
   const [entries, setEntries] = useState<DatasetEntry[]>([]);
   const [stats, setStats] = useState<DatasetStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -21,11 +23,11 @@ export default function DatasetPage() {
   const [split, setSplit] = useState("train");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const SPLIT_LABELS: Record<string, string> = { train: "Treino", val: "Validação", test: "Teste" };
+  const SPLIT_LABELS: Record<string, string> = { train: t("ds.treino"), val: t("ds.validacao"), test: t("ds.teste") };
   const SPLIT_DESC: Record<string, string> = {
-    train: "Imagens usadas para o treinamento do modelo YOLO",
-    val: "Imagens usadas para validar a acurácia durante o treinamento",
-    test: "Imagens usadas para testar o modelo após o treinamento",
+    train: t("ds.split_desc_train"),
+    val: t("ds.split_desc_val"),
+    test: t("ds.split_desc_test"),
   };
 
   const loadData = async () => {
@@ -37,7 +39,7 @@ export default function DatasetPage() {
       ]);
       setEntries(eRes.items);
       setStats(sRes);
-    } catch { showToast({ title: "Erro", message: "Falha ao carregar dataset", type: "error" }); } finally { setLoading(false); }
+    } catch { showToast({ title: t("geral.erro"), message: t("ds.erro_carregar"), type: "error" }); } finally { setLoading(false); }
   };
 
   useEffect(() => { loadData(); }, [splitFilter]);
@@ -55,62 +57,62 @@ export default function DatasetPage() {
     try {
       await uploadEntry(file, "[]", split);
       logSystemEvent("upload", `Dataset enviado: ${file.name}`, "dataset");
-      showToast({ title: "Sucesso", message: "Imagem adicionada ao dataset", type: "success" });
+      showToast({ title: t("geral.sucesso"), message: t("ds.imagem_adicionada"), type: "success" });
       setFile(null);
       setPreview(null);
       loadData();
     } catch (err: any) {
-      showToast({ title: "Erro", message: err?.response?.data?.error || "Falha no upload", type: "error" });
+      showToast({ title: t("geral.erro"), message: err?.response?.data?.error || t("ds.falha_upload"), type: "error" });
     } finally { setUploading(false); }
   };
 
   const handleDelete = async (id: string) => {
     try {
       await deleteEntry(id);
-      showToast({ title: "Removido", message: "Entrada excluída", type: "info" });
+      showToast({ title: t("geral.atencao"), message: t("ds.entrada_excluida"), type: "info" });
       loadData();
-    } catch { showToast({ title: "Erro", message: "Falha ao excluir", type: "error" }); }
+    } catch { showToast({ title: t("geral.erro"), message: t("ds.falha_excluir"), type: "error" }); }
   };
 
   return (
     <Box w="full" maxW="1800px" mx="auto" pb={10}>
       <VStack spacing={8} align="stretch">
         <Flex justify="space-between" align="center" wrap="wrap" gap={4}>
-          <Heading size="lg" color={appFx.textColor}>Dataset</Heading>
-          <Button size="sm" variant="ghost" leftIcon={<Icon as={RefreshCw} />} onClick={loadData} isLoading={loading}>Atualizar</Button>
+          <Heading size="lg" color={appFx.textColor}>{t("ds.title")}</Heading>
+          <Button size="sm" variant="ghost" leftIcon={<Icon as={RefreshCw} />} onClick={loadData} isLoading={loading}>{t("geral.atualizar")}</Button>
         </Flex>
 
         {stats && (
           <SimpleGrid columns={{ base: 2, md: 4, lg: 7 }} spacing={3}>
             <Stat bg={fx.cardBg} p={4} borderRadius="lg" border="1px solid" borderColor={fx.cardBorder}>
-              <StatLabel color={appFx.textMuted}>Total</StatLabel>
+              <StatLabel color={appFx.textMuted}>{t("ds.total")}</StatLabel>
               <StatNumber color={appFx.textColor}>{stats.total}</StatNumber>
             </Stat>
             <Stat bg={fx.cardBg} p={4} borderRadius="lg" border="1px solid" borderColor={fx.cardBorder}>
-              <StatLabel color={appFx.textMuted}>Treino</StatLabel>
+              <StatLabel color={appFx.textMuted}>{t("ds.treino")}</StatLabel>
               <StatNumber color="green.400">{stats.train_count}</StatNumber>
             </Stat>
             <Stat bg={fx.cardBg} p={4} borderRadius="lg" border="1px solid" borderColor={fx.cardBorder}>
-              <StatLabel color={appFx.textMuted}>Validação</StatLabel>
+              <StatLabel color={appFx.textMuted}>{t("ds.validacao")}</StatLabel>
               <StatNumber color="blue.400">{stats.val_count}</StatNumber>
             </Stat>
             <Stat bg={fx.cardBg} p={4} borderRadius="lg" border="1px solid" borderColor={fx.cardBorder}>
-              <StatLabel color={appFx.textMuted}>Teste</StatLabel>
+              <StatLabel color={appFx.textMuted}>{t("ds.teste")}</StatLabel>
               <StatNumber color="purple.400">{stats.test_count}</StatNumber>
             </Stat>
             <Stat bg={fx.cardBg} p={4} borderRadius="lg" border="1px solid" borderColor={fx.cardBorder}>
-              <StatLabel color={appFx.textMuted}>Manual</StatLabel>
+              <StatLabel color={appFx.textMuted}>{t("ds.manual")}</StatLabel>
               <StatNumber color="orange.400">{stats.manual_count}</StatNumber>
             </Stat>
             <Stat bg={fx.cardBg} p={4} borderRadius="lg" border="1px solid" borderColor={fx.cardBorder}>
-              <StatLabel color={appFx.textMuted}>Aumentado</StatLabel>
+              <StatLabel color={appFx.textMuted}>{t("ds.aumentado")}</StatLabel>
               <StatNumber color="cyan.400">{stats.augmented_count}</StatNumber>
             </Stat>
           </SimpleGrid>
         )}
 
         <Box bg={fx.cardBg} p={6} borderRadius="xl" border="1px solid" borderColor={fx.cardBorder} boxShadow={fx.cardShadow}>
-          <Heading size="md" mb={4} color={appFx.textColor}>Upload de Imagem</Heading>
+          <Heading size="md" mb={4} color={appFx.textColor}>{t("ds.upload")}</Heading>
           <VStack spacing={4}>
             <input type="file" accept="image/*" onChange={handleFileChange} ref={fileRef} style={{ display: "none" }} />
             <Box
@@ -119,7 +121,7 @@ export default function DatasetPage() {
               _hover={{ borderColor: "orange.400" }}
             >
               <Icon as={ImageIcon} boxSize={10} color="orange.400" mb={2} />
-              <Text color={appFx.textColor}>{file ? file.name : "Clique para selecionar uma imagem"}</Text>
+              <Text color={appFx.textColor}>{file ? file.name : t("ds.clique_selecionar")}</Text>
             </Box>
 
             {preview && <Image src={preview} alt="Preview" maxH="200px" borderRadius="md" />}
@@ -127,8 +129,8 @@ export default function DatasetPage() {
             <HStack w="full">
               <FormControl>
                 <FormLabel color={appFx.textMuted} fontSize="sm">
-                  Split
-                  <Tooltip label="Define como a imagem será usada no treinamento do YOLO" placement="top" hasArrow>
+                  {t("ds.split")}
+                  <Tooltip label={t("ds.split_desc")} placement="top" hasArrow>
                     <Icon as={HelpCircle} boxSize={3} color={appFx.textMuted} ml={1} style={{ cursor: "help" }} />
                   </Tooltip>
                 </FormLabel>
@@ -140,7 +142,7 @@ export default function DatasetPage() {
                 <Text fontSize="xs" color={appFx.textMuted} mt={1}>{SPLIT_DESC[split]}</Text>
               </FormControl>
               <Button leftIcon={<Icon as={Upload} />} colorScheme="orange" mt="auto" isLoading={uploading} isDisabled={!file} onClick={handleUpload}>
-                Upload
+                {t("ds.upload_btn")}
               </Button>
             </HStack>
           </VStack>
@@ -148,10 +150,10 @@ export default function DatasetPage() {
 
         <Box bg={fx.cardBg} p={6} borderRadius="xl" border="1px solid" borderColor={fx.cardBorder} boxShadow={fx.cardShadow}>
           <Flex justify="space-between" align="center" mb={4}>
-            <Heading size="md" color={appFx.textColor}>Entradas ({entries.length})</Heading>
+            <Heading size="md" color={appFx.textColor}>{t("ds.entradas")} ({entries.length})</Heading>
             <HStack>
               <Select size="sm" value={splitFilter} onChange={(e) => setSplitFilter(e.target.value)} bg={appFx.navHoverBg} borderColor={fx.cardBorder} color={appFx.textColor} w="140px">
-                <option value="">Todos</option>
+                <option value="">{t("ds.todos")}</option>
                 {Object.entries(SPLIT_LABELS).map(([k, v]) => (
                   <option key={k} value={k}>{v}</option>
                 ))}
@@ -159,7 +161,7 @@ export default function DatasetPage() {
             </HStack>
           </Flex>
 
-          {entries.length === 0 && <Text color={appFx.textMuted} textAlign="center" py={8}>Nenhuma entrada no dataset</Text>}
+          {entries.length === 0 && <Text color={appFx.textMuted} textAlign="center" py={8}>{t("ds.sem_entradas")}</Text>}
 
           <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={3}>
             {entries.map((e) => (

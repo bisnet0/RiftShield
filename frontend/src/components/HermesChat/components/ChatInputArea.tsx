@@ -1,6 +1,7 @@
 import React from "react";
 import { Flex, Input, IconButton } from "@chakra-ui/react";
 import { Paperclip, Send } from "lucide-react";
+import { useT } from "../../../hooks/useT";
 import { useHermesThemeFx } from "../styles/theme-fx";
 import { type ChatInputAreaProps } from "../types";
 
@@ -8,6 +9,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   inputValue, attachment, isLoading, onInputChange, onFileChange, onSendMessage, onKeyPress,
 }) => {
   const themeFx = useHermesThemeFx();
+  const t = useT();
   return (
     <Flex p={4} bg={themeFx.inputAreaBg} borderTop="1px solid" borderColor={themeFx.borderColor} align="center">
       <input type="file" id="hermes-file-upload" style={{ display: "none" }} onChange={onFileChange} accept="image/*" />
@@ -18,13 +20,13 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
         variant="ghost"
         color={attachment ? themeFx.iconColor : themeFx.mutedText}
         mr={2}
-        aria-label="Anexar arquivo"
+        aria-label={t("hermes.anexar")}
         cursor="pointer"
         _hover={{ bg: "whiteAlpha.200" }}
       />
       <Input
         flex={1}
-        placeholder="Pergunte ao Hermes sobre segurança, arquitetura..."
+        placeholder={t("hermes.placeholder")}
         color={themeFx.agentMsgText}
         value={inputValue}
         onChange={(e) => onInputChange(e.target.value)}
@@ -44,7 +46,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
         ml={2}
         onClick={onSendMessage}
         isLoading={isLoading}
-        aria-label="Enviar"
+        aria-label={t("hermes.enviar")}
         _hover={{ bg: "brandHover" }}
       />
     </Flex>

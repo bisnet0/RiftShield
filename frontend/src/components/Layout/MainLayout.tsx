@@ -9,8 +9,10 @@ import { Sidebar } from "./Sidebar";
 import { Footer } from "./Footer";
 import { HermesLogDrawer } from "../HermesLogDrawer";
 import { LoginForm } from "../Auth/LoginForm";
+import { usePageLogger } from "../../hooks/usePageLogger";
 
 export function MainLayout() {
+  usePageLogger();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const themeFx = useAppThemeFx();
   const { isAuthenticated, loadingAuth } = useAuth();

@@ -5,15 +5,18 @@ import {
 } from "@chakra-ui/react";
 import { useToast } from "../components/Toast/components/ToastContext";
 import { User, Mail, Phone, MapPin, Briefcase, Calendar, Shield, Zap } from "lucide-react";
+import { BrazilFlagMini, USAFlagMini } from "../components/LanguageFlags";
+import { useLanguage } from "../context/LanguageContext";
 import { useAppThemeFx } from "../styles/app-theme-fx";
 import api from "../middleware/api";
+import { useT } from "../hooks/useT";
 
 const MAX_DAYS = 30;
 
-const SENIORITY_OPTIONS = [
-  { value: "junior", label: "Júnior", color: "green" },
-  { value: "mid-level", label: "Pleno", color: "orange" },
-  { value: "senior", label: "Sênior", color: "red" },
+const SENIORITY_OPTIONS = (t: (key: string) => string) => [
+  { value: "junior", label: t("prof.junior"), color: "green" },
+  { value: "mid-level", label: t("prof.pleno"), color: "orange" },
+  { value: "senior", label: t("prof.senior"), color: "red" },
 ];
 
 function ProgressingText() {
@@ -41,6 +44,7 @@ function ProgressingText() {
 export default function Profile() {
   const themeFx = useAppThemeFx();
   const { showToast } = useToast();
+  const t = useT();
   const cardBg = useColorModeValue("#ffffff", "#1a1a1a");
   const cardBorder = useColorModeValue("rgba(230, 92, 0, 0.15)", "#333333");
   const progressBg = useColorModeValue("#f0f0f0", "#1a1a1a");
@@ -50,7 +54,7 @@ export default function Profile() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ name: "", phone: "", country: "", state: "", city: "", profession: "", seniority: "", age: "" });
+  const [form, setForm] = useState({ name: "", phone: "", country: "", state: "", city: "", profession: "", seniority: "", age: "", language: "pt-BR" });
 
   useEffect(() => {
     loadProfile();
@@ -61,7 +65,7 @@ export default function Profile() {
       const res = await api.get("/users/me");
       const u = res.data.user;
       setUser(u);
-      setForm({ name: u.name || "", phone: u.phone || "", country: u.country || "", state: u.state || "", city: u.city || "", profession: u.profession || "", seniority: u.seniority || "", age: u.age?.toString() || "" });
+      setForm({ name: u.name || "", phone: u.phone || "", country: u.country || "", state: u.state || "", city: u.city || "", profession: u.profession || "", seniority: u.seniority || "", age: u.age?.toString() || "", language: u.language || "pt-BR" });
     } catch {}
     setLoading(false);
   };
@@ -78,11 +82,12 @@ export default function Profile() {
       if (form.profession !== (user.profession || "")) payload.profession = form.profession;
       if (form.seniority !== (user.seniority || "")) payload.seniority = form.seniority;
       if (form.age !== (user.age?.toString() || "")) payload.age = form.age ? parseInt(form.age) : null;
-      if (Object.keys(payload).length === 0) { showToast({ title: "Nenhuma alteração", type: "info", duration: 2000 }); return; }
+      if (form.language !== (user.language || "pt-BR")) payload.language = form.language;
+      if (Object.keys(payload).length === 0) { showToast({ title: t("prof.sem_alteracoes"), type: "info", duration: 2000 }); return; }
       const res = await api.put("/users/me", payload);
       setUser(res.data.user);
-      showToast({ title: "Perfil atualizado", type: "success", duration: 3000 });
-    } catch { showToast({ title: "Erro ao salvar", type: "error", duration: 3000 }); }
+      showToast({ title: t("prof.perfil_atualizado"), type: "success", duration: 3000 });
+    } catch { showToast({ title: t("prof.erro_salvar"), type: "error", duration: 3000 }); }
     setSaving(false);
   };
 
@@ -93,23 +98,23 @@ export default function Profile() {
 
   return (
     <VStack spacing={8} align="stretch" w="full" maxW="900px" mx="auto" pb={10}>
-      <Heading size="lg" color={themeFx.textColor}>Perfil</Heading>
+      <Heading size="lg" color={themeFx.textColor}>{t("prof.title")}</Heading>
 
       <Flex gap={6} direction={{ base: "column", md: "row" }}>
         <Box flex={1} p={6} bg={cardBg} borderRadius="xl" border="1px solid" borderColor={cardBorder}>
           <VStack spacing={5} align="stretch">
             <HStack spacing={3}>
               <Icon as={User} color={themeFx.brandColor} />
-              <Text fontWeight="bold" color={themeFx.textColor}>Informações Pessoais</Text>
+              <Text fontWeight="bold" color={themeFx.textColor}>{t("prof.info_pessoais")}</Text>
             </HStack>
             <Divider />
-            <Field icon={User} label="Nome" value={form.name} onChange={(v) => setForm({ ...form, name: v })} themeFx={themeFx} cardBg={cardBg} cardBorder={cardBorder} />
+            <Field icon={User} label={t("prof.nome")} value={form.name} onChange={(v) => setForm({ ...form, name: v })} themeFx={themeFx} cardBg={cardBg} cardBorder={cardBorder} />
             <Field icon={Mail} label="Email" value={user?.email || ""} onChange={() => {}} themeFx={themeFx} cardBg={cardBg} cardBorder={cardBorder} disabled />
-            <Field icon={Phone} label="Contato" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} themeFx={themeFx} cardBg={cardBg} cardBorder={cardBorder} />
+            <Field icon={Phone} label={t("prof.contato")} value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} themeFx={themeFx} cardBg={cardBg} cardBorder={cardBorder} />
             <HStack>
-              <Field icon={MapPin} label="País" value={form.country} onChange={(v) => setForm({ ...form, country: v })} themeFx={themeFx} cardBg={cardBg} cardBorder={cardBorder} />
-              <Field icon={MapPin} label="Estado" value={form.state} onChange={(v) => setForm({ ...form, state: v })} themeFx={themeFx} cardBg={cardBg} cardBorder={cardBorder} />
-              <Field icon={MapPin} label="Cidade" value={form.city} onChange={(v) => setForm({ ...form, city: v })} themeFx={themeFx} cardBg={cardBg} cardBorder={cardBorder} />
+              <Field icon={MapPin} label={t("prof.pais")} value={form.country} onChange={(v) => setForm({ ...form, country: v })} themeFx={themeFx} cardBg={cardBg} cardBorder={cardBorder} />
+              <Field icon={MapPin} label={t("prof.estado")} value={form.state} onChange={(v) => setForm({ ...form, state: v })} themeFx={themeFx} cardBg={cardBg} cardBorder={cardBorder} />
+              <Field icon={MapPin} label={t("prof.cidade")} value={form.city} onChange={(v) => setForm({ ...form, city: v })} themeFx={themeFx} cardBg={cardBg} cardBorder={cardBorder} />
             </HStack>
           </VStack>
         </Box>
@@ -118,15 +123,15 @@ export default function Profile() {
           <VStack spacing={5} align="stretch">
             <HStack spacing={3}>
               <Icon as={Briefcase} color={themeFx.brandColor} />
-              <Text fontWeight="bold" color={themeFx.textColor}>Profissão</Text>
+              <Text fontWeight="bold" color={themeFx.textColor}>{t("prof.profissao")}</Text>
             </HStack>
             <Divider />
-            <Field icon={Briefcase} label="Profissão" value={form.profession} onChange={(v) => setForm({ ...form, profession: v })} themeFx={themeFx} cardBg={cardBg} cardBorder={cardBorder} placeholder="Ex: Arquiteto de Sistemas" />
-            <Field icon={Calendar} label="Idade" value={form.age} onChange={(v) => setForm({ ...form, age: v })} themeFx={themeFx} cardBg={cardBg} cardBorder={cardBorder} placeholder="Ex: 30" type="number" />
+            <Field icon={Briefcase} label={t("prof.profissao_label")} value={form.profession} onChange={(v) => setForm({ ...form, profession: v })} themeFx={themeFx} cardBg={cardBg} cardBorder={cardBorder} placeholder={t("prof.profissao_placeholder")} />
+            <Field icon={Calendar} label={t("prof.idade")} value={form.age} onChange={(v) => setForm({ ...form, age: v })} themeFx={themeFx} cardBg={cardBg} cardBorder={cardBorder} placeholder={t("prof.idade_placeholder")} type="number" />
             <Box>
-              <Text fontSize="sm" color={themeFx.textMuted} mb={2} fontWeight="medium">Senioridade</Text>
+              <Text fontSize="sm" color={themeFx.textMuted} mb={2} fontWeight="medium">{t("prof.senioridade")}</Text>
               <HStack spacing={2}>
-                {SENIORITY_OPTIONS.map((opt) => (
+                {SENIORITY_OPTIONS(t).map((opt) => (
                   <Button
                     key={opt.value}
                     size="sm"
@@ -141,6 +146,17 @@ export default function Profile() {
                 ))}
               </HStack>
             </Box>
+            <Box>
+              <Text fontSize="sm" color={themeFx.textMuted} mb={2} fontWeight="medium">{t("prof.idioma")}</Text>
+              <HStack spacing={2}>
+                <Button size="sm" variant={form.language === "pt-BR" ? "solid" : "outline"} colorScheme="orange" onClick={() => setForm({ ...form, language: "pt-BR" })} flex={1} leftIcon={<BrazilFlagMini />}>
+                  {t("prof.portugues")}
+                </Button>
+                <Button size="sm" variant={form.language === "en-US" ? "solid" : "outline"} colorScheme="orange" onClick={() => setForm({ ...form, language: "en-US" })} flex={1} leftIcon={<USAFlagMini />}>
+                  {t("prof.ingles")}
+                </Button>
+              </HStack>
+            </Box>
           </VStack>
 
           <Divider my={5} />
@@ -148,8 +164,8 @@ export default function Profile() {
           <VStack spacing={3} align="stretch">
             <HStack spacing={3}>
               <Icon as={Zap} color={themeFx.brandColor} />
-              <Text fontWeight="bold" color={themeFx.textColor}>Experiência no App</Text>
-              <Badge colorScheme="orange" variant="subtle" fontSize="xs">{days}/{MAX_DAYS} dias</Badge>
+              <Text fontWeight="bold" color={themeFx.textColor}>{t("prof.experiencia")}</Text>
+              <Badge colorScheme="orange" variant="subtle" fontSize="xs">{days}/{MAX_DAYS} {t("prof.dias")}</Badge>
             </HStack>
             <Box position="relative">
               <Box bg={progressBg} borderRadius="full" h="28px" overflow="hidden" border="1px solid" borderColor={cardBorder}>
@@ -187,7 +203,7 @@ export default function Profile() {
               </Text>
             </Box>
             <Text fontSize="xs" color={themeFx.textMuted} textAlign="center">
-              {days >= MAX_DAYS ? "Experiência completa! 🎉" : `Use o RiftShield por mais ${MAX_DAYS - days} dias para evoluir ao máximo`}
+              {days >= MAX_DAYS ? t("prof.experiencia_completa") : t("prof.experiencia_restante", { days: MAX_DAYS - days })}
             </Text>
           </VStack>
         </Box>
@@ -204,7 +220,7 @@ export default function Profile() {
           _hover={{ bg: "brandHover" }}
           leftIcon={<Icon as={Shield} />}
         >
-          Salvar Perfil
+          {t("prof.salvar")}
         </Button>
       </Flex>
     </VStack>

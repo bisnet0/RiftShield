@@ -3,6 +3,9 @@ import { UserCircle, LogOut, Menu } from "lucide-react";
 import ThemeToggle from "../Theme/ThemeToggle";
 import { useAppThemeFx } from "../../styles/app-theme-fx";
 import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../../router/paths";
+import { LanguageToggle } from "../LanguageToggle";
 
 interface Props {
   onOpenSidebar: () => void;
@@ -10,7 +13,8 @@ interface Props {
 
 export const Navbar: React.FC<Props> = ({ onOpenSidebar }) => {
   const themeFx = useAppThemeFx();
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <Flex
@@ -39,7 +43,7 @@ export const Navbar: React.FC<Props> = ({ onOpenSidebar }) => {
           icon={<Menu size={24} color={themeFx.textColor} />}
         />
 
-        <Flex align="center" cursor="pointer" onClick={() => window.dispatchEvent(new CustomEvent("toggle-test-toast"))} title="Testar Toasts">
+        <Flex align="center" cursor="pointer" onClick={() => navigate(isAuthenticated ? ROUTES.DASHBOARD : "/")} title="Início">
           <Image
             src="/public/Rift_Shield_Logo.png"
             alt="Logo"
@@ -69,13 +73,20 @@ export const Navbar: React.FC<Props> = ({ onOpenSidebar }) => {
       <HStack spacing={{ base: 2, md: 4 }}>
         <ThemeToggle />
 
+        <LanguageToggle />
+
         <HStack
+          as="button"
+          onClick={() => navigate(ROUTES.PROFILE)}
           color={themeFx.textColor}
           display={{ base: "none", md: "flex" }}
           bg={themeFx.navHoverBg}
           px={3}
           py={1.5}
           borderRadius="full"
+          cursor="pointer"
+          _hover={{ bg: "blackAlpha.200" }}
+          transition="all 0.2s"
         >
           <Icon as={UserCircle} boxSize={4} />
           <Text fontSize="sm" fontWeight="medium">

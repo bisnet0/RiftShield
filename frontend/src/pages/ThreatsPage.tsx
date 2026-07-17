@@ -7,11 +7,13 @@ import { useAppThemeFx } from "../styles/app-theme-fx";
 import { useToast } from "../components/Toast/components/ToastContext";
 import { listThreatReports, getThreatReport, type ThreatReport } from "../services/inference-service";
 import { ROUTES } from "../router/paths";
+import { useT } from "../hooks/useT";
 
 export default function ThreatsPage() {
   const fx = useInferenceThemeFx();
   const appFx = useAppThemeFx();
   const { showToast } = useToast();
+  const t = useT();
   const navigate = useNavigate();
   const [reports, setReports] = useState<ThreatReport[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,15 +42,15 @@ export default function ThreatsPage() {
     <Box w="full" maxW="1800px" mx="auto" pb={10}>
       <VStack spacing={8} align="stretch">
         <Flex justify="space-between" align="center">
-          <Heading size="lg" color={appFx.textColor}>Relatórios STRIDE</Heading>
-          <Button size="sm" variant="ghost" leftIcon={<Icon as={RefreshCw} />} onClick={load}>Atualizar</Button>
+          <Heading size="lg" color={appFx.textColor}>{t("thr.title")}</Heading>
+          <Button size="sm" variant="ghost" leftIcon={<Icon as={RefreshCw} />} onClick={load}>{t("geral.atualizar")}</Button>
         </Flex>
 
         {reports.length === 0 && (
           <Box textAlign="center" py={16}>
             <Icon as={ShieldAlert} boxSize={16} color={appFx.textMuted} mb={4} />
-            <Text color={appFx.textMuted}>Nenhum relatório STRIDE encontrado</Text>
-            <Button mt={4} colorScheme="orange" onClick={() => navigate(ROUTES.INFERENCE)}>Analisar Diagrama</Button>
+            <Text color={appFx.textMuted}>{t("thr.sem_relatorios")}</Text>
+            <Button mt={4} colorScheme="orange" onClick={() => navigate(ROUTES.INFERENCE)}>{t("inf.analisar")}</Button>
           </Box>
         )}
 
@@ -58,7 +60,7 @@ export default function ThreatsPage() {
               <VStack align="start" spacing={1}>
                 <Flex align="center" gap={2}>
                   <Icon as={FileImage} color={appFx.textMuted} />
-                  <Text fontWeight="bold" color={appFx.textColor}>Relatório STRIDE</Text>
+                  <Text fontWeight="bold" color={appFx.textColor}>{t("thr.title")}</Text>
                 </Flex>
                 <Text fontSize="sm" color={appFx.textMuted}>{new Date(tr.created_at).toLocaleString("pt-BR")}</Text>
                 <HStack wrap="wrap" gap={1}>
@@ -69,7 +71,7 @@ export default function ThreatsPage() {
               </VStack>
               <HStack>
                 <Badge fontSize="md" px={4} py={1} colorScheme={riskColor(tr.overall_risk_score)}>
-                  Risco: {tr.overall_risk_score?.toFixed(1) || "N/A"}
+                  {t("thr.risco_geral")}: {tr.overall_risk_score?.toFixed(1) || "N/A"}
                 </Badge>
                 <Button size="sm" variant="outline" leftIcon={<Icon as={Eye} />} colorScheme="orange" onClick={() => setSelected(selected?.id === tr.id ? null : tr)}>Detalhes</Button>
               </HStack>
@@ -84,7 +86,7 @@ export default function ThreatsPage() {
 
                       {ca.stride_threats.length > 0 && (
                         <>
-                          <Text fontSize="xs" fontWeight="bold" color={appFx.textMuted} mb={1}>Ameaças</Text>
+                          <Text fontSize="xs" fontWeight="bold" color={appFx.textMuted} mb={1}>{t("thr.ameacas")}</Text>
                           <HStack wrap="wrap" mb={2}>
                             {ca.stride_threats.map((t, ti) => (
                               <Tag key={ti} size="sm" variant="subtle" colorScheme={t.risk_level === "critical" ? "red" : t.risk_level === "high" ? "orange" : t.risk_level === "medium" ? "yellow" : "green"}>
@@ -98,7 +100,7 @@ export default function ThreatsPage() {
                       {ca.vulnerabilities.length > 0 && (
                         <>
                           <Text fontSize="xs" fontWeight="bold" color={appFx.textMuted} mb={1}>
-                            <Icon as={Bug} boxSize={3} mr={1} />Vulnerabilidades ({ca.vulnerabilities.length})
+                            <Icon as={Bug} boxSize={3} mr={1} />{t("thr.vulnerabilidades")} ({ca.vulnerabilities.length})
                           </Text>
                           {ca.vulnerabilities.slice(0, 4).map((v, vi) => (
                             <Text key={vi} fontSize="sm" color={appFx.textColor}>• {v.title} {v.cvss_score && <Badge fontSize="xs" colorScheme={v.cvss_score >= 7 ? "red" : "orange"}>{v.cvss_score}</Badge>}</Text>
@@ -109,7 +111,7 @@ export default function ThreatsPage() {
                       {ca.countermeasures.length > 0 && (
                         <>
                           <Text fontSize="xs" fontWeight="bold" color={appFx.textMuted} mt={2} mb={1}>
-                            <Icon as={ShieldCheck} boxSize={3} mr={1} />Contramedidas
+                            <Icon as={ShieldCheck} boxSize={3} mr={1} />{t("thr.contramedidas")}
                           </Text>
                           {ca.countermeasures.slice(0, 2).map((cm, mi) => (
                             <Text key={mi} fontSize="sm" color={appFx.textColor}>• {cm.title}</Text>

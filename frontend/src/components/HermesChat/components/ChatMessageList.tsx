@@ -3,12 +3,14 @@ import { Flex, Box, Text, Menu, MenuButton, MenuList, MenuItem, IconButton, Spin
 import { MoreVertical, Trash2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { type ChatMessageListProps } from "../types";
+import { useT } from "../../../hooks/useT";
 import { useHermesThemeFx } from "../styles/theme-fx";
 
 export const ChatMessageList: React.FC<ChatMessageListProps> = ({
   messages, isLoading, messagesEndRef, onSoftDelete,
 }) => {
   const themeFx = useHermesThemeFx();
+  const t = useT();
   return (
     <Flex
       flex={1}
@@ -102,7 +104,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
             align="center"
           >
             <Spinner size="sm" color={themeFx.iconColor} mr={3} />
-            <Text fontSize="sm" color={themeFx.mutedText}>Hermes está analisando...</Text>
+            <Text fontSize="sm" color={themeFx.mutedText}>{t("hermes.digitando")}</Text>
           </Flex>
         </Flex>
       )}

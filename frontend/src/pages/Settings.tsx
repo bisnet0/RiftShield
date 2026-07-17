@@ -7,6 +7,7 @@ import { useToast } from "../components/Toast/components/ToastContext";
 import { Check, AlertTriangle } from "lucide-react";
 import { useAppThemeFx } from "../styles/app-theme-fx";
 import api from "../middleware/api";
+import { useT } from "../hooks/useT";
 
 interface HermesConfig {
   enabled: boolean;
@@ -25,6 +26,7 @@ export default function Settings() {
   const cardBg = useColorModeValue("#ffffff", "#1a1a1a");
   const cardBorder = useColorModeValue("rgba(230, 92, 0, 0.15)", "#333333");
   const { showToast } = useToast();
+  const t = useT();
 
   const [config, setConfig] = useState<HermesConfig | null>(null);
   const [loading, setLoading] = useState(true);
@@ -60,9 +62,9 @@ export default function Settings() {
     setSaving(true);
     try {
       await api.put("/hermes/config", { ...config, enabled: hermesEnabled, diag_fallback: diagFallback });
-      showToast({ title: "Configurações salvas", type: "success", duration: 3000 });
+      showToast({ title: t("sett.config_salvas"), type: "success", duration: 3000 });
     } catch {
-      showToast({ title: "Erro ao salvar", type: "error", duration: 3000 });
+      showToast({ title: t("prof.erro_salvar"), type: "error", duration: 3000 });
     } finally {
       setSaving(false);
     }
@@ -78,17 +80,17 @@ export default function Settings() {
 
   return (
     <VStack spacing={8} align="stretch" w="full" maxW="800px" mx="auto" pb={10}>
-      <Heading size="lg" color={themeFx.textColor}>Configurações</Heading>
+      <Heading size="lg" color={themeFx.textColor}>{t("sett.title")}</Heading>
 
       <Box p={6} bg={cardBg} borderRadius="xl" border="1px solid" borderColor={cardBorder}>
-        <Heading size="sm" color={themeFx.textColor} mb={4}>Assistente Hermes (IA)</Heading>
+        <Heading size="sm" color={themeFx.textColor} mb={4}>{t("sett.hermes")}</Heading>
         <Divider mb={4} />
 
         <HStack justify="space-between" w="full" mb={6}>
           <Box>
-            <Text fontWeight="medium" color={themeFx.textColor}>Habilitar Hermes</Text>
+            <Text fontWeight="medium" color={themeFx.textColor}>{t("sett.habilitar")}</Text>
             <Text fontSize="sm" color={themeFx.textMuted}>
-              Assistente de arquitetura e segurança com IA. Quando ativo, o Hermes estará disponível como chatbot flutuante.
+              {t("sett.hermes_desc")}
             </Text>
           </Box>
           <Switch
@@ -100,7 +102,7 @@ export default function Settings() {
         </HStack>
 
         <FormControl mb={4}>
-          <FormLabel color={themeFx.textColor}>Análise de Diagramas (Fallback)</FormLabel>
+          <FormLabel color={themeFx.textColor}>{t("sett.fallback")}</FormLabel>
           <Select
             value={diagFallback}
             onChange={(e) => setDiagFallback(e.target.value)}
@@ -108,19 +110,18 @@ export default function Settings() {
             borderColor={cardBorder}
             color={themeFx.textColor}
           >
-            <option value="yolo">YOLO + Fallback Hermes (recomendado)</option>
-            <option value="hermes">Apenas Hermes (IA)</option>
+            <option value="yolo">{t("sett.fallback_yolo")}</option>
+            <option value="hermes">{t("sett.fallback_hermes")}</option>
           </Select>
           <Text fontSize="xs" color={themeFx.textMuted} mt={1}>
-            YOLO tenta detectar componentes primeiro. Se falhar, Hermes assume via IA.
-            "Apenas Hermes" ignora o YOLO e usa apenas visão computacional da IA.
+            {t("sett.fallback_desc")}
           </Text>
         </FormControl>
 
         <Divider mb={4} />
 
         <FormControl mb={4}>
-          <FormLabel color={themeFx.textColor}>Provedor de IA</FormLabel>
+          <FormLabel color={themeFx.textColor}>{t("sett.provedor")}</FormLabel>
           <Select
             value={config?.provider || "google"}
             onChange={(e) => update("provider", e.target.value)}
@@ -128,16 +129,16 @@ export default function Settings() {
             borderColor={cardBorder}
             color={themeFx.textColor}
           >
-            <option value="google">Google Gemini</option>
-            <option value="openai">OpenAI</option>
-            <option value="deepseek">DeepSeek</option>
+            <option value="google">{t("sett.provedor_google")}</option>
+            <option value="openai">{t("sett.provedor_openai")}</option>
+            <option value="deepseek">{t("sett.provedor_deepseek")}</option>
           </Select>
         </FormControl>
 
         {config?.provider === "google" && (
           <>
             <FormControl mb={4}>
-              <FormLabel color={themeFx.textColor}>Google Gemini API Key</FormLabel>
+              <FormLabel color={themeFx.textColor}>{t("sett.api_key_google")}</FormLabel>
               <Input
                 type="password"
                 placeholder="AIza..."
@@ -147,15 +148,15 @@ export default function Settings() {
               />
             </FormControl>
             <FormControl mb={4}>
-              <FormLabel color={themeFx.textColor}>Modelo</FormLabel>
+              <FormLabel color={themeFx.textColor}>{t("sett.modelo")}</FormLabel>
               <Select
                 value={config?.google_model || "gemini-2.5-flash-lite"}
                 onChange={(e) => update("google_model", e.target.value)}
                 bg={cardBg} borderColor={cardBorder} color={themeFx.textColor}
               >
-                <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
-                <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
-                <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                <option value="gemini-2.5-flash-lite">{t("sett.modelo_gemini_flash_lite")}</option>
+                <option value="gemini-2.5-flash">{t("sett.modelo_gemini_flash")}</option>
+                <option value="gemini-2.5-pro">{t("sett.modelo_gemini_pro")}</option>
               </Select>
             </FormControl>
           </>
@@ -164,7 +165,7 @@ export default function Settings() {
         {config?.provider === "openai" && (
           <>
             <FormControl mb={4}>
-              <FormLabel color={themeFx.textColor}>OpenAI API Key</FormLabel>
+              <FormLabel color={themeFx.textColor}>{t("sett.api_key_openai")}</FormLabel>
               <Input
                 type="password"
                 placeholder="sk-..."
@@ -174,15 +175,15 @@ export default function Settings() {
               />
             </FormControl>
             <FormControl mb={4}>
-              <FormLabel color={themeFx.textColor}>Modelo</FormLabel>
+              <FormLabel color={themeFx.textColor}>{t("sett.modelo")}</FormLabel>
               <Select
                 value={config?.openai_model || "gpt-4o-mini"}
                 onChange={(e) => update("openai_model", e.target.value)}
                 bg={cardBg} borderColor={cardBorder} color={themeFx.textColor}
               >
-                <option value="gpt-4o-mini">GPT-4o Mini</option>
-                <option value="gpt-4o">GPT-4o</option>
-                <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                <option value="gpt-4o-mini">{t("sett.modelo_gpt4o_mini")}</option>
+                <option value="gpt-4o">{t("sett.modelo_gpt4o")}</option>
+                <option value="gpt-4-turbo">{t("sett.modelo_gpt4_turbo")}</option>
               </Select>
             </FormControl>
           </>
@@ -191,7 +192,7 @@ export default function Settings() {
         {config?.provider === "deepseek" && (
           <>
             <FormControl mb={4}>
-              <FormLabel color={themeFx.textColor}>DeepSeek API Key</FormLabel>
+              <FormLabel color={themeFx.textColor}>{t("sett.api_key_deepseek")}</FormLabel>
               <Input
                 type="password"
                 placeholder="sk-..."
@@ -201,14 +202,14 @@ export default function Settings() {
               />
             </FormControl>
             <FormControl mb={4}>
-              <FormLabel color={themeFx.textColor}>Modelo</FormLabel>
+              <FormLabel color={themeFx.textColor}>{t("sett.modelo")}</FormLabel>
               <Select
                 value={config?.deepseek_model || "deepseek-chat"}
                 onChange={(e) => update("deepseek_model", e.target.value)}
                 bg={cardBg} borderColor={cardBorder} color={themeFx.textColor}
               >
-                <option value="deepseek-chat">DeepSeek Chat</option>
-                <option value="deepseek-reasoner">DeepSeek Reasoner</option>
+                <option value="deepseek-chat">{t("sett.modelo_deepseek_chat")}</option>
+                <option value="deepseek-reasoner">{t("sett.modelo_deepseek_reasoner")}</option>
               </Select>
             </FormControl>
           </>
@@ -221,25 +222,25 @@ export default function Settings() {
           color="white"
           onClick={handleSave}
           isLoading={saving}
-          loadingText="Salvando..."
+          loadingText={t("geral.carregando")}
           _hover={{ bg: "brandHover" }}
           mt={2}
         >
-          Salvar Configurações
+          {t("sett.salvar")}
         </Button>
 
         {!hasAnyKey && (
           <HStack mt={4} p={3} bg="orange.50" borderRadius="md" border="1px solid" borderColor="orange.200">
             <Icon as={AlertTriangle} color="orange.500" />
             <Text fontSize="sm" color="orange.700">
-              Adicione uma chave de API para ativar o Hermes. Ele funciona com Google Gemini, OpenAI ou DeepSeek.
+              {t("sett.sem_chave_api")}
             </Text>
           </HStack>
         )}
       </Box>
 
       <Box p={6} bg={cardBg} borderRadius="xl" border="1px solid" borderColor={cardBorder}>
-        <Heading size="sm" color={themeFx.textColor} mb={4}>Sistema</Heading>
+        <Heading size="sm" color={themeFx.textColor} mb={4}>{t("sett.sistema")}</Heading>
         <Divider mb={4} />
         <Text fontSize="sm" color={themeFx.textMuted}>
           RiftShield v1.0.0 — Hackathon FIAP Software Security 2026
