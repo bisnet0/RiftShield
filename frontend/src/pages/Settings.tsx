@@ -19,6 +19,7 @@ interface HermesConfig {
   openai_model: string;
   deepseek_model: string;
   diag_fallback: string;
+  fallback_enabled: boolean;
 }
 
 export default function Settings() {
@@ -33,6 +34,7 @@ export default function Settings() {
   const [saving, setSaving] = useState(false);
   const [hermesEnabled, setHermesEnabled] = useState(true);
   const [diagFallback, setDiagFallback] = useState("yolo");
+  const [fallbackEnabled, setFallbackEnabled] = useState(true);
 
   useEffect(() => {
     loadConfig();
@@ -44,6 +46,7 @@ export default function Settings() {
       setConfig(res.data);
       setHermesEnabled(res.data.enabled);
       setDiagFallback(res.data.diag_fallback || "yolo");
+      setFallbackEnabled(res.data.fallback_enabled !== false);
     } catch {
       setConfig({
         enabled: true, provider: "google",
@@ -61,7 +64,7 @@ export default function Settings() {
     if (!config) return;
     setSaving(true);
     try {
-      await api.put("/hermes/config", { ...config, enabled: hermesEnabled, diag_fallback: diagFallback });
+      await api.put("/hermes/config", { ...config, enabled: hermesEnabled, diag_fallback: diagFallback, fallback_enabled: fallbackEnabled });
       showToast({ title: t("sett.config_salvas"), type: "success", duration: 3000 });
     } catch {
       showToast({ title: t("prof.erro_salvar"), type: "error", duration: 3000 });
@@ -94,10 +97,13 @@ export default function Settings() {
             </Text>
           </Box>
           <Switch
-            colorScheme="orange"
             size="lg"
             isChecked={hermesEnabled}
             onChange={(e) => setHermesEnabled(e.target.checked)}
+            sx={{
+              ".chakra-switch__track[data-checked]": { bg: "brand !important" },
+              ".chakra-switch__thumb[data-checked]": { bg: "white !important" },
+            }}
           />
         </HStack>
 
@@ -117,6 +123,24 @@ export default function Settings() {
             {t("sett.fallback_desc")}
           </Text>
         </FormControl>
+
+        <HStack justify="space-between" w="full" mb={6}>
+          <Box>
+            <Text fontWeight="medium" color={themeFx.textColor}>{t("sett.fallback_provider")}</Text>
+            <Text fontSize="sm" color={themeFx.textMuted}>
+              {t("sett.fallback_provider_desc")}
+            </Text>
+          </Box>
+          <Switch
+            size="lg"
+            isChecked={fallbackEnabled}
+            onChange={(e) => setFallbackEnabled(e.target.checked)}
+            sx={{
+              ".chakra-switch__track[data-checked]": { bg: "brand !important" },
+              ".chakra-switch__thumb[data-checked]": { bg: "white !important" },
+            }}
+          />
+        </HStack>
 
         <Divider mb={4} />
 

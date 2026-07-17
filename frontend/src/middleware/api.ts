@@ -34,9 +34,18 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
+function showQuotaToast() {
+  const event = new CustomEvent("quota-exceeded");
+  window.dispatchEvent(event);
+}
+
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
+    if (error.response?.status === 429) {
+      showQuotaToast();
+    }
+
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };

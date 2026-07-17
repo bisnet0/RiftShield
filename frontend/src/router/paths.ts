@@ -12,4 +12,5 @@ export const ROUTES = {
   VULNERABILITIES: "/vulnerabilities",
   COUNTERMEASURES: "/countermeasures",
   EXPORT: "/export",
+  COMPARE: "/compare",
 } as const;

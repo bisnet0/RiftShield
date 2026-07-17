@@ -12,6 +12,8 @@ const PAGE_LABELS: Record<string, string> = {
   [ROUTES.TRAINING]: "Treinamento",
   [ROUTES.VULNERABILITIES]: "Vulnerabilidades",
   [ROUTES.COUNTERMEASURES]: "Contramedidas",
+  [ROUTES.COMPARE]: "Comparar Arquiteturas",
+  [ROUTES.EXPORT]: "Exportação",
 };
 
 const PAGE_LABELS_EN: Record<string, string> = {
@@ -24,6 +26,8 @@ const PAGE_LABELS_EN: Record<string, string> = {
   [ROUTES.TRAINING]: "Training",
   [ROUTES.VULNERABILITIES]: "Vulnerabilities",
   [ROUTES.COUNTERMEASURES]: "Countermeasures",
+  [ROUTES.COMPARE]: "Compare Architectures",
+  [ROUTES.EXPORT]: "Export",
 };
 
 export function usePageLogger() {

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback, type ChangeEvent, type KeyboardEvent } from "react";
 import { fetchChatHistory, sendChatMessageApi, deleteMessageApi } from "../services/hermes-service";
 import { type Message } from "../types";
+import { useToast } from "../../Toast/components/ToastContext";
 
 export const useHermesChat = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -8,6 +9,7 @@ export const useHermesChat = () => {
   const [inputValue, setInputValue] = useState("");
   const [attachment, setAttachment] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { showToast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const scrollToBottom = useCallback(() => {
@@ -43,6 +45,7 @@ export const useHermesChat = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setAttachment(reader.result as string);
+        showToast({ message: "Imagem anexada com sucesso", type: "success", duration: 2000 });
       };
       reader.readAsDataURL(file);
     }
@@ -81,6 +84,9 @@ export const useHermesChat = () => {
       };
       setMessages((prev) => [...prev, agentMsg]);
       notifyLog();
+      if (data.response && data.response.includes("DeepSeek") && data.response.includes("não suporta")) {
+        showToast({ message: "DeepSeek não suporta imagens. Use Gemini ou OpenAI para análise de diagramas.", type: "warning", duration: 5000 });
+      }
     } catch {
       const errorMsg: Message = {
         id: Date.now().toString(),

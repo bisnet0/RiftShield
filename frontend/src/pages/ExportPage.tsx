@@ -113,7 +113,7 @@ export default function ExportPage() {
                   <option value="json">JSON</option>
                   <option value="csv">CSV</option>
                   <option value="excel">Excel</option>
-                  <option value="pdf">PDF (relatório completo com gráficos)</option>
+                  <option value="pdf">PDF</option>
                 </Select>
               </Box>
               <HStack justify="space-between">

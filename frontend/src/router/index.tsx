@@ -11,6 +11,7 @@ import TrainingPage from "../pages/TrainingPage";
 import VulnerabilitiesPage from "../pages/VulnerabilitiesPage";
 import CountermeasuresPage from "../pages/CountermeasuresPage";
 import ExportPage from "../pages/ExportPage";
+import ComparisonPage from "../pages/ComparisonPage";
 
 export function AppRouter() {
   return (
@@ -27,6 +28,7 @@ export function AppRouter() {
         <Route path={ROUTES.VULNERABILITIES} element={<VulnerabilitiesPage />} />
         <Route path={ROUTES.COUNTERMEASURES} element={<CountermeasuresPage />} />
         <Route path={ROUTES.EXPORT} element={<ExportPage />} />
+        <Route path={ROUTES.COMPARE} element={<ComparisonPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
