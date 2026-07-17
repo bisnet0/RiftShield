@@ -139,14 +139,14 @@ export default function ComparisonPage() {
           {result && (
             <Button
               leftIcon={<Icon as={Sparkles} />}
-              colorScheme="purple"
+              colorScheme="orange"
               size="lg"
               onClick={handleSuggest}
               isLoading={suggesting}
               loadingText="Gerando..."
               variant="outline"
             >
-              Sugerir Arquitetura âœ¨
+              Sugerir Arquitetura
             </Button>
           )}
         </Flex>
@@ -224,8 +224,8 @@ export default function ComparisonPage() {
         )}
 
         {suggestion && !suggestion.error && (
-          <Box bg={cardBg} p={6} borderRadius="xl" border="1px solid" borderColor="purple.400" boxShadow="0 0 20px rgba(168, 85, 247, 0.1)">
-            <HStack mb={4}><Icon as={Sparkles} color="purple.400" /><Heading size="md" color={appFx.textColor}>{suggestion.nome || "Arquitetura C â€” Mesclagem Inteligente"}</Heading></HStack>
+          <Box bg={cardBg} p={6} borderRadius="xl" border="1px solid" borderColor="orange.400" boxShadow="0 0 20px rgba(168, 85, 247, 0.1)">
+            <HStack mb={4}><Icon as={Sparkles} color="orange.400" /><Heading size="md" color={appFx.textColor}>{suggestion.nome || "Arquitetura C â€” Mesclagem Inteligente"}</Heading></HStack>
             <Divider mb={4} />
             <Text fontSize="sm" color={appFx.textColor} mb={4} whiteSpace="pre-line">{suggestion.descricao}</Text>
 

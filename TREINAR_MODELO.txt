@@ -1,24 +1,28 @@
 ================================================================================
-  TREINAR MODELO YOLOv8 (WSL / CPU / GPU AMD)
-  - Checkpoint a cada época (last.pt)
-  - Melhor modelo salvo (best.pt)
-  - Resume automático se parar no meio
+  TREINAR MODELO YOLOv8 (WSL com ROCm GPU AMD)
+  - Checkpoint a cada época (last.pt) — resume automático
+  - Melhor modelo salvo (best.pt) — mAP50 atual: 0.579 (57.9%)
 ================================================================================
 
-1. ATIVAR VENV E TREINAR:
+1. ATIVAR VENV (WSL):
    source /mnt/c/Users/root_/Documents/bisnet0-GitHub/RiftShield/venv_wsl/bin/activate
+
+2. TREINAR (já instalado, retoma do último checkpoint):
    python -m backend.src.modules.inference.ml-workflow.ml_train_full
 
-2. Se o treino cair no meio, rode de novo que ele continua de onde parou:
-   source venv_wsl/bin/activate
-   python -m backend.src.modules.inference.ml-workflow.ml_train_full
+   Dataset: architecture_merged (5019 imagens, 34 classes)
+   Modelo: YOLOv8n
+   Épocas configuradas: 10 (já rodou 9 de 10)
+   OBS: O checkpoint salvou epochs=100, então aparece "9/100" — 
+   mas você pode parar com Ctrl+C após a época 10 completar.
+   O best.pt da época 9 já é utilizável.
 
-3. APÓS O TREINAMENTO:
+3. APÓS O TREINAMENTO (copiar para o container):
+   cp backend/models/architecture_yolo/weights/best.pt backend/src/modules/inference/train_results/best.pt
    docker cp backend/src/modules/inference/train_results/best.pt riftshield-backend:/usr/src/app/src/modules/inference/train_results/best.pt
    docker restart riftshield-backend
 
-4. (Windows) Alternativa caso o WSL não funcione:
-   .venv\Scripts\Activate.ps1
-   python -m backend.src.modules.inference.ml-workflow.ml_train_full
+4. SE QUISER PARAR ANTES (Ctrl+C), o last.pt e best.pt já salvam.
+   O best.pt da época 9 tem mAP50 ~0.58.
 
 ================================================================================

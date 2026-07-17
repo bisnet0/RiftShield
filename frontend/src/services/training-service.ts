@@ -3,14 +3,20 @@ import api from "../middleware/api";
 export interface TrainingLog {
   id: string;
   model_type: string;
+  model_name: string;
   dataset_version: string;
   hyperparameters: Record<string, number>;
-  metrics: { mAP50?: number; mAP50_95?: number; precision?: number; recall?: number; error?: string };
+  metrics: { mAP50?: number; mAP50_95?: number; precision?: number; recall?: number; error?: string; train_images?: number; val_images?: number };
   model_path: string | null;
   status: string;
   started_at: string | null;
   completed_at: string | null;
   created_at: string;
+  train_images_count: number;
+  val_images_count: number;
+  classes_count: number;
+  trained_filenames: string[];
+  is_base_model: boolean;
 }
 
 export const startTraining = async (modelType = "yolov8n", epochs = 100): Promise<TrainingLog> => {

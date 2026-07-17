@@ -164,23 +164,62 @@ export default function TrainingPage() {
                     <HStack flex={1} spacing={4}>
                       {log.status === "completed" ? <Icon as={CheckCircle} color="green.400" /> : log.status === "failed" ? <Icon as={XCircle} color="red.400" /> : <Icon as={Clock} color="gray.400" />}
                       <VStack align="start" spacing={0}>
-                        <Text fontWeight="bold" color={appFx.textColor}>{log.model_type}</Text>
-                        <Text fontSize="xs" color={appFx.textMuted}>{new Date(log.created_at).toLocaleString("pt-BR")}</Text>
+                        <Text fontWeight="bold" color={appFx.textColor}>{log.model_name || log.model_type}</Text>
+                        <Text fontSize="xs" color={appFx.textMuted}>
+                          {log.is_base_model ? "Treino base (architecture_merged)" : "Fine-tune via Dataset"}
+                          {log.train_images_count > 0 && ` · ${log.train_images_count} imagens treino`}
+                          {log.val_images_count > 0 && ` · ${log.val_images_count} val`}
+                        </Text>
+                        <Text fontSize="2xs" color={appFx.textMuted}>{new Date(log.created_at).toLocaleString("pt-BR")}</Text>
                       </VStack>
                       <Badge colorScheme={log.status === "completed" ? "green" : log.status === "failed" ? "red" : "gray"}>{log.status}</Badge>
+                      {isActiveModel(log) && <Badge colorScheme="orange" variant="solid">{t("geral.ativo")}</Badge>}
                     </HStack>
                     <AccordionIcon />
                   </AccordionButton>
                 </h2>
                 <AccordionPanel pb={4} bg={appFx.navHoverBg}>
+                  <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} mb={4}>
+                    <Stat>
+                      <StatLabel color={appFx.textMuted}>mAP@0.5</StatLabel>
+                      <StatNumber color={appFx.textColor}>{log.metrics?.mAP50?.toFixed(4) || "-"}</StatNumber>
+                    </Stat>
+                    <Stat>
+                      <StatLabel color={appFx.textMuted}>Precision</StatLabel>
+                      <StatNumber color={appFx.textColor}>{log.metrics?.precision?.toFixed(4) || "-"}</StatNumber>
+                    </Stat>
+                    <Stat>
+                      <StatLabel color={appFx.textMuted}>Recall</StatLabel>
+                      <StatNumber color={appFx.textColor}>{log.metrics?.recall?.toFixed(4) || "-"}</StatNumber>
+                    </Stat>
+                    <Stat>
+                      <StatLabel color={appFx.textMuted}>Classes</StatLabel>
+                      <StatNumber color={appFx.textColor}>{log.classes_count || "-"}</StatNumber>
+                    </Stat>
+                  </SimpleGrid>
+                  <HStack spacing={4} mb={3} fontSize="xs" color={appFx.textMuted} wrap="wrap">
+                    {log.train_images_count > 0 && <Text>📷 {log.train_images_count} treino</Text>}
+                    {log.val_images_count > 0 && <Text>✅ {log.val_images_count} validação</Text>}
+                    {log.hyperparameters?.epochs && <Text>🔄 {log.hyperparameters.epochs} épocas</Text>}
+                    {log.hyperparameters?.imgsz && <Text>📐 {log.hyperparameters.imgsz}px</Text>}
+                    {log.hyperparameters?.batch && <Text>📦 batch {log.hyperparameters.batch}</Text>}
+                  </HStack>
+                  {log.trained_filenames && log.trained_filenames.length > 0 && (
+                    <Box mb={3}>
+                      <Text fontSize="xs" fontWeight="bold" color={appFx.textMuted} mb={1}>Imagens treinadas ({log.trained_filenames.length})</Text>
+                      <HStack wrap="wrap" gap={1}>
+                        {log.trained_filenames.slice(0, 15).map((f: string) => (
+                          <Badge key={f} fontSize="2xs" colorScheme="gray" variant="subtle">{f}</Badge>
+                        ))}
+                        {log.trained_filenames.length > 15 && <Text fontSize="2xs" color={appFx.textMuted}>+{log.trained_filenames.length - 15} mais</Text>}
+                      </HStack>
+                    </Box>
+                  )}
                   {log.metrics?.error && (
                     <Alert status="error" borderRadius="md" mb={3}><AlertIcon />{log.metrics.error}</Alert>
                   )}
                   {log.status === "completed" && log.model_path && (
                     <HStack spacing={2}>
-                      {isActiveModel(log) && (
-                        <Badge colorScheme="green" variant="solid">{t("geral.ativo")}</Badge>
-                      )}
                       <Button size="sm" leftIcon={<Icon as={Zap} />} colorScheme="green" onClick={async () => { await activateModel(log.model_path!); setActiveModelPath(log.model_path); loadAll(); }}>
                         {t("tr.ativar_modelo")}
                       </Button>
