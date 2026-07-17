@@ -6,6 +6,7 @@ import { ToastProvider } from "../components/Toast/components/ToastContext";
 import { HermesWrapper } from "./HermesWrapper";
 import { TestToast } from "./Toast/TestToast";
 import { QuotaWatcher } from "./QuotaWatcher";
+import { CustomCursor } from "./CustomCursor";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
             <HermesWrapper />
           <TestToast />
           <QuotaWatcher />
+          <CustomCursor />
         </ToastProvider>
         </LanguageProvider>
       </AuthProvider>

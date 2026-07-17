@@ -168,6 +168,8 @@ const pt: Record<string, string> = {
   "sett.modelo_deepseek_chat": "DeepSeek Chat",
   "sett.modelo_deepseek_reasoner": "DeepSeek Reasoner",
   "sett.sistema": "Sistema",
+  "sett.cursor": "Cursor Personalizado",
+  "sett.cursor_desc": "Substitui o cursor padrão por um círculo com ponto animado.",
   "sett.sem_chave_api": "Adicione uma chave de API para ativar o Hermes. Ele funciona com Google Gemini, OpenAI ou DeepSeek.",
 
   // General

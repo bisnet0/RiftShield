@@ -35,6 +35,7 @@ export default function Settings() {
   const [hermesEnabled, setHermesEnabled] = useState(true);
   const [diagFallback, setDiagFallback] = useState("yolo");
   const [fallbackEnabled, setFallbackEnabled] = useState(true);
+  const [cursorEnabled, setCursorEnabled] = useState(true);
 
   useEffect(() => {
     loadConfig();
@@ -49,7 +50,6 @@ export default function Settings() {
       setFallbackEnabled(res.data.fallback_enabled !== false);
     } catch {
       setConfig({
-        enabled: true, provider: "google",
         google_api_key: "", openai_api_key: "", deepseek_api_key: "",
         google_model: "gemini-2.5-flash-lite",
         openai_model: "gpt-4o-mini",
@@ -59,6 +59,12 @@ export default function Settings() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    api.get("/users/me").then((r) => {
+      setCursorEnabled(r.data.user?.custom_cursor_enabled !== false);
+    }).catch(() => {});
+  }, []);
 
   const handleSave = async () => {
     if (!config) return;
@@ -135,6 +141,31 @@ export default function Settings() {
             size="lg"
             isChecked={fallbackEnabled}
             onChange={(e) => setFallbackEnabled(e.target.checked)}
+            sx={{
+              ".chakra-switch__track[data-checked]": { bg: "brand !important" },
+              ".chakra-switch__thumb[data-checked]": { bg: "white !important" },
+            }}
+          />
+        </HStack>
+
+        <HStack justify="space-between" w="full" mb={6}>
+          <Box>
+            <Text fontWeight="medium" color={themeFx.textColor}>{t("sett.cursor")}</Text>
+            <Text fontSize="sm" color={themeFx.textMuted}>
+              {t("sett.cursor_desc")}
+            </Text>
+          </Box>
+          <Switch
+            size="lg"
+            isChecked={cursorEnabled}
+            onChange={async (e) => {
+              const v = e.target.checked;
+              setCursorEnabled(v);
+              try {
+                await api.put("/users/me", { custom_cursor_enabled: v });
+                window.dispatchEvent(new CustomEvent("cursor-toggle"));
+              } catch {}
+            }}
             sx={{
               ".chakra-switch__track[data-checked]": { bg: "brand !important" },
               ".chakra-switch__thumb[data-checked]": { bg: "white !important" },

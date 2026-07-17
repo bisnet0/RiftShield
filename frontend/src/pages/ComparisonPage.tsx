@@ -1,9 +1,9 @@
-﻿import { useState, useRef } from "react";
+﻿import { useState, useRef, useEffect } from "react";
 import {
   Box, VStack, HStack, Text, Button, Divider, Heading, useColorModeValue,
-  Flex, Icon, Image, SimpleGrid, Badge, Spinner, Tooltip,
+  Flex, Icon, Image, SimpleGrid, Badge, Spinner, Collapse,
 } from "@chakra-ui/react";
-import { Upload, ArrowRightLeft, Sparkles, Shield, AlertTriangle, CheckCircle, XCircle, Plus, Minus, ArrowUp, ArrowDown } from "lucide-react";
+import { Upload, ArrowRightLeft, Sparkles, Shield, AlertTriangle, CheckCircle, XCircle, Plus, Minus, ArrowUp, ArrowDown, Clock, History } from "lucide-react";
 import { useAppThemeFx } from "../styles/app-theme-fx";
 import { useInferenceThemeFx } from "../styles/inference-theme-fx";
 import { useT } from "../hooks/useT";
@@ -25,8 +25,20 @@ export default function ComparisonPage() {
   const [suggesting, setSuggesting] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [suggestion, setSuggestion] = useState<any>(null);
+  const [history, setHistory] = useState<any[]>([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [selectedHist, setSelectedHist] = useState<any>(null);
   const refA = useRef<HTMLInputElement>(null);
   const refB = useRef<HTMLInputElement>(null);
+
+  const loadHistory = async () => {
+    try {
+      const res = await api.get("/inference/comparisons");
+      setHistory(res.data.items || []);
+    } catch {}
+  };
+
+  useEffect(() => { loadHistory(); }, []);
 
   const handleCompare = async () => {
     if (!fileA || !fileB) return;
@@ -73,8 +85,8 @@ export default function ComparisonPage() {
   };
 
   const STRIDE_LABELS: Record<string, string> = {
-    spoofing: "Spoofing", tampering: "Tampering", repudiation: "RepudiaÃ§Ã£o",
-    information_disclosure: "ExposiÃ§Ã£o", denial_of_service: "DoS", elevation_of_privilege: "ElevaÃ§Ã£o",
+    spoofing: "Spoofing", tampering: "Tampering", repudiation: "Repudiação",
+    information_disclosure: "Exposição", denial_of_service: "DoS", elevation_of_privilege: "Elevação",
   };
 
   return (
@@ -153,7 +165,7 @@ export default function ComparisonPage() {
 
         {result && (
           <Box bg={cardBg} p={6} borderRadius="xl" border="1px solid" borderColor={cardBorder}>
-            <Heading size="md" color={appFx.textColor} mb={4}>Resultado da ComparaÃ§Ã£o</Heading>
+            <Heading size="md" color={appFx.textColor} mb={4}>Resultado da Comparação</Heading>
             <Divider mb={4} />
 
             <Flex align="center" gap={3} mb={6} p={4} bg={appFx.navHoverBg} borderRadius="lg">
@@ -166,13 +178,13 @@ export default function ComparisonPage() {
               <Box>
                 <Text fontWeight="bold" color={appFx.textColor} mb={2}>Arquitetura A</Text>
                 <Text fontSize="sm" color={appFx.textMuted}>Risco: {result.architecture_a.risk_score?.toFixed(1) || "?"}/10</Text>
-                <Text fontSize="sm" color={appFx.textMuted}>AmeaÃ§as: {result.architecture_a.total_threats}</Text>
+                <Text fontSize="sm" color={appFx.textMuted}>Ameaças: {result.architecture_a.total_threats}</Text>
                 <Text fontSize="sm" color={appFx.textMuted}>Componentes: {result.architecture_a.components?.join(", ") || "â€”"}</Text>
               </Box>
               <Box>
                 <Text fontWeight="bold" color={appFx.textColor} mb={2}>Arquitetura B</Text>
                 <Text fontSize="sm" color={appFx.textMuted}>Risco: {result.architecture_b.risk_score?.toFixed(1) || "?"}/10</Text>
-                <Text fontSize="sm" color={appFx.textMuted}>AmeaÃ§as: {result.architecture_b.total_threats}</Text>
+                <Text fontSize="sm" color={appFx.textMuted}>Ameaças: {result.architecture_b.total_threats}</Text>
                 <Text fontSize="sm" color={appFx.textMuted}>Componentes: {result.architecture_b.components?.join(", ") || "â€”"}</Text>
               </Box>
             </SimpleGrid>
@@ -240,7 +252,7 @@ export default function ComparisonPage() {
                 ))}
               </Box>
               <Box>
-                <Text fontWeight="bold" color={appFx.textColor} mb={2}>BenefÃ­cios de SeguranÃ§a</Text>
+                <Text fontWeight="bold" color={appFx.textColor} mb={2}>BenefÃ­cios de Segurança</Text>
                 {(suggestion.beneficios_seguranca || []).map((b: string, i: number) => (
                   <HStack key={i} align="start" mb={1}><Icon as={Shield} color="green.400" boxSize={3} mt={1} /><Text fontSize="xs" color={appFx.textColor}>{b}</Text></HStack>
                 ))}
@@ -268,6 +280,103 @@ export default function ComparisonPage() {
             <Text color="red.400">{suggestion.error}</Text>
           </Box>
         )}
+
+        <Box bg={cardBg} p={6} borderRadius="xl" border="1px solid" borderColor={cardBorder}>
+          <Flex justify="space-between" align="center" mb={2} cursor="pointer" onClick={() => setHistoryOpen(!historyOpen)}>
+            <HStack><Icon as={History} color={appFx.brandColor} /><Heading size="sm" color={appFx.textColor}>Histórico de Comparações</Heading></HStack>
+            <Badge colorScheme="orange" variant="subtle">{history.length}</Badge>
+          </Flex>
+          <Divider mb={4} />
+          <Collapse in={historyOpen}>
+            {history.length === 0 && <Text fontSize="sm" color={appFx.textMuted} textAlign="center" py={4}>Nenhuma comparação realizada ainda</Text>}
+            <VStack align="stretch" spacing={2}>
+              {history.map((h) => (
+                <Box key={h.id} p={3} bg={appFx.navHoverBg} borderRadius="md" cursor="pointer"
+                  onClick={() => setSelectedHist(selectedHist?.id === h.id ? null : h)}
+                  _hover={{ bg: "blackAlpha.100" }}
+                >
+                  <Flex justify="space-between" align="center">
+                    <HStack>
+                      <Icon as={ArrowRightLeft} size={14} color={appFx.brandColor} />
+                      <Text fontSize="sm" color={appFx.textColor} fontWeight="medium">{h.filename_a} × {h.filename_b}</Text>
+                    </HStack>
+                    <HStack>
+                      {h.suggestion && <Badge colorScheme="purple" variant="subtle" fontSize="2xs">Sugestão</Badge>}
+                      <Badge colorScheme={h.result?.verdict === "ARQUITETURA_B_RECOMENDADA" ? "green" : h.result?.verdict === "ARQUITETURA_A_RECOMENDADA" ? "orange" : "gray"} fontSize="2xs">
+                        {h.result?.verdict === "ARQUITETURA_B_RECOMENDADA" ? "B melhor" : h.result?.verdict === "ARQUITETURA_A_RECOMENDADA" ? "A melhor" : "Equivalentes"}
+                      </Badge>
+                      <Text fontSize="2xs" color={appFx.textMuted}>{new Date(h.created_at).toLocaleString("pt-BR")}</Text>
+                    </HStack>
+                  </Flex>
+                  <Collapse in={selectedHist?.id === h.id}>
+                    <Box mt={3} p={4} bg={cardBg} borderRadius="md" border="1px solid" borderColor={cardBorder}>
+                      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
+                        <Box>
+                          <Text fontWeight="bold" fontSize="sm" color={appFx.textColor} mb={2}>Arquitetura A: {h.filename_a}</Text>
+                          {h.image_a_b64 && <Image src={`data:image/png;base64,${h.image_a_b64}`} alt="Arch A" maxH="150px" borderRadius="md" objectFit="contain" bg={appFx.navHoverBg} p={1} />}
+                        </Box>
+                        <Box>
+                          <Text fontWeight="bold" fontSize="sm" color={appFx.textColor} mb={2}>Arquitetura B: {h.filename_b}</Text>
+                          {h.image_b_b64 && <Image src={`data:image/png;base64,${h.image_b_b64}`} alt="Arch B" maxH="150px" borderRadius="md" objectFit="contain" bg={appFx.navHoverBg} p={1} />}
+                        </Box>
+                      </SimpleGrid>
+
+                      <Flex align="center" gap={2} mb={3} p={2} bg={appFx.navHoverBg} borderRadius="md">
+                        <Icon as={h.result?.verdict === "ARQUITETURA_B_RECOMENDADA" ? CheckCircle : h.result?.verdict === "ARQUITETURA_A_RECOMENDADA" ? AlertTriangle : Minus}
+                          color={h.result?.verdict === "ARQUITETURA_B_RECOMENDADA" ? "green.400" : h.result?.verdict === "ARQUITETURA_A_RECOMENDADA" ? "orange.400" : "gray.400"} boxSize={4} />
+                        <Text fontSize="sm" color={appFx.textColor}>{h.result?.summary_text || "—"}</Text>
+                      </Flex>
+
+                      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={3} mb={3}>
+                        <Box p={2} bg={appFx.navHoverBg} borderRadius="md">
+                          <Text fontWeight="bold" fontSize="xs" color={appFx.textColor}>Arquitetura A</Text>
+                          <Text fontSize="2xs" color={appFx.textMuted}>Risco: {h.result?.architecture_a?.risk_score?.toFixed(1)}/10 · Ameaças: {h.result?.architecture_a?.total_threats}</Text>
+                          <Text fontSize="2xs" color={appFx.textMuted}>Componentes: {(h.result?.architecture_a?.components || []).join(", ")}</Text>
+                        </Box>
+                        <Box p={2} bg={appFx.navHoverBg} borderRadius="md">
+                          <Text fontWeight="bold" fontSize="xs" color={appFx.textColor}>Arquitetura B</Text>
+                          <Text fontSize="2xs" color={appFx.textMuted}>Risco: {h.result?.architecture_b?.risk_score?.toFixed(1)}/10 · Ameaças: {h.result?.architecture_b?.total_threats}</Text>
+                          <Text fontSize="2xs" color={appFx.textMuted}>Componentes: {(h.result?.architecture_b?.components || []).join(", ")}</Text>
+                        </Box>
+                      </SimpleGrid>
+
+                      {h.result?.diff && (
+                        <SimpleGrid columns={3} spacing={2} mb={3}>
+                          <Box p={2} bg={appFx.navHoverBg} borderRadius="md">
+                            <Text fontWeight="bold" fontSize="xs" color="green.400">Adicionados</Text>
+                            {(h.result.diff.components_added || []).map((c: string) => <Text key={c} fontSize="2xs" color={appFx.textColor}>+ {c}</Text>)}
+                            {(!h.result.diff.components_added || h.result.diff.components_added.length === 0) && <Text fontSize="2xs" color={appFx.textMuted}>Nenhum</Text>}
+                          </Box>
+                          <Box p={2} bg={appFx.navHoverBg} borderRadius="md">
+                            <Text fontWeight="bold" fontSize="xs" color="red.400">Removidos</Text>
+                            {(h.result.diff.components_removed || []).map((c: string) => <Text key={c} fontSize="2xs" color={appFx.textColor}>- {c}</Text>)}
+                            {(!h.result.diff.components_removed || h.result.diff.components_removed.length === 0) && <Text fontSize="2xs" color={appFx.textMuted}>Nenhum</Text>}
+                          </Box>
+                          <Box p={2} bg={appFx.navHoverBg} borderRadius="md">
+                            <Text fontWeight="bold" fontSize="xs" color="blue.400">Delta Risco</Text>
+                            <Text fontSize="2xs" color={appFx.textColor}>{h.result.diff.risk_delta > 0 ? "+" : ""}{h.result.diff.risk_delta?.toFixed(2)}</Text>
+                          </Box>
+                        </SimpleGrid>
+                      )}
+
+                      {h.suggestion && (
+                        <Box mt={2} p={3} bg="purple.50" borderRadius="md" border="1px solid" borderColor="purple.200">
+                          <Text fontSize="sm" fontWeight="bold" color="purple.600">✨ {h.suggestion.nome || "Sugestão"}</Text>
+                          <Text fontSize="xs" color="purple.700" mb={2}>{h.suggestion.descricao || ""}</Text>
+                          <SimpleGrid columns={2} spacing={2}>
+                            {(h.suggestion.beneficios_seguranca || []).slice(0, 3).map((b: string, i: number) => (
+                              <Text key={i} fontSize="2xs" color="purple.600">🛡️ {b}</Text>
+                            ))}
+                          </SimpleGrid>
+                        </Box>
+                      )}
+                    </Box>
+                  </Collapse>
+                </Box>
+              ))}
+            </VStack>
+          </Collapse>
+        </Box>
       </VStack>
     </Box>
   );

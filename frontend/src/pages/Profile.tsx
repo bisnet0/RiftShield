@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import {
   Box, VStack, HStack, Text, Input, Button, Divider, Heading, useColorModeValue,
-  Flex, Icon, Badge, Spinner,
+  Flex, Icon, Badge, Spinner, Switch,
 } from "@chakra-ui/react";
 import { useToast } from "../components/Toast/components/ToastContext";
 import { User, Mail, Phone, MapPin, Briefcase, Calendar, Shield, Zap } from "lucide-react";
@@ -83,6 +83,7 @@ export default function Profile() {
       if (form.seniority !== (user.seniority || "")) payload.seniority = form.seniority;
       if (form.age !== (user.age?.toString() || "")) payload.age = form.age ? parseInt(form.age) : null;
       if (form.language !== (user.language || "pt-BR")) payload.language = form.language;
+
       if (Object.keys(payload).length === 0) { showToast({ title: t("prof.sem_alteracoes"), type: "info", duration: 2000 }); return; }
       const res = await api.put("/users/me", payload);
       setUser(res.data.user);
