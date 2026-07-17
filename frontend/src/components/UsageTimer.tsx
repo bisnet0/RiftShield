@@ -19,10 +19,6 @@ export function UsageTimer() {
   const tick = useCallback(async () => {
     try {
       await api.post("/users/usage-tick");
-      const res = await api.get("/users/usage-time");
-      setHours(res.data.hours);
-      setMinutes(res.data.minutes);
-      setSeconds(res.data.seconds);
     } catch {}
   }, []);
 
@@ -32,12 +28,28 @@ export function UsageTimer() {
       setMinutes(res.data.minutes);
       setSeconds(res.data.seconds);
     }).catch(() => {});
-    const interval = setInterval(tick, 30000);
+    const apiInterval = setInterval(tick, 30000);
+    const secondInterval = setInterval(() => {
+      setSeconds((s) => {
+        if (s >= 59) {
+          setMinutes((m) => {
+            if (m >= 59) {
+              setHours((h) => h + 1);
+              return 0;
+            }
+            return m + 1;
+          });
+          return 0;
+        }
+        return s + 1;
+      });
+    }, 1000);
     const clockInterval = setInterval(() => {
       setCurrentTime(new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }));
     }, 1000);
     return () => {
-      clearInterval(interval);
+      clearInterval(apiInterval);
+      clearInterval(secondInterval);
       clearInterval(clockInterval);
     };
   }, [tick]);

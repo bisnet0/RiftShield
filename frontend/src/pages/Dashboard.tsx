@@ -162,10 +162,10 @@ export default function Dashboard() {
         </Box>
 
         <SimpleGrid columns={{ base: 2, md: 2, lg: 4 }} spacing={4}>
-          <Button leftIcon={<Icon as={ScanSearch} />} colorScheme="orange" variant="outline" onClick={() => navigate(ROUTES.INFERENCE)}>{t("inf.analisar")}</Button>
-          <Button leftIcon={<Icon as={ShieldAlert} />} colorScheme="red" variant="outline" onClick={() => navigate(ROUTES.THREATS)}>{t("thr.title")}</Button>
-          <Button leftIcon={<Icon as={Database} />} colorScheme="blue" variant="outline" onClick={() => navigate(ROUTES.DATASET)}>{t("ds.title")}</Button>
-          <Button leftIcon={<Icon as={GraduationCap} />} colorScheme="green" variant="outline" onClick={() => navigate(ROUTES.TRAINING)}>{t("tr.title")}</Button>
+          <Button leftIcon={<Icon as={ScanSearch} />} colorScheme="orange" variant="outline" onClick={() => navigate(ROUTES.INFERENCE)} whiteSpace="normal" h="auto" minH="40px" px={4} py={2}>{t("inf.analisar")}</Button>
+          <Button leftIcon={<Icon as={ShieldAlert} />} colorScheme="red" variant="outline" onClick={() => navigate(ROUTES.THREATS)} whiteSpace="normal" h="auto" minH="40px" px={4} py={2}>{t("thr.title")}</Button>
+          <Button leftIcon={<Icon as={Database} />} colorScheme="blue" variant="outline" onClick={() => navigate(ROUTES.DATASET)} whiteSpace="normal" h="auto" minH="40px" px={4} py={2}>{t("ds.title")}</Button>
+          <Button leftIcon={<Icon as={GraduationCap} />} colorScheme="green" variant="outline" onClick={() => navigate(ROUTES.TRAINING)} whiteSpace="normal" h="auto" minH="40px" px={4} py={2}>{t("tr.title")}</Button>
         </SimpleGrid>
       </VStack>
     </Box>
