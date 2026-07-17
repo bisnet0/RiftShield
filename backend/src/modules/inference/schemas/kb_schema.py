@@ -10,7 +10,11 @@ class VulnerabilityEntryResponse(BaseModel):
     id: str
     cve_id: Optional[str] = None
     title: str
+    title_en: Optional[str] = None
+    title_pt: Optional[str] = None
     description: str
+    description_en: Optional[str] = None
+    description_pt: Optional[str] = None
     cvss_score: Optional[float] = None
     cwe: Optional[str] = None
     affected_components: List[str]
@@ -21,9 +25,15 @@ class VulnerabilityEntryResponse(BaseModel):
 class CountermeasureEntryResponse(BaseModel):
     id: str
     title: str
+    title_en: Optional[str] = None
+    title_pt: Optional[str] = None
     description: str
-    priority: str
+    description_en: Optional[str] = None
+    description_pt: Optional[str] = None
     implementation_guide: Optional[str] = None
+    implementation_guide_en: Optional[str] = None
+    implementation_guide_pt: Optional[str] = None
+    priority: str
     references: List[str]
     vulnerability_cwe_ids: List[str]
     created_at: datetime

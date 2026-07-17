@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from middleware.dependencies import get_current_user
 from modules.inference.controllers import kb_controller
@@ -18,9 +18,10 @@ async def list_vulnerabilities(
     search: str = "",
     skip: int = 0,
     limit: int = 50,
+    lang: str = Query(default="pt-BR"),
     user=Depends(get_current_user),
 ) -> VulnerabilityListResponse:
-    return await kb_controller.list_vulnerabilities(component, cwe, min_cvss, search, skip, limit, str(user.id))
+    return await kb_controller.list_vulnerabilities(component, cwe, min_cvss, search, skip, limit, lang, str(user.id))
 
 
 @router.get("/countermeasures", response_model=CountermeasureListResponse)
@@ -28,6 +29,7 @@ async def list_countermeasures(
     cwe: str = "",
     skip: int = 0,
     limit: int = 50,
+    lang: str = Query(default="pt-BR"),
     user=Depends(get_current_user),
 ) -> CountermeasureListResponse:
-    return await kb_controller.list_countermeasures(cwe, skip, limit, str(user.id))
+    return await kb_controller.list_countermeasures(cwe, skip, limit, lang, str(user.id))

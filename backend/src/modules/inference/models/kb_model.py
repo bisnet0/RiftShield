@@ -10,7 +10,11 @@ from pydantic import BaseModel, Field
 class KBVulnerability(Document):
     cve_id: Optional[str] = None
     title: str
+    title_pt: Optional[str] = None
+    title_en: Optional[str] = None
     description: str
+    description_pt: Optional[str] = None
+    description_en: Optional[str] = None
     cvss_score: Optional[float] = None
     cwe: Optional[str] = None
     affected_components: List[str] = Field(default_factory=list)
@@ -24,9 +28,15 @@ class KBVulnerability(Document):
 
 class KBCountermeasure(Document):
     title: str
+    title_pt: Optional[str] = None
+    title_en: Optional[str] = None
     description: str
-    priority: str = Field(default="medium", pattern=r"^(low|medium|high|critical)$")
+    description_pt: Optional[str] = None
+    description_en: Optional[str] = None
     implementation_guide: Optional[str] = None
+    implementation_guide_pt: Optional[str] = None
+    implementation_guide_en: Optional[str] = None
+    priority: str = Field(default="medium", pattern=r"^(low|medium|high|critical)$")
     references: List[str] = Field(default_factory=list)
     vulnerability_cwe_ids: List[str] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=datetime.utcnow)
