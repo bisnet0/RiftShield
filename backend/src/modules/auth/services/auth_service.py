@@ -31,6 +31,7 @@ def _build_user_response(user: User) -> UserResponse:
         seniority=user.seniority,
         age=user.age,
         total_days_active=user.total_days_active,
+        total_seconds_active=user.total_seconds_active,
         language=user.language,
         custom_cursor_enabled=user.custom_cursor_enabled,
     )

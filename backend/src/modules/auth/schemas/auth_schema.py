@@ -46,6 +46,7 @@ class UserResponse(BaseModel):
     seniority: str | None = None
     age: int | None = None
     total_days_active: int = 0
+    total_seconds_active: int = 0
     language: str = "pt-BR"
     custom_cursor_enabled: bool = True
 
