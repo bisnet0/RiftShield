@@ -100,6 +100,23 @@ async def _get_settings(user_id: str) -> Optional[Dict]:
     return {"enabled": config.enabled, "provider": config.provider, "diag_fallback": config.diag_fallback}
 
 
+async def _get_comparisons(user_id: str) -> List[Dict]:
+    from modules.inference.models.comparison_model import ComparisonLog
+    items = await ComparisonLog.find({"user_id": user_id}).sort(-ComparisonLog.created_at).limit(50).to_list()
+    return [
+        {
+            "id": str(i.id),
+            "filename_a": i.filename_a,
+            "filename_b": i.filename_b,
+            "verdict": i.result.get("verdict", ""),
+            "risk_delta": i.result.get("diff", {}).get("risk_delta"),
+            "has_suggestion": i.suggestion is not None,
+            "created_at": i.created_at.isoformat() if i.created_at else None,
+        }
+        for i in items
+    ]
+
+
 async def export_data(
     user_id: str,
     sections: List[str],
@@ -122,6 +139,8 @@ async def export_data(
         data["vulnerabilidades"] = await _get_vulnerabilities()
     if "countermeasures" in sections:
         data["contramedidas"] = await _get_countermeasures()
+    if "comparisons" in sections:
+        data["comparacoes"] = await _get_comparisons(user_id)
     if include_profile:
         profile = await _get_profile(user_id)
         if profile:

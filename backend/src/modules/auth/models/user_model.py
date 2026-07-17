@@ -20,6 +20,7 @@ class User(Document):
     age: Optional[int] = None
     total_days_active: int = 0
     language: str = Field(default="pt-BR", pattern=r"^(pt-BR|en-US)$")
+    custom_cursor_enabled: bool = True
     refresh_token: Optional[str] = Field(default=None, alias="refreshToken")
     created_at: datetime = Field(default_factory=datetime.utcnow, alias="createdAt")
     updated_at: datetime = Field(default_factory=datetime.utcnow, alias="updatedAt")

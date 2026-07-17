@@ -135,8 +135,18 @@ async def compare_architectures(
     thr_a = await threat_service.analyze_threats(inf_a)
     thr_b = await threat_service.analyze_threats(inf_b)
 
+    import base64
     from modules.inference.services.comparison_service import compare_architectures as _compare
+    from modules.inference.models.comparison_model import ComparisonLog
     result = await _compare(inf_a, inf_b, thr_a, thr_b)
+    await ComparisonLog(
+        user_id=user_id,
+        filename_a=file_a.filename or "arch_a.png",
+        filename_b=file_b.filename or "arch_b.png",
+        image_a_b64=base64.b64encode(data_a).decode("utf-8"),
+        image_b_b64=base64.b64encode(data_b).decode("utf-8"),
+        result=result,
+    ).insert()
     return result
 
 
@@ -147,8 +157,43 @@ async def suggest_architecture_endpoint(
 ) -> dict:
     data_a = await file_a.read()
     data_b = await file_b.read()
+    from modules.inference.models.comparison_model import ComparisonLog
     result = await suggest_architecture(data_a, data_b, file_a.filename or "arch_a.png", file_b.filename or "arch_b.png", user_id)
+    if result and "error" not in result:
+        log = await ComparisonLog.find_one(
+            {"user_id": user_id, "filename_a": file_a.filename or "arch_a.png", "filename_b": file_b.filename or "arch_b.png"},
+            sort=-ComparisonLog.created_at,
+        )
+        if log:
+            log.suggestion = result
+            await log.save()
     return result
+
+
+async def list_comparisons(user_id: str) -> dict:
+    from modules.inference.models.comparison_model import ComparisonLog
+    items = (
+        await ComparisonLog.find({"user_id": user_id})
+        .sort(-ComparisonLog.created_at)
+        .limit(50)
+        .to_list()
+    )
+    return {
+        "total": len(items),
+        "items": [
+            {
+                "id": str(i.id),
+                "filename_a": i.filename_a,
+                "filename_b": i.filename_b,
+                "image_a_b64": i.image_a_b64,
+                "image_b_b64": i.image_b_b64,
+                "result": i.result,
+                "suggestion": i.suggestion,
+                "created_at": i.created_at.isoformat() if i.created_at else None,
+            }
+            for i in items
+        ],
+    }
 
 
 def _build_threat_report_response(report) -> ThreatReportResponse:

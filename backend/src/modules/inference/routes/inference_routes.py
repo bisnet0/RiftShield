@@ -44,6 +44,13 @@ async def suggest_architecture(
     return await inference_controller.suggest_architecture_endpoint(file_a, file_b, str(user.id))
 
 
+@router.get("/comparisons")
+async def list_comparisons(
+    user=Depends(get_current_user),
+) -> dict:
+    return await inference_controller.list_comparisons(str(user.id))
+
+
 @router.get("/reports", response_model=InferenceListResponse)
 async def list_reports(
     skip: int = 0,
