@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: A4; margin: 20mm 15mm; @bottom-center { content: counter(page) " / " counter(pages); font-size: 9px; color: #888; } }
+  body { font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #1a1a1a; line-height: 1.6; }
+  h1 { font-size: 22px; color: #e65c00; border-bottom: 3px solid #e65c00; padding-bottom: 6px; margin-top: 0; }
+  h2 { font-size: 16px; color: #e65c00; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-top: 28px; }
+  h3 { font-size: 13px; color: #333; margin-top: 16px; }
+  .header { text-align: center; margin-bottom: 30px; }
+  .header h1 { border: none; font-size: 28px; color: #1a1a1a; }
+  .header .subtitle { font-size: 14px; color: #666; }
+  .header .date { font-size: 11px; color: #999; margin-top: 4px; }
+  .stat-grid { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+  .stat-card { flex: 1; min-width: 120px; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; text-align: center; }
+  .stat-card .value { font-size: 22px; font-weight: bold; color: #e65c00; }
+  .stat-card .label { font-size: 9px; color: #666; margin-top: 2px; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 10px; }
+  th { background: #e65c00; color: white; padding: 6px 8px; text-align: left; font-weight: 600; }
+  td { padding: 5px 8px; border-bottom: 1px solid #eee; }
+  tr:nth-child(even) td { background: #fafafa; }
+  .chart-img { width: 100%; max-width: 600px; margin: 10px auto; display: block; }
+  .risk-critical { color: #dc2626; font-weight: bold; }
+  .risk-high { color: #ea580c; font-weight: bold; }
+  .risk-medium { color: #ca8a04; font-weight: bold; }
+  .risk-low { color: #16a34a; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 9px; font-weight: 600; color: white; }
+  .badge-green { background: #16a34a; }
+  .badge-red { background: #dc2626; }
+  .badge-orange { background: #ea580c; }
+  .badge-blue { background: #2563eb; }
+  .footer { margin-top: 40px; padding-top: 10px; border-top: 1px solid #ddd; text-align: center; font-size: 9px; color: #999; }
+  .section-desc { font-size: 10px; color: #666; margin-bottom: 10px; }
+  .page-break { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>RiftShield</h1>
+  <div class="subtitle">Relatório de Exportação de Dados</div>
+  <div class="date">Gerado em {{ generation_date }}</div>
+  {% if profile %}
+  <div class="date">Usuário: {{ profile.name }} &lt;{{ profile.email }}&gt;</div>
+  {% endif %}
+</div>
+
+{% for section in sections %}
+<div class="page-break">
+<h2>{{ section.title }}</h2>
+<div class="section-desc">{{ section.description }}</div>
+
+{% if section.stats %}
+<div class="stat-grid">
+  {% for stat in section.stats %}
+  <div class="stat-card">
+    <div class="value">{{ stat.value }}</div>
+    <div class="label">{{ stat.label }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if section.chart %}
+<img class="chart-img" src="data:image/png;base64,{{ section.chart }}" alt="Gráfico" />
+{% endif %}
+
+{% if section.table_headers %}
+<table>
+  <thead>
+    <tr>{% for h in section.table_headers %}<th>{{ h }}</th>{% endfor %}</tr>
+  </thead>
+  <tbody>
+    {% for row in section.table_rows %}
+    <tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% if section.table_note %}<p style="font-size:9px;color:#999;text-align:right;">{{ section.table_note }}</p>{% endif %}
+{% endif %}
+</div>
+{% endfor %}
+
+<div class="footer">
+  RiftShield — Relatório gerado automaticamente em {{ generation_date }}<br>
+  Hackathon FIAP Software Security 2026
+</div>
+
+</body>
+</html>

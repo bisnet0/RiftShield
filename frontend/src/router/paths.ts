@@ -11,4 +11,5 @@ export const ROUTES = {
   TRAINING: "/training",
   VULNERABILITIES: "/vulnerabilities",
   COUNTERMEASURES: "/countermeasures",
+  EXPORT: "/export",
 } as const;
