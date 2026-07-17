@@ -1,4 +1,4 @@
-import { Box, Flex, Text, Icon, VStack, Drawer, DrawerBody, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton, Image } from "@chakra-ui/react";
+import { Box, Flex, Text, Icon, VStack, Drawer, DrawerBody, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton, Image, useColorModeValue } from "@chakra-ui/react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { NAV_ITEMS } from "./nav-config";
 import { useAppThemeFx } from "../../styles/app-theme-fx";
@@ -14,6 +14,7 @@ export function Sidebar({ isOpen, onClose }: Props) {
   const t = useT();
   const navigate = useNavigate();
   const location = useLocation();
+  const shieldColor = useColorModeValue("#e65c00", "#e6b800");
 
   const SidebarContent = () => (
     <VStack spacing={2} align="stretch" w="100%">
@@ -72,7 +73,7 @@ export function Sidebar({ isOpen, onClose }: Props) {
             <Flex align="center">
               <Image src="/public/Rift_Shield_Logo.png" alt="Logo" w="36px" mr={3} />
               <Text fontWeight={"light"}>Rift</Text>
-              <Text marginLeft={1} fontSize="xl" fontWeight="bold" color="#FFD52B" letterSpacing="tight">Shield</Text>
+              <Text marginLeft={1} fontSize="xl" fontWeight="bold" color={shieldColor} letterSpacing="tight">Shield</Text>
             </Flex>
           </DrawerHeader>
           <DrawerBody pt={6} px={0}>

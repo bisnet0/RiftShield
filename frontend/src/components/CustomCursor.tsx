@@ -8,11 +8,15 @@ export function CustomCursor() {
   const trail = useRef({ x: -100, y: -100 });
   const target = useRef({ x: -100, y: -100 });
   const [enabled, setEnabled] = useState<boolean | null>(null);
+  const [isHovering, setIsHovering] = useState(false);
   const ringDelay = 0.06;
   const dotDelay = 0.12;
 
   const borderColor = useColorModeValue("#e65c00", "#e6b800");
   const dotColor = useColorModeValue("#e65c00", "#e6b800");
+
+  const nextRingRadius = useRef(18);
+  const currentRingRadius = useRef(18);
 
   const loadState = () => {
     api.get("/users/me").then((r) => {
@@ -49,12 +53,25 @@ export function CustomCursor() {
 
     const style = document.createElement("style");
     style.setAttribute("id", "rift-cursor-style");
-    style.textContent = "* { cursor: none !important; }";
+    style.textContent = "*:not([vw] *):not(.vw-plugin-top-wrapper *):not([vw-access-button]) { cursor: none !important; }";
     document.head.appendChild(style);
+
+    const interactiveTags = ["a", "button", "input", "select", "textarea", "[role=button]", "label", '[onclick]'];
+
+    const onMouseOver = (e: MouseEvent) => {
+      const el = e.target as HTMLElement;
+      const isInteractive = interactiveTags.some((tag) => {
+        if (tag.startsWith("[")) return el.matches(tag);
+        return el.tagName.toLowerCase() === tag || el.closest(tag);
+      });
+      nextRingRadius.current = isInteractive ? 28 : 18;
+      setIsHovering(isInteractive);
+    };
 
     const onMouse = (e: MouseEvent) => {
       target.current.x = e.clientX;
       target.current.y = e.clientY;
+      onMouseOver(e);
     };
 
     const onLeave = () => {
@@ -84,16 +101,28 @@ export function CustomCursor() {
       pos.current.x += tdx * ringDelay;
       pos.current.y += tdy * ringDelay;
 
+      const radiusDiff = nextRingRadius.current - currentRingRadius.current;
+      currentRingRadius.current += radiusDiff * 0.08;
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const px = pos.current.x;
       const py = pos.current.y;
+      const r = currentRingRadius.current;
+
+      if (r > 20) {
+        ctx.beginPath();
+        ctx.arc(px, py, r, 0, Math.PI * 2);
+        ctx.fillStyle = borderColor;
+        ctx.globalAlpha = 0.08;
+        ctx.fill();
+      }
 
       ctx.beginPath();
-      ctx.arc(px, py, 18, 0, Math.PI * 2);
+      ctx.arc(px, py, r, 0, Math.PI * 2);
       ctx.strokeStyle = borderColor;
       ctx.lineWidth = 1.5;
-      ctx.globalAlpha = 0.6;
+      ctx.globalAlpha = r > 20 ? 0.8 : 0.6;
       ctx.stroke();
 
       ctx.beginPath();

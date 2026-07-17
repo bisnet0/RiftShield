@@ -23,7 +23,7 @@ const pt: Record<string, string> = {
 
   // Inference
   "inf.title": "Análise de Diagramas",
-  "inf.upload": "Upload",
+  "inf.upload": "Subir Imagem",
   "inf.analisar": "Analisar Diagrama",
   "inf.reports": "Relatórios",
   "inf.componentes": "Componentes Detectados",

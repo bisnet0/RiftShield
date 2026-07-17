@@ -161,7 +161,7 @@ export default function Dashboard() {
           )}
         </Box>
 
-        <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
+        <SimpleGrid columns={{ base: 2, md: 2, lg: 4 }} spacing={4}>
           <Button leftIcon={<Icon as={ScanSearch} />} colorScheme="orange" variant="outline" onClick={() => navigate(ROUTES.INFERENCE)}>{t("inf.analisar")}</Button>
           <Button leftIcon={<Icon as={ShieldAlert} />} colorScheme="red" variant="outline" onClick={() => navigate(ROUTES.THREATS)}>{t("thr.title")}</Button>
           <Button leftIcon={<Icon as={Database} />} colorScheme="blue" variant="outline" onClick={() => navigate(ROUTES.DATASET)}>{t("ds.title")}</Button>
