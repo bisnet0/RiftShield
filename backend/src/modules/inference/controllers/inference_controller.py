@@ -63,6 +63,9 @@ async def analyze_and_threat(
 
     llm_config = {}
     try:
+        from modules.auth.models.user_model import User
+        user = await User.get(user_id)
+        user_lang = user.language if user and user.language else "pt-BR"
         llm_config_data = await HermesConfig.find_one(HermesConfig.user_id == user_id)
         if llm_config_data:
             llm_config = {
@@ -71,6 +74,7 @@ async def analyze_and_threat(
                 "openai_api_key": llm_config_data.openai_api_key,
                 "deepseek_api_key": llm_config_data.deepseek_api_key,
                 "diag_fallback": llm_config_data.diag_fallback,
+                "language": user_lang,
             }
     except:
         pass

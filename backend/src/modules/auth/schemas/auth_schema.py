@@ -46,6 +46,7 @@ class UserResponse(BaseModel):
     seniority: str | None = None
     age: int | None = None
     total_days_active: int = 0
+    language: str = "pt-BR"
 
 
 class UpdateProfileInput(BaseModel):
@@ -57,3 +58,4 @@ class UpdateProfileInput(BaseModel):
     profession: str | None = None
     seniority: str | None = None
     age: int | None = None
+    language: str | None = None

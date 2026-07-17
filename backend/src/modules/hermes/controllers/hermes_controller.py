@@ -30,6 +30,14 @@ async def _get_llm_config(user_id: str) -> dict:
     config = await HermesConfig.find_one(HermesConfig.user_id == user_id)
     if not config:
         return {}
+    from modules.auth.models.user_model import User
+    user_lang = "pt-BR"
+    try:
+        user = await User.get(user_id)
+        if user and user.language:
+            user_lang = user.language
+    except:
+        pass
     return {
         "provider": config.provider,
         "google_api_key": config.google_api_key,
@@ -38,6 +46,7 @@ async def _get_llm_config(user_id: str) -> dict:
         "google_model": config.google_model,
         "openai_model": config.openai_model,
         "deepseek_model": config.deepseek_model,
+        "language": user_lang,
     }
 
 

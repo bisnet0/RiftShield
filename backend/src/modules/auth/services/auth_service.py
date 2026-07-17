@@ -31,6 +31,7 @@ def _build_user_response(user: User) -> UserResponse:
         seniority=user.seniority,
         age=user.age,
         total_days_active=user.total_days_active,
+        language=user.language,
     )
 
 
@@ -131,7 +132,7 @@ async def update_profile(user_id: str, data: dict) -> UserResponse:
     user = await User.get(user_id)
     if not user:
         raise AppError("Usuário não encontrado", status_code=404)
-    allowed = {"name", "phone", "country", "state", "city", "profession", "seniority", "age"}
+    allowed = {"name", "phone", "country", "state", "city", "profession", "seniority", "age", "language"}
     for key, value in data.items():
         if key in allowed and value is not None:
             setattr(user, key, value)

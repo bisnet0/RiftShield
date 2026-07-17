@@ -19,6 +19,7 @@ class User(Document):
     seniority: Optional[str] = Field(default=None, pattern=r"^(junior|mid-level|senior)$")
     age: Optional[int] = None
     total_days_active: int = 0
+    language: str = Field(default="pt-BR", pattern=r"^(pt-BR|en-US)$")
     refresh_token: Optional[str] = Field(default=None, alias="refreshToken")
     created_at: datetime = Field(default_factory=datetime.utcnow, alias="createdAt")
     updated_at: datetime = Field(default_factory=datetime.utcnow, alias="updatedAt")

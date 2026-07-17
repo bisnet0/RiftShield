@@ -62,18 +62,15 @@ def get_llm(config: dict) -> Optional[BaseChatModel]:
 
 def supervisor_node(state: HermesState):
     config = state.get("context", {}).get("llm_config", {})
+    lang = config.get("language", "pt-BR")
     llm = get_llm(config)
     if llm is None:
-        return {
-            "messages": [
-                AIMessage(
-                    content="Hermes não está configurado. Vá em Configurações e adicione uma chave de API (Google, OpenAI ou DeepSeek) para ativar o assistente."
-                )
-            ]
-        }
+        msg = "Hermes não está configurado. Vá em Configurações e adicione uma chave de API (Google, OpenAI ou DeepSeek) para ativar o assistente." if lang == "pt-BR" else "Hermes is not configured. Go to Settings and add an API key (Google, OpenAI or DeepSeek) to activate the assistant."
+        return {"messages": [AIMessage(content=msg)]}
     messages = state["messages"]
+    lang_instruction = f"\n\nIMPORTANTE: Responda SEMPRE em {'português brasileiro' if lang == 'pt-BR' else 'English'}." if lang else ""
     if not messages or not isinstance(messages[0], SystemMessage):
-        messages = [SystemMessage(content=SYSTEM_PROMPT)] + messages
+        messages = [SystemMessage(content=SYSTEM_PROMPT + lang_instruction)] + messages
     response = llm.invoke(messages)
     return {"messages": [response]}
 

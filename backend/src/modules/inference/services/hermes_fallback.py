@@ -41,7 +41,9 @@ Formato da resposta (JSON apenas):
   {"label": "database", "confidence": 0.78, "bbox": [300, 50, 200, 150]}
 ]
 
-bbox = [x, y, width, height] em pixels aproximados. Se não souber as coordenadas, use [0, 0, 100, 100]."""
+bbox = [x, y, width, height] em pixels aproximados. Se não souber as coordenadas, use [0, 0, 100, 100]."
+
+RESPONDA APENAS COM O JSON. Nenhum texto adicional."""
 
 
 def _build_llm(config: dict):
