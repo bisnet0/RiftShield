@@ -44,6 +44,7 @@ def get_llm(config: dict) -> Optional[BaseChatModel]:
     if config == last_config and llm_cache is not None:
         return llm_cache
     provider = config.get("provider", "google")
+    enable_fallback = config.get("fallback_enabled", True)
     llm = build_llm(
         provider=provider,
         tools=HERMES_TOOLS,
@@ -53,6 +54,7 @@ def get_llm(config: dict) -> Optional[BaseChatModel]:
         google_model=config.get("google_model", "gemini-2.5-flash-lite"),
         openai_model=config.get("openai_model", "gpt-4o-mini"),
         deepseek_model=config.get("deepseek_model", "deepseek-chat"),
+        enable_fallback=enable_fallback,
     )
     if llm is not None:
         llm_cache = llm

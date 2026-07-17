@@ -18,6 +18,8 @@ from modules.inference.schemas.threat_schema import (
 )
 from modules.inference.services import inference_service, threat_service
 from modules.inference.services.hermes_fallback import analyze_with_llm
+from modules.inference.services.comparison_service import compare_architectures
+from modules.inference.services.suggestion_service import suggest_architecture
 from modules.hermes.models.llm_config import HermesConfig
 
 
@@ -54,6 +56,23 @@ async def analyze(
     return _build_analyze_response(result)
 
 
+async def _get_llm_config(user_id: str) -> dict:
+    cfg = {}
+    try:
+        from modules.auth.models.user_model import User
+        user = await User.get(user_id)
+        user_lang = user.language if user and user.language else "pt-BR"
+        data = await HermesConfig.find_one(HermesConfig.user_id == user_id)
+        if data:
+            cfg = {
+                "provider": data.provider, "google_api_key": data.google_api_key,
+                "openai_api_key": data.openai_api_key, "deepseek_api_key": data.deepseek_api_key,
+                "diag_fallback": data.diag_fallback, "language": user_lang,
+            }
+    except: pass
+    return cfg
+
+
 async def analyze_and_threat(
     file: UploadFile,
     user_id: str,
@@ -61,23 +80,7 @@ async def analyze_and_threat(
     image_data = await file.read()
     filename = file.filename or "diagram.png"
 
-    llm_config = {}
-    try:
-        from modules.auth.models.user_model import User
-        user = await User.get(user_id)
-        user_lang = user.language if user and user.language else "pt-BR"
-        llm_config_data = await HermesConfig.find_one(HermesConfig.user_id == user_id)
-        if llm_config_data:
-            llm_config = {
-                "provider": llm_config_data.provider,
-                "google_api_key": llm_config_data.google_api_key,
-                "openai_api_key": llm_config_data.openai_api_key,
-                "deepseek_api_key": llm_config_data.deepseek_api_key,
-                "diag_fallback": llm_config_data.diag_fallback,
-                "language": user_lang,
-            }
-    except:
-        pass
+    llm_config = await _get_llm_config(user_id)
 
     use_hermes_only = llm_config.get("diag_fallback") == "hermes"
 
@@ -104,6 +107,48 @@ async def analyze_and_threat(
         "inference": _build_analyze_response(inference).model_dump(),
         "threat_report": _build_threat_report_response(threat_report).model_dump(),
     }
+
+
+async def compare_architectures(
+    file_a: UploadFile,
+    file_b: UploadFile,
+    user_id: str,
+) -> dict:
+    data_a = await file_a.read()
+    data_b = await file_b.read()
+    llm_config = await _get_llm_config(user_id)
+
+    inf_a = await inference_service.analyze_diagram(data_a, file_a.filename or "arch_a.png", user_id)
+    inf_b = await inference_service.analyze_diagram(data_b, file_b.filename or "arch_b.png", user_id)
+
+    if not inf_a.components and llm_config.get("diag_fallback") != "yolo":
+        try:
+            fb = await analyze_with_llm(data_a, file_a.filename or "arch_a.png", user_id, llm_config)
+            if fb: inf_a = fb
+        except: pass
+    if not inf_b.components and llm_config.get("diag_fallback") != "yolo":
+        try:
+            fb = await analyze_with_llm(data_b, file_b.filename or "arch_b.png", user_id, llm_config)
+            if fb: inf_b = fb
+        except: pass
+
+    thr_a = await threat_service.analyze_threats(inf_a)
+    thr_b = await threat_service.analyze_threats(inf_b)
+
+    from modules.inference.services.comparison_service import compare_architectures as _compare
+    result = await _compare(inf_a, inf_b, thr_a, thr_b)
+    return result
+
+
+async def suggest_architecture_endpoint(
+    file_a: UploadFile,
+    file_b: UploadFile,
+    user_id: str,
+) -> dict:
+    data_a = await file_a.read()
+    data_b = await file_b.read()
+    result = await suggest_architecture(data_a, data_b, file_a.filename or "arch_a.png", file_b.filename or "arch_b.png", user_id)
+    return result
 
 
 def _build_threat_report_response(report) -> ThreatReportResponse:

@@ -23,6 +23,15 @@ async def history(
     return await hermes_controller.get_history(str(user.id))
 
 
+@router.post("/log")
+async def log_event(
+    data: dict,
+    user=Depends(get_current_user),
+):
+    message = data.get("message", "")
+    return await hermes_controller.log_event(message, str(user.id))
+
+
 @router.delete("/messages/{message_id}")
 async def delete_message(
     message_id: str,

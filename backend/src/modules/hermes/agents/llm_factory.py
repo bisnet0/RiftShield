@@ -1,7 +1,6 @@
 from typing import Optional
 
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import AIMessage, SystemMessage
 from langchain_core.tools import BaseTool
 
 
@@ -45,11 +44,27 @@ def build_llm(
     google_model: str = "gemini-2.5-flash-lite",
     openai_model: str = "gpt-4o-mini",
     deepseek_model: str = "deepseek-chat",
+    enable_fallback: bool = True,
 ) -> Optional[BaseChatModel]:
-    if provider == "google" and google_key:
-        return _build_google(google_key, google_model, tools)
-    if provider == "openai" and openai_key:
-        return _build_openai(openai_key, openai_model, tools)
-    if provider == "deepseek" and deepseek_key:
-        return _build_deepseek(deepseek_key, deepseek_model, tools)
+    order = ["google", "openai", "deepseek"]
+    models_map = {
+        "google": (google_key, google_model, _build_google),
+        "openai": (openai_key, openai_model, _build_openai),
+        "deepseek": (deepseek_key, deepseek_model, _build_deepseek),
+    }
+    keys_map = {"google": google_key, "openai": openai_key, "deepseek": deepseek_key}
+
+    if provider in keys_map and keys_map[provider]:
+        key, model, builder = models_map[provider]
+        return builder(key, model, tools)
+
+    if enable_fallback:
+        for alt_provider in order:
+            if alt_provider == provider:
+                continue
+            if keys_map.get(alt_provider):
+                key, model, builder = models_map[alt_provider]
+                print(f"Fallback: {provider} sem chave, usando {alt_provider}")
+                return builder(key, model, tools)
+
     return None

@@ -1,4 +1,8 @@
-from langchain_core.tools import tool
+import asyncio
+from typing import Any, Callable, Coroutine, Optional
+
+from langchain_core.tools import StructuredTool
+
 from modules.inference.services.kb_service import list_vulnerabilities, list_countermeasures, get_vulnerabilities_for_component, get_countermeasures_for_vulnerabilities
 from modules.inference.models.kb_model import VulnerabilityFilter
 from modules.inference.services.inference_service import list_inferences
@@ -12,11 +16,28 @@ from modules.auth.models.user_model import User
 from datetime import datetime, timedelta
 
 
-@tool("analyze_diagram")
-async def analyze_diagram_tool(image_path: str, user_id: str = "") -> str:
-    """Analyze a software architecture diagram image and detect components."""
-    from modules.inference.services.inference_service import analyze_diagram
+def _sync_run(coro_factory: Callable[..., Coroutine]) -> Callable[..., Any]:
+    def wrapper(*args, **kwargs):
+        return asyncio.run(coro_factory(*args, **kwargs))
+    return wrapper
 
+
+HERMES_TOOLS = []
+
+
+def _register(coro_func: Callable, name: str, description: str, args_schema: Optional[Any] = None):
+    tool = StructuredTool(
+        name=name,
+        description=description,
+        func=_sync_run(coro_func),
+        coroutine=coro_func,
+        args_schema=args_schema,
+    )
+    HERMES_TOOLS.append(tool)
+
+
+async def _analyze_diagram_tool(image_path: str, user_id: str = "") -> str:
+    from modules.inference.services.inference_service import analyze_diagram
     try:
         with open(image_path, "rb") as f:
             data = f.read()
@@ -31,15 +52,11 @@ async def analyze_diagram_tool(image_path: str, user_id: str = "") -> str:
         return f"Diagram analyzed. Detected {len(components)} components: {', '.join(components)}"
     except Exception as e:
         return f"Error analyzing diagram: {str(e)}"
+_register(_analyze_diagram_tool, "analyze_diagram", "Analyze a software architecture diagram image and detect components.")
 
 
-@tool("list_reports")
-async def list_reports_tool(user_id: str = "", limit: int = 10) -> str:
-    """List inference analysis reports. Shows recent diagram analysis history."""
-    items, total = await list_inferences(
-        user_id=user_id or None,
-        limit=limit,
-    )
+async def _list_reports_tool(user_id: str = "", limit: int = 10) -> str:
+    items, total = await list_inferences(user_id=user_id or None, limit=limit)
     if not items:
         return "No analysis reports found."
     lines = [f"Total: {total} reports"]
@@ -47,11 +64,10 @@ async def list_reports_tool(user_id: str = "", limit: int = 10) -> str:
         comps = ", ".join(c.label for c in (r.components or []))
         lines.append(f"- {r.id}: {r.filename} | {r.status} | components: [{comps}] | {r.created_at}")
     return "\n".join(lines)
+_register(_list_reports_tool, "list_reports", "List inference analysis reports. Shows recent diagram analysis history.")
 
 
-@tool("list_threats")
-async def list_threats_tool(limit: int = 10) -> str:
-    """List STRIDE threat reports generated from architecture analysis."""
+async def _list_threats_tool(limit: int = 10) -> str:
     items, total = await list_threats(limit=limit)
     if not items:
         return "No threat reports found."
@@ -59,11 +75,10 @@ async def list_threats_tool(limit: int = 10) -> str:
     for t in items:
         lines.append(f"- {t.id}: {t.title} | severity: {t.severity} | score: {t.risk_score} | {t.created_at}")
     return "\n".join(lines)
+_register(_list_threats_tool, "list_threats", "List STRIDE threat reports generated from architecture analysis.")
 
 
-@tool("list_vulnerabilities")
-async def list_vulnerabilities_tool(component: str = "", search: str = "", limit: int = 20) -> str:
-    """Search the vulnerability knowledge base. Filter by component (server, database, api, user, gateway, etc.) or search text."""
+async def _list_vulnerabilities_tool(component: str = "", search: str = "", limit: int = 20) -> str:
     filter_obj = None
     if component or search:
         filter_obj = VulnerabilityFilter(component=component or None, search=search or None)
@@ -75,11 +90,10 @@ async def list_vulnerabilities_tool(component: str = "", search: str = "", limit
         comps = ", ".join(v.affected_components)
         lines.append(f"- {v.cve_id}: {v.title} (CVSS: {v.cvss_score}) | components: [{comps}]")
     return "\n".join(lines)
+_register(_list_vulnerabilities_tool, "list_vulnerabilities", "Search the vulnerability knowledge base by component or text.")
 
 
-@tool("list_countermeasures")
-async def list_countermeasures_tool(cwe_id: str = "", limit: int = 20) -> str:
-    """List security countermeasures. Filter by CWE ID to get specific mitigations."""
+async def _list_countermeasures_tool(cwe_id: str = "", limit: int = 20) -> str:
     cwe_ids = [cwe_id] if cwe_id else None
     items, total = await list_countermeasures(cwe_ids=cwe_ids, limit=limit)
     if not items:
@@ -89,11 +103,10 @@ async def list_countermeasures_tool(cwe_id: str = "", limit: int = 20) -> str:
         cwes = ", ".join(c.vulnerability_cwe_ids)
         lines.append(f"- {c.title} (priority: {c.priority}) | CWEs: [{cwes}]")
     return "\n".join(lines)
+_register(_list_countermeasures_tool, "list_countermeasures", "List security countermeasures by CWE ID.")
 
 
-@tool("dashboard_stats")
-async def dashboard_stats_tool() -> str:
-    """Get system-wide dashboard statistics and KPIs."""
+async def _dashboard_stats_tool() -> str:
     stats = await get_dashboard_stats()
     return (
         f"Dashboard Statistics:\n"
@@ -102,11 +115,10 @@ async def dashboard_stats_tool() -> str:
         f"- Active models: {stats.get('active_models', 0)}\n"
         f"- Dataset entries: {stats.get('total_dataset_entries', 0)}\n"
     )
+_register(_dashboard_stats_tool, "dashboard_stats", "Get system-wide dashboard statistics and KPIs.")
 
 
-@tool("list_dataset")
-async def list_dataset_entries_tool(limit: int = 20) -> str:
-    """List dataset entries used for model training."""
+async def _list_dataset_tool(limit: int = 20) -> str:
     items, total = await list_entries(limit=limit)
     if not items:
         return "No dataset entries found."
@@ -114,11 +126,10 @@ async def list_dataset_entries_tool(limit: int = 20) -> str:
     for e in items:
         lines.append(f"- {e.id}: {e.filename} | type: {e.type} | augmented: {e.augmented}")
     return "\n".join(lines)
+_register(_list_dataset_tool, "list_dataset", "List dataset entries used for model training.")
 
 
-@tool("list_models")
-async def list_trained_models_tool(limit: int = 10) -> str:
-    """List trained YOLO models and their versions."""
+async def _list_models_tool(limit: int = 10) -> str:
     items, total = await list_trained_models(limit=limit)
     if not items:
         return "No trained models found."
@@ -126,18 +137,16 @@ async def list_trained_models_tool(limit: int = 10) -> str:
     for m in items:
         lines.append(f"- {m.id}: {m.model_name} (epochs: {m.epochs}, accuracy: {m.accuracy}) | active: {m.is_active}")
     return "\n".join(lines)
+_register(_list_models_tool, "list_models", "List trained YOLO models and their versions.")
 
 
-@tool("rag_kb")
-async def rag_kb_tool(query: str) -> str:
-    """Search the security knowledge base (PDFs, articles, standards) for in-depth explanations about vulnerabilities, threats, and security practices."""
+async def _rag_kb_tool(query: str) -> str:
     result = await search_knowledge_base(query=query, k=4)
     return f"Knowledge base results:\n{result}"
+_register(_rag_kb_tool, "rag_kb", "Search the security knowledge base for in-depth explanations.")
 
 
-@tool("last_threat_report")
-async def last_threat_report_tool() -> str:
-    """Get the latest STRIDE threat report generated from the last diagram analysis. Use this when the user asks about their last analysis or STRIDE results."""
+async def _last_threat_report_tool() -> str:
     items, total = await list_threats(limit=1)
     if not items:
         return "Nenhum relatório STRIDE encontrado. Faça upload de um diagrama primeiro."
@@ -155,3 +164,4 @@ async def last_threat_report_tool() -> str:
         f"denial_of_service={r.stride_summary.get('denial_of_service',0)}, elevation_of_privilege={r.stride_summary.get('elevation_of_privilege',0)}\n"
         f"Componentes analisados:\n" + "\n".join(comps)
     )
+_register(_last_threat_report_tool, "last_threat_report", "Get the latest STRIDE threat report.")

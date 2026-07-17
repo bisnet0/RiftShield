@@ -46,18 +46,37 @@ bbox = [x, y, width, height] em pixels aproximados. Se não souber as coordenada
 RESPONDA APENAS COM O JSON. Nenhum texto adicional."""
 
 
+VISION_MODELS = {
+    "google": ["gemini-2.5-flash-lite", "gemini-2.5-flash", "gemini-2.5-pro"],
+    "openai": ["gpt-4o-mini", "gpt-4o", "gpt-4-turbo"],
+}
+
+
+def _model_supports_vision(provider: str, model: str) -> bool:
+    return model in VISION_MODELS.get(provider, [])
+
+
 def _build_llm(config: dict):
     provider = config.get("provider", "google")
     key_google = config.get("google_api_key", "")
     key_openai = config.get("openai_api_key", "")
     key_deepseek = config.get("deepseek_api_key", "")
+    model = config.get("google_model", "gemini-2.5-flash-lite")
+
+    if provider == "deepseek":
+        return None  # Nenhum modelo DeepSeek suporta image_url
 
     if provider == "google" and key_google:
-        return ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite", google_api_key=key_google, temperature=0.1)
+        if not _model_supports_vision("google", model):
+            model = "gemini-2.5-flash-lite"
+        return ChatGoogleGenerativeAI(model=model, google_api_key=key_google, temperature=0.1)
+
     if provider == "openai" and key_openai:
-        return ChatOpenAI(model="gpt-4o-mini", api_key=key_openai, temperature=0.1)
-    if provider == "deepseek" and key_deepseek:
-        return ChatOpenAI(model="deepseek-chat", api_key=key_deepseek, base_url="https://api.deepseek.com/v1", temperature=0.1)
+        openai_model = config.get("openai_model", "gpt-4o-mini")
+        if not _model_supports_vision("openai", openai_model):
+            openai_model = "gpt-4o-mini"
+        return ChatOpenAI(model=openai_model, api_key=key_openai, temperature=0.1)
+
     return None
 
 

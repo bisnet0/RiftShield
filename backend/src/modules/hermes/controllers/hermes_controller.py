@@ -65,6 +65,17 @@ async def chat(message: str, attachment_b64: str | None, user_id: str) -> dict:
             "msg_id": "",
         }
 
+    provider = llm_config.get("provider", "")
+    if attachment_b64 and provider == "deepseek":
+        return {
+            "response": (
+                "O **DeepSeek** não suporta análise de imagens. "
+                "Para analisar diagramas com imagens, configure o **Google Gemini** ou **OpenAI** como provedor principal, "
+                "ou ative o fallback entre provedores nas Configurações."
+            ),
+            "msg_id": "",
+        }
+
     past = await _get_past_messages(user_id)
     langchain_history = []
     for m in past:
@@ -122,7 +133,7 @@ async def save_config(user_id: str, data: dict) -> dict:
     config = await HermesConfig.find_one(HermesConfig.user_id == user_id)
     if config:
         for key in ("enabled", "provider", "google_api_key", "openai_api_key",
-                     "deepseek_api_key", "google_model", "openai_model", "deepseek_model", "diag_fallback"):
+                     "deepseek_api_key", "google_model", "openai_model", "deepseek_model", "diag_fallback", "fallback_enabled"):
             if key in data:
                 setattr(config, key, data[key])
         await config.save()
@@ -145,6 +156,7 @@ async def get_config(user_id: str) -> dict:
             "openai_model": "gpt-4o-mini",
             "deepseek_model": "deepseek-chat",
             "diag_fallback": "yolo",
+            "fallback_enabled": True,
         }
     return {
         "enabled": config.enabled,
@@ -156,6 +168,7 @@ async def get_config(user_id: str) -> dict:
         "openai_model": config.openai_model,
         "deepseek_model": config.deepseek_model,
         "diag_fallback": config.diag_fallback,
+        "fallback_enabled": config.fallback_enabled,
     }
 
 
@@ -167,16 +180,28 @@ async def get_history(user_id: str) -> list:
         .to_list()
     )
     msgs.reverse()
+    from datetime import timezone, timedelta
+    br_tz = timezone(timedelta(hours=-3))
     return [
         {
             "id": str(m.id),
             "role": m.role,
             "content": m.content,
             "has_attachment": m.has_attachment,
-            "created_at": m.created_at.isoformat() if m.created_at else None,
+            "created_at": m.created_at.astimezone(br_tz).isoformat() if m.created_at else None,
         }
         for m in msgs
     ]
+
+
+async def log_event(message: str, user_id: str) -> dict:
+    await HermesMessage(
+        user_id=user_id,
+        role="user",
+        content=f"⚙️ {message}",
+        has_attachment=False,
+    ).insert()
+    return {"logged": True}
 
 
 async def delete_message(msg_id: str, user_id: str) -> bool:

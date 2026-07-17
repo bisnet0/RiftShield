@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, File, UploadFile
+from typing import Optional
+
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 
 from middleware.dependencies import get_current_user
 from modules.inference.controllers import inference_controller
@@ -22,6 +24,24 @@ async def analyze_diagram_with_threats(
     user=Depends(get_current_user),
 ) -> dict:
     return await inference_controller.analyze_and_threat(file, str(user.id))
+
+
+@router.post("/compare")
+async def compare_architectures(
+    file_a: UploadFile = File(...),
+    file_b: UploadFile = File(...),
+    user=Depends(get_current_user),
+) -> dict:
+    return await inference_controller.compare_architectures(file_a, file_b, str(user.id))
+
+
+@router.post("/suggest")
+async def suggest_architecture(
+    file_a: UploadFile = File(...),
+    file_b: UploadFile = File(...),
+    user=Depends(get_current_user),
+) -> dict:
+    return await inference_controller.suggest_architecture_endpoint(file_a, file_b, str(user.id))
 
 
 @router.get("/reports", response_model=InferenceListResponse)
