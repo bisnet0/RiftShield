@@ -248,6 +248,13 @@ const en: Record<string, string> = {
   "cmp.delta_risco": "Risk Delta",
   "cmp.history_arch_a": "Architecture A",
   "cmp.history_arch_b": "Architecture B",
+
+  "exp.title": "Export",
+  "exp.sections": "Sections to Export",
+  "exp.format_opts": "Format & Options",
+  "exp.format": "Format",
+  "exp.btn": "Export Data",
+  "exp.loading": "Exporting...",
 };
 
 export default en;

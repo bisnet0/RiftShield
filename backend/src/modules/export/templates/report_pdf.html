@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="{{ labels.lang }}">
 <head>
 <meta charset="utf-8">
 <style>
@@ -39,10 +39,10 @@
 
 <div class="header">
   <h1>RiftShield</h1>
-  <div class="subtitle">Relatório de Exportação de Dados</div>
-  <div class="date">Gerado em {{ generation_date }}</div>
+  <div class="subtitle">{{ labels.resumo }}</div>
+  <div class="date">{{ generation_date }}</div>
   {% if profile %}
-  <div class="date">Usuário: {{ profile.name }} &lt;{{ profile.email }}&gt;</div>
+  <div class="date">{{ profile.name }} &lt;{{ profile.email }}&gt;</div>
   {% endif %}
 </div>
 
@@ -83,7 +83,7 @@
 {% endfor %}
 
 <div class="footer">
-  RiftShield — Relatório gerado automaticamente em {{ generation_date }}<br>
+  RiftShield — {{ generation_date }}<br>
   Hackathon FIAP Software Security 2026
 </div>
 

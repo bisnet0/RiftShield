@@ -248,6 +248,13 @@ const pt: Record<string, string> = {
   "cmp.delta_risco": "Delta Risco",
   "cmp.history_arch_a": "Arquitetura A",
   "cmp.history_arch_b": "Arquitetura B",
+
+  "exp.title": "Exportação",
+  "exp.sections": "Seções para Exportar",
+  "exp.format_opts": "Formato e Opções",
+  "exp.format": "Formato",
+  "exp.btn": "Exportar Dados",
+  "exp.loading": "Exportando...",
 };
 
 export default pt;

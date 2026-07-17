@@ -7,6 +7,7 @@ import { Download, FileJson, FileSpreadsheet, FileText, Archive, Shield, Databas
 import { useAppThemeFx } from "../styles/app-theme-fx";
 import { useT } from "../hooks/useT";
 import { useApiTranslator } from "../hooks/useApiTranslator";
+import { useLanguage } from "../context/LanguageContext";
 import { useToast } from "../components/Toast/components/ToastContext";
 import api from "../middleware/api";
 
@@ -26,8 +27,9 @@ export default function ExportPage() {
   const { showToast } = useToast();
   const t = useT();
   const at = useApiTranslator();
+  const { lang } = useLanguage();
 
-  const [selectedSections, setSelectedSections] = useState<string[]>(["inferences", "threats", "vulnerabilities"]);
+  const [selectedSections, setSelectedSections] = useState<string[]>(["inferences", "threats", "dataset", "training", "vulnerabilities", "countermeasures"]);
   const [format, setFormat] = useState("json");
   const [includeProfile, setIncludeProfile] = useState(false);
   const [includeSettings, setIncludeSettings] = useState(false);
@@ -47,6 +49,7 @@ export default function ExportPage() {
         include_settings: includeSettings,
         format,
         zip: zipOutput,
+        lang,
       });
       const data = res.data;
       if (data.error) {
@@ -78,11 +81,11 @@ export default function ExportPage() {
   return (
     <Box w="full" maxW="1800px" mx="auto" pb={10}>
       <VStack spacing={8} align="stretch">
-        <Heading size="lg" color={themeFx.textColor}>Exportação</Heading>
+        <Heading size="lg" color={themeFx.textColor}>{t("exp.title")}</Heading>
 
         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
           <Box bg={cardBg} p={6} borderRadius="xl" border="1px solid" borderColor={cardBorder}>
-            <Heading size="sm" color={themeFx.textColor} mb={4}>Seções para Exportar</Heading>
+            <Heading size="sm" color={themeFx.textColor} mb={4}>{t("exp.sections")}</Heading>
             <Divider mb={4} />
             <CheckboxGroup value={selectedSections} onChange={(v) => setSelectedSections(v as string[])}>
               <VStack align="stretch" spacing={3}>
@@ -106,11 +109,11 @@ export default function ExportPage() {
           </Box>
 
           <Box bg={cardBg} p={6} borderRadius="xl" border="1px solid" borderColor={cardBorder}>
-            <Heading size="sm" color={themeFx.textColor} mb={4}>Formato e Opções</Heading>
+            <Heading size="sm" color={themeFx.textColor} mb={4}>{t("exp.format_opts")}</Heading>
             <Divider mb={4} />
             <VStack spacing={5} align="stretch">
               <Box>
-                <Text fontSize="sm" color={themeFx.textMuted} mb={2} fontWeight="medium">Formato</Text>
+                <Text fontSize="sm" color={themeFx.textMuted} mb={2} fontWeight="medium">{t("exp.format")}</Text>
                 <Select value={format} onChange={(e) => setFormat(e.target.value)} bg={cardBg} borderColor={cardBorder} color={themeFx.textColor}>
                   <option value="json">JSON</option>
                   <option value="csv">CSV</option>
@@ -138,10 +141,10 @@ export default function ExportPage() {
             size="lg"
             onClick={handleExport}
             isLoading={exporting}
-            loadingText="Exportando..."
+            loadingText={t("exp.loading")}
             _hover={{ bg: "brandHover" }}
           >
-            Exportar Dados
+            {t("exp.btn")}
           </Button>
         </Flex>
       </VStack>
