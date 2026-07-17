@@ -59,22 +59,28 @@ async def _get_training_logs(user_id: str) -> List[Dict]:
     ]
 
 
-async def _get_vulnerabilities() -> List[Dict]:
+def _pick(obj: dict, lang: str, field: str) -> str:
+    key = f"{field}_{lang[:2].lower()}"
+    return obj.get(key) or obj.get(f"{field}_pt") or ""
+
+
+async def _get_vulnerabilities(lang: str = "pt-BR") -> List[Dict]:
     from modules.inference.models.kb_model import KBVulnerability
     items = await KBVulnerability.find({}).sort(-KBVulnerability.created_at).limit(500).to_list()
     return [
-        {"cve_id": v.cve_id, "title": v.title, "description": v.description,
+        {"cve_id": v.cve_id, "title": _pick(v.model_dump(), lang, "title"), "description": _pick(v.model_dump(), lang, "description"),
          "cvss_score": v.cvss_score, "cwe": v.cwe,
          "affected_components": v.affected_components, "tags": v.tags}
         for v in items
     ]
 
 
-async def _get_countermeasures() -> List[Dict]:
+async def _get_countermeasures(lang: str = "pt-BR") -> List[Dict]:
     from modules.inference.models.kb_model import KBCountermeasure
     items = await KBCountermeasure.find({}).limit(500).to_list()
     return [
-        {"title": c.title, "description": c.description, "priority": c.priority,
+        {"title": _pick(c.model_dump(), lang, "title"), "description": _pick(c.model_dump(), lang, "description"),
+         "priority": c.priority,
          "implementation_guide": c.implementation_guide, "references": c.references,
          "vulnerability_cwe_ids": c.vulnerability_cwe_ids}
         for c in items
@@ -124,6 +130,7 @@ async def export_data(
     include_settings: bool = False,
     fmt: str = "json",
     zip_output: bool = False,
+    lang: str = "pt-BR",
 ) -> Any:
     data: Dict[str, Any] = {}
 
@@ -136,9 +143,9 @@ async def export_data(
     if "training" in sections:
         data["treinamento"] = await _get_training_logs(user_id)
     if "vulnerabilities" in sections:
-        data["vulnerabilidades"] = await _get_vulnerabilities()
+        data["vulnerabilidades"] = await _get_vulnerabilities(lang)
     if "countermeasures" in sections:
-        data["contramedidas"] = await _get_countermeasures()
+        data["contramedidas"] = await _get_countermeasures(lang)
     if "comparisons" in sections:
         data["comparacoes"] = await _get_comparisons(user_id)
     if include_profile:
@@ -161,10 +168,12 @@ async def export_data(
             countermeasures=data.get("contramedidas", []),
             profile=data.get("perfil"),
             settings=data.get("configuracoes"),
+            lang=lang,
         )
         now = _now_br()
-        generation_date = now.strftime("%d/%m/%Y às %H:%M")
-        pdf_bytes = generate_pdf(sections_data, generation_date, data.get("perfil"))
+        fmt_date = "%d/%m/%Y às %H:%M" if lang.startswith("pt") else "%m/%d/%Y at %H:%M"
+        generation_date = now.strftime(fmt_date)
+        pdf_bytes = generate_pdf(sections_data, generation_date, data.get("perfil"), lang)
         filename = f"riftshield_relatorio_{now.strftime('%Y%m%d_%H%M%S')}.pdf"
         return await _maybe_zip(pdf_bytes, filename, zip_output)
 
@@ -176,10 +185,13 @@ async def export_data(
     elif fmt == "csv":
         buffer = io.StringIO()
         writer = csv.writer(buffer)
-        writer.writerow(["secao", "chave", "valor"])
         for section, items in data.items():
-            writer.writerow([section, "", ""])
-            writer.writerow([section, "total", len(items) if isinstance(items, list) else 1])
+            writer.writerow([f"=== {section} ==="])
+            if items and isinstance(items, list) and len(items) > 0:
+                writer.writerow(list(items[0].keys()))
+                for item in items:
+                    writer.writerow([str(v) for v in item.values()])
+            writer.writerow([])
         content = buffer.getvalue().encode("utf-8")
         filename = f"riftshield_export_{_now_br().strftime('%Y%m%d_%H%M%S')}.csv"
         return await _maybe_zip(content, filename, zip_output)
@@ -187,13 +199,46 @@ async def export_data(
     elif fmt == "excel":
         try:
             import openpyxl
+            from openpyxl.styles import Font, PatternFill, Alignment
             wb = openpyxl.Workbook()
+            header_font = Font(bold=True, color="FFFFFF", size=11)
+            header_fill = PatternFill(start_color="E65C00", end_color="E65C00", fill_type="solid")
+
+            def _flatten(val):
+                if isinstance(val, list):
+                    if not val:
+                        return ""
+                    if isinstance(val[0], dict):
+                        return "; ".join(
+                            f"{v.get('label','?')}({v.get('confidence',0):.2f})"
+                            for v in val
+                        )
+                    return "; ".join(str(v) for v in val)
+                if isinstance(val, dict):
+                    return "; ".join(f"{k}={v}" for k, v in val.items())
+                return str(val) if val is not None else ""
+
             for section, items in data.items():
                 ws = wb.create_sheet(title=section[:31])
                 if items and isinstance(items, list) and len(items) > 0:
-                    ws.append(list(items[0].keys()))
-                    for item in items:
-                        ws.append([str(v) for v in item.values()])
+                    first = items[0]
+                    if isinstance(first, dict):
+                        keys = list(first.keys())
+                        for ci, k in enumerate(keys, 1):
+                            cell = ws.cell(row=1, column=ci, value=k)
+                            cell.font = header_font
+                            cell.fill = header_fill
+                            cell.alignment = Alignment(horizontal="center", wrap_text=True)
+                        for ri, item in enumerate(items, 2):
+                            for ci, k in enumerate(keys, 1):
+                                ws.cell(row=ri, column=ci, value=_flatten(item.get(k)))
+                    elif isinstance(first, (str, int, float)):
+                        for ri, item in enumerate(items, 1):
+                            ws.cell(row=ri, column=1, value=str(item))
+                for col_cells in ws.columns:
+                    vals = [str(c.value or "") for c in col_cells]
+                    max_len = max(len(v) for v in vals) if vals else 10
+                    ws.column_dimensions[col_cells[0].column_letter].width = min(max_len + 4, 80)
             wb.remove(wb.active)
             buffer = io.BytesIO()
             wb.save(buffer)
@@ -218,6 +263,6 @@ async def _maybe_zip(content: bytes, filename: str, zip_output: bool) -> Any:
 
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-        zf.writestr(filename, content)
-    return {"filename": filename.replace(".json", ".zip").replace(".csv", ".zip").replace(".xlsx", ".zip"),
-            "content": list(buffer.getvalue())}
+        zf.writestr(filename, content if isinstance(content, bytes) else content.encode("utf-8") if isinstance(content, str) else content)
+    zip_name = filename.rsplit(".", 1)[0] + ".zip"
+    return {"filename": zip_name, "content": list(buffer.getvalue())}

@@ -9,6 +9,7 @@ async def export(data: dict, user_id: str) -> dict:
     include_settings = data.get("include_settings", False)
     fmt = data.get("format", "json")
     zip_output = data.get("zip", False)
+    lang = data.get("lang", "pt-BR")
     result = await export_service.export_data(
         user_id=user_id,
         sections=sections,
@@ -16,5 +17,6 @@ async def export(data: dict, user_id: str) -> dict:
         include_settings=include_settings,
         fmt=fmt,
         zip_output=zip_output,
+        lang=lang,
     )
     return result

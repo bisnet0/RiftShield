@@ -1,9 +1,9 @@
-from fastapi import Cookie, Depends, Request
+from fastapi import Cookie, Depends, Request, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from typing import Optional
 
 from shared.utils.errors import UnauthorizedError
-from shared.utils.token import verify_access_token
+from shared.utils.token import verify_access_token, verify_refresh_token, generate_access_token
 
 
 security_scheme = HTTPBearer(auto_error=False)
@@ -13,6 +13,7 @@ async def get_current_user(
     request: Request,
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_scheme),
     access_token: Optional[str] = Cookie(default=None, alias="accessToken"),
+    refresh_token: Optional[str] = Cookie(default=None, alias="refreshToken"),
 ):
     from modules.auth.models.user_model import User
 
@@ -21,15 +22,25 @@ async def get_current_user(
         token = credentials.credentials
 
     if not token:
-        raise UnauthorizedError("Token n\u00e3o fornecido")
+        raise UnauthorizedError("Token não fornecido")
 
     try:
         payload = verify_access_token(token)
         user = await User.get(payload["userId"])
+        if user:
+            return user
     except Exception:
-        raise UnauthorizedError("Token inv\u00e1lido ou expirado")
+        pass
 
-    if not user:
-        raise UnauthorizedError("Usu\u00e1rio n\u00e3o encontrado")
+    if refresh_token:
+        try:
+            payload = verify_refresh_token(refresh_token)
+            user = await User.get(payload["userId"])
+            if user:
+                new_access = generate_access_token(str(user.id), user.email)
+                request.state.new_access_token = new_access
+                return user
+        except Exception:
+            pass
 
-    return user
+    raise UnauthorizedError("Token inválido ou expirado")

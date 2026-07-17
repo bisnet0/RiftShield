@@ -10,6 +10,7 @@ from pydantic import ValidationError
 from config.database import init_database
 from config.settings import get_settings
 from middleware.error_handler import app_error_handler, validation_error_handler
+from middleware.refresh_middleware import RefreshTokenMiddleware
 from modules.auth import auth_router
 from modules.hermes import hermes_router
 from modules.attack import attack_router
@@ -87,6 +88,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.add_middleware(RefreshTokenMiddleware)
 app.add_exception_handler(AppError, app_error_handler)
 app.add_exception_handler(ValidationError, validation_error_handler)
 
