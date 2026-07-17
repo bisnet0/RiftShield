@@ -13,6 +13,7 @@ from middleware.error_handler import app_error_handler, validation_error_handler
 from modules.auth import auth_router
 from modules.hermes import hermes_router
 from modules.attack import attack_router
+from modules.export import export_router
 from modules.dashboard.routes.dashboard_routes import router as dashboard_router
 from modules.inference.dataset.dataset_routes import router as dataset_router
 from modules.inference.routes.inference_routes import router as inference_router
@@ -70,3 +71,4 @@ app.include_router(kb_router, prefix="/api/kb")
 app.include_router(training_router, prefix="/api/training")
 app.include_router(hermes_router, prefix="/api/hermes")
 app.include_router(attack_router, prefix="/api/attack")
+app.include_router(export_router, prefix="/api/export")
