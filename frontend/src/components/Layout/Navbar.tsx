@@ -1,4 +1,4 @@
-import { Flex, HStack, Text, IconButton, Icon, Image } from "@chakra-ui/react";
+import { Flex, HStack, Text, IconButton, Icon, Image, Box } from "@chakra-ui/react";
 import { UserCircle, LogOut, Menu } from "lucide-react";
 import ThemeToggle from "../Theme/ThemeToggle";
 import { useAppThemeFx } from "../../styles/app-theme-fx";
@@ -6,6 +6,8 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../router/paths";
 import { LanguageToggle } from "../LanguageToggle";
+import { UsageTimer } from "../UsageTimer";
+
 
 interface Props {
   onOpenSidebar: () => void;

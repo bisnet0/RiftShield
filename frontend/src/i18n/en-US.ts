@@ -13,6 +13,7 @@ const en: Record<string, string> = {
   "nav.profile": "Profile",
   "nav.settings": "Settings",
   "nav.logout": "Logout",
+  "nav.usage_time": "Usage Time",
 
   // Dashboard
   "dash.title": "Dashboard",

@@ -1,4 +1,4 @@
-import { LayoutDashboard, User, Settings, ScanSearch, ShieldAlert, Database, GraduationCap, Bug, ShieldCheck, Download, ArrowRightLeft } from "lucide-react";
+import { LayoutDashboard, User, Settings, ScanSearch, ShieldAlert, Database, GraduationCap, Bug, ShieldCheck, Download, ArrowRightLeft, Clock } from "lucide-react";
 import { ROUTES } from "../../router/paths";
 
 export const NAV_ITEMS = [

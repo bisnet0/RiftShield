@@ -13,6 +13,7 @@ const pt: Record<string, string> = {
   "nav.profile": "Perfil",
   "nav.settings": "Configurações",
   "nav.logout": "Sair",
+  "nav.usage_time": "Tempo de Uso",
 
   // Dashboard
   "dash.title": "Dashboard",
