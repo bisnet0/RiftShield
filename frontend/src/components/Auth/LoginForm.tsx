@@ -4,10 +4,12 @@ import { useAuthForm } from "./hooks/useAuthForm";
 import { AuthFields } from "./components/AuthFields";
 import { AuthToggle } from "./components/AuthToggle";
 import { useLoginThemeFx } from "./styles/theme-fx";
+import { useT } from "../../hooks/useT";
 
 export const LoginForm: React.FC = () => {
   const { state, setters, actions } = useAuthForm();
   const themeFx = useLoginThemeFx();
+  const t = useT();
 
   return (
     <Box
@@ -26,12 +28,12 @@ export const LoginForm: React.FC = () => {
     >
       <Box textAlign="center" mb={8}>
         <Heading fontSize="2xl" fontWeight="bold" color={themeFx.textColor}>
-          {state.isLogin ? "RiftShield" : "Crie sua conta"}
+          {state.isLogin ? t("auth.title") : t("auth.register_title")}
         </Heading>
         <Text fontSize="md" color={themeFx.textMuted} mt={2}>
           {state.isLogin
-            ? "Detecção de Ameaças"
-            : "Preencha seus dados para começar"}
+            ? t("auth.subtitle")
+            : t("auth.register_subtitle")}
         </Text>
       </Box>
 

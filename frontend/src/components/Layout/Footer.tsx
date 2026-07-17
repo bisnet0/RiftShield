@@ -2,9 +2,11 @@ import React from "react";
 import { Flex, HStack, Text, Icon, Link } from "@chakra-ui/react";
 import { Linkedin, Github, Globe } from "react-bootstrap-icons";
 import { useAppThemeFx } from "../../styles/app-theme-fx";
+import { useT } from "../../hooks/useT";
 
 export const Footer: React.FC = () => {
   const themeFx = useAppThemeFx();
+  const t = useT();
 
   return (
     <Flex
@@ -21,7 +23,7 @@ export const Footer: React.FC = () => {
       mt="auto"
     >
       <Text color={themeFx.textMuted} fontSize="sm" textAlign="center">
-        Desenvolvido por{" "}
+        {t("footer.desenvolvido_por")}{" "}
         <Text as="span" fontWeight="bold" color={themeFx.navActiveColor}>
           Henrique Bisneto
         </Text>

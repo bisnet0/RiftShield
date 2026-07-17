@@ -3,6 +3,7 @@ import { UserCircle, LogOut, Menu } from "lucide-react";
 import ThemeToggle from "../Theme/ThemeToggle";
 import { useAppThemeFx } from "../../styles/app-theme-fx";
 import { useAuth } from "../../context/AuthContext";
+import { useT } from "../../hooks/useT";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../router/paths";
 import { LanguageToggle } from "../LanguageToggle";
@@ -16,6 +17,7 @@ interface Props {
 export const Navbar: React.FC<Props> = ({ onOpenSidebar }) => {
   const themeFx = useAppThemeFx();
   const { user, signOut, isAuthenticated } = useAuth();
+  const t = useT();
   const navigate = useNavigate();
 
   return (
@@ -45,7 +47,7 @@ export const Navbar: React.FC<Props> = ({ onOpenSidebar }) => {
           icon={<Menu size={24} color={themeFx.textColor} />}
         />
 
-        <Flex align="center" cursor="pointer" onClick={() => navigate(isAuthenticated ? ROUTES.DASHBOARD : "/")} title="Início">
+        <Flex align="center" cursor="pointer" onClick={() => navigate(isAuthenticated ? ROUTES.DASHBOARD : "/")} title={t("nav.home")}>
           <Image
             src="/public/Rift_Shield_Logo.png"
             alt="Logo"
@@ -97,14 +99,14 @@ export const Navbar: React.FC<Props> = ({ onOpenSidebar }) => {
         </HStack>
 
         <IconButton
-          aria-label="Sair"
+          aria-label={t("nav.logout")}
           icon={<Icon as={LogOut} boxSize={5} />}
           variant="ghost"
           colorScheme="red"
           size="sm"
           isRound
           onClick={signOut}
-          title="Sair"
+          title={t("nav.logout")}
         />
       </HStack>
     </Flex>

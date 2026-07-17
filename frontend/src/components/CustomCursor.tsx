@@ -56,7 +56,7 @@ export function CustomCursor() {
     style.textContent = "*:not([vw] *):not(.vw-plugin-top-wrapper *):not([vw-access-button]) { cursor: none !important; }";
     document.head.appendChild(style);
 
-    const interactiveTags = ["a", "button", "input", "select", "textarea", "[role=button]", "label", '[onclick]'];
+    const interactiveTags = ["a", "button", "input", "select", "textarea", "[role=button]", "label", '[onclick]', '[style*="cursor: pointer"]', '[style*="cursor:pointer"]', '[cursor="pointer"]'];
 
     const onMouseOver = (e: MouseEvent) => {
       const el = e.target as HTMLElement;

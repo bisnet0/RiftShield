@@ -1,4 +1,35 @@
 const en: Record<string, string> = {
+  // Footer
+  "footer.desenvolvido_por": "Developed by",
+
+  // Auth
+  "auth.title": "RiftShield",
+  "auth.subtitle": "Threat Detection",
+  "auth.register_title": "Create your account",
+  "auth.register_subtitle": "Fill in your details to get started",
+  "auth.name": "Full Name",
+  "auth.name_placeholder": "Your name",
+  "auth.phone": "Contact",
+  "auth.phone_placeholder": "(71) 90000-0000",
+  "auth.country": "Country",
+  "auth.state": "State",
+  "auth.state_placeholder": "E.g.: Bahia",
+  "auth.city": "City",
+  "auth.city_placeholder": "E.g.: Salvador",
+  "auth.email": "Email",
+  "auth.email_placeholder": "your@email.com",
+  "auth.password": "Password",
+  "auth.password_placeholder": "********",
+  "auth.invite": "Invite Code",
+  "auth.invite_placeholder": "Paste the invite code here",
+  "auth.loading": "Processing...",
+  "auth.btn_login": "Sign In",
+  "auth.btn_register": "Create Account",
+  "auth.no_account": "Don't have an account? ",
+  "auth.has_account": "Already have an account? ",
+  "auth.register_link": "Register",
+  "auth.login_link": "Sign In",
+
   // Navbar
   "nav.home": "Home",
   "nav.dashboard": "Dashboard",
@@ -140,6 +171,9 @@ const en: Record<string, string> = {
   "prof.erro_salvar": "Error saving",
   "prof.experiencia_completa": "Complete experience!",
   "prof.experiencia_restante": "Use RiftShield for {days} more days to evolve to the max",
+  "prof.email": "Email",
+  "prof.salvando": "Saving...",
+  "prof.progredindo": "PROGRESSING",
 
   // Settings
   "sett.title": "Settings",
@@ -255,6 +289,14 @@ const en: Record<string, string> = {
   "exp.format": "Format",
   "exp.btn": "Export Data",
   "exp.loading": "Exporting...",
+  "exp.select_section": "Select at least one section to export",
+  "exp.downloaded": "File {filename} downloaded",
+  "exp.failed": "Export failed",
+  "exp.zip_label": "Compress as ZIP",
+  "exp.fmt_json": "JSON",
+  "exp.fmt_csv": "CSV",
+  "exp.fmt_excel": "Excel",
+  "exp.fmt_pdf": "PDF",
 };
 
 export default en;

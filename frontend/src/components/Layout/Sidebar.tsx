@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Box, Flex, Text, Icon, VStack, Drawer, DrawerBody, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton, Image, useColorModeValue, useBreakpointValue } from "@chakra-ui/react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { NAV_ITEMS } from "./nav-config";
+import { ROUTES } from "../../router/paths";
 import { useAppThemeFx } from "../../styles/app-theme-fx";
 import { useT } from "../../hooks/useT";
 import { UsageTimer } from "../UsageTimer";
@@ -85,7 +86,7 @@ export function Sidebar({ isOpen, onClose }: Props) {
         <DrawerContent bg={themeFx.sidebarBg} display="flex" flexDirection="column" h="100dvh" maxH="100dvh">
           <DrawerCloseButton color={themeFx.textColor} />
           <DrawerHeader borderBottomWidth="1px" borderColor={themeFx.headerBorder} color={themeFx.textColor}>
-            <Flex align="center">
+            <Flex align="center" cursor="pointer" onClick={() => { navigate(ROUTES.DASHBOARD); onClose(); }}>
               <Image src="/public/Rift_Shield_Logo.png" alt="Logo" w="36px" mr={3} />
               <Text fontWeight={"light"}>Rift</Text>
               <Text marginLeft={1} fontSize="xl" fontWeight="bold" color={shieldColor} letterSpacing="tight">Shield</Text>

@@ -19,13 +19,15 @@ const SENIORITY_OPTIONS = (t: (key: string) => string) => [
   { value: "senior", label: t("prof.senior"), color: "red" },
 ];
 
-function ProgressingText() {
-  const base = "PROGREDINDO";
+function ProgressingText({ base }: { base: string }) {
   const [text, setText] = useState("P");
-  const dots = useRef(0);
   const idx = useRef(0);
+  const dots = useRef(0);
 
   useEffect(() => {
+    idx.current = 0;
+    dots.current = 0;
+    setText("P");
     const interval = setInterval(() => {
       if (idx.current < base.length) {
         setText(base.slice(0, idx.current + 1));
@@ -36,7 +38,7 @@ function ProgressingText() {
       }
     }, 300);
     return () => clearInterval(interval);
-  }, []);
+  }, [base]);
 
   return <>{text}</>;
 }
@@ -110,7 +112,7 @@ export default function Profile() {
             </HStack>
             <Divider />
             <Field icon={User} label={t("prof.nome")} value={form.name} onChange={(v) => setForm({ ...form, name: v })} themeFx={themeFx} cardBg={cardBg} cardBorder={cardBorder} />
-            <Field icon={Mail} label="Email" value={user?.email || ""} onChange={() => {}} themeFx={themeFx} cardBg={cardBg} cardBorder={cardBorder} disabled />
+            <Field icon={Mail} label={t("prof.email")} value={user?.email || ""} onChange={() => {}} themeFx={themeFx} cardBg={cardBg} cardBorder={cardBorder} disabled />
             <Field icon={Phone} label={t("prof.contato")} value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} themeFx={themeFx} cardBg={cardBg} cardBorder={cardBorder} />
             <HStack>
               <Field icon={MapPin} label={t("prof.pais")} value={form.country} onChange={(v) => setForm({ ...form, country: v })} themeFx={themeFx} cardBg={cardBg} cardBorder={cardBorder} />
@@ -200,7 +202,7 @@ export default function Profile() {
                 color={progress > 40 ? "white" : themeFx.textColor}
                 letterSpacing="0.5px"
               >
-                [<ProgressingText />]
+                [<ProgressingText base={t("prof.progredindo")} />]
               </Text>
             </Box>
             <Text fontSize="xs" color={themeFx.textMuted} textAlign="center">
@@ -217,7 +219,7 @@ export default function Profile() {
           color="white"
           onClick={handleSave}
           isLoading={saving}
-          loadingText="Salvando..."
+          loadingText={t("prof.salvando")}
           _hover={{ bg: "brandHover" }}
           leftIcon={<Icon as={Shield} />}
         >

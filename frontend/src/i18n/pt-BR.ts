@@ -1,4 +1,35 @@
 const pt: Record<string, string> = {
+  // Footer
+  "footer.desenvolvido_por": "Desenvolvido por",
+
+  // Auth
+  "auth.title": "RiftShield",
+  "auth.subtitle": "Detecção de Ameaças",
+  "auth.register_title": "Crie sua conta",
+  "auth.register_subtitle": "Preencha seus dados para começar",
+  "auth.name": "Nome Completo",
+  "auth.name_placeholder": "Seu nome",
+  "auth.phone": "Contato",
+  "auth.phone_placeholder": "(71) 90000-0000",
+  "auth.country": "País",
+  "auth.state": "Estado",
+  "auth.state_placeholder": "Ex: Bahia",
+  "auth.city": "Cidade",
+  "auth.city_placeholder": "Ex: Salvador",
+  "auth.email": "E-mail",
+  "auth.email_placeholder": "seu@email.com",
+  "auth.password": "Senha",
+  "auth.password_placeholder": "********",
+  "auth.invite": "Código de Convite",
+  "auth.invite_placeholder": "Cole o código de convite aqui",
+  "auth.loading": "Processando...",
+  "auth.btn_login": "Entrar na Plataforma",
+  "auth.btn_register": "Criar Conta",
+  "auth.no_account": "Não tem uma conta? ",
+  "auth.has_account": "Já tem uma conta? ",
+  "auth.register_link": "Registre-se",
+  "auth.login_link": "Faça Login",
+
   // Navbar
   "nav.home": "Início",
   "nav.dashboard": "Dashboard",
@@ -140,6 +171,9 @@ const pt: Record<string, string> = {
   "prof.erro_salvar": "Erro ao salvar",
   "prof.experiencia_completa": "Experiência completa!",
   "prof.experiencia_restante": "Use o RiftShield por mais {days} dias para evoluir ao máximo",
+  "prof.email": "Email",
+  "prof.salvando": "Salvando...",
+  "prof.progredindo": "PROGREDINDO",
 
   // Settings
   "sett.title": "Configurações",
@@ -255,6 +289,14 @@ const pt: Record<string, string> = {
   "exp.format": "Formato",
   "exp.btn": "Exportar Dados",
   "exp.loading": "Exportando...",
+  "exp.select_section": "Selecione ao menos uma seção para exportar",
+  "exp.downloaded": "Arquivo {filename} baixado",
+  "exp.failed": "Falha na exportação",
+  "exp.zip_label": "Compactar em ZIP",
+  "exp.fmt_json": "JSON",
+  "exp.fmt_csv": "CSV",
+  "exp.fmt_excel": "Excel",
+  "exp.fmt_pdf": "PDF",
 };
 
 export default pt;

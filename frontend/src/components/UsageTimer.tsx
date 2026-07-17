@@ -3,10 +3,12 @@ import { createPortal } from "react-dom";
 import { Flex, Text, Icon, Box, useColorModeValue } from "@chakra-ui/react";
 import { Clock } from "lucide-react";
 import { useAppThemeFx } from "../styles/app-theme-fx";
+import { useT } from "../hooks/useT";
 import api from "../middleware/api";
 
 export function UsageTimer() {
   const themeFx = useAppThemeFx();
+  const t = useT();
   const [expanded, setExpanded] = useState(false);
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(0);
@@ -80,7 +82,7 @@ export function UsageTimer() {
         onMouseLeave={() => setExpanded(false)}
       >
         <Icon as={Clock} boxSize={5} mr={4} />
-        <Text fontSize="sm">Tempo de Uso</Text>
+        <Text fontSize="sm">{t("nav.usage_time")}</Text>
       </Flex>
 
       {expanded && createPortal(
@@ -101,7 +103,7 @@ export function UsageTimer() {
           onMouseEnter={() => setExpanded(true)}
           onMouseLeave={() => setExpanded(false)}
         >
-          <Text fontSize="xs" fontWeight="bold" color={themeFx.textMuted} mb={1}>Tempo de Uso</Text>
+            <Text fontSize="xs" fontWeight="bold" color={themeFx.textMuted} mb={1}>{t("nav.usage_time")}</Text>
           <Text fontSize="lg" fontWeight="bold" color={themeFx.brandColor} fontFamily="monospace" letterSpacing="1px">
             {pad(hours)}:{pad(minutes)}:{pad(seconds)}
           </Text>

@@ -38,7 +38,7 @@ export default function ExportPage() {
 
   const handleExport = async () => {
     if (selectedSections.length === 0) {
-      showToast({ title: t("geral.erro"), message: "Selecione ao menos uma seção para exportar", type: "warning", duration: 3000 });
+      showToast({ title: t("geral.erro"), message: t("exp.select_section"), type: "warning", duration: 3000 });
       return;
     }
     setExporting(true);
@@ -70,9 +70,9 @@ export default function ExportPage() {
       a.download = data.filename;
       a.click();
       URL.revokeObjectURL(url);
-      showToast({ title: t("geral.sucesso"), message: `Arquivo ${data.filename} baixado`, type: "success", duration: 3000 });
+      showToast({ title: t("geral.sucesso"), message: t("exp.downloaded", { filename: data.filename }), type: "success", duration: 3000 });
     } catch (err: any) {
-      showToast({ title: t("geral.erro"), message: err?.response?.data?.error || "Falha na exportação", type: "error", duration: 5000 });
+      showToast({ title: t("geral.erro"), message: err?.response?.data?.error || t("exp.failed"), type: "error", duration: 5000 });
     } finally {
       setExporting(false);
     }
@@ -115,18 +115,21 @@ export default function ExportPage() {
               <Box>
                 <Text fontSize="sm" color={themeFx.textMuted} mb={2} fontWeight="medium">{t("exp.format")}</Text>
                 <Select value={format} onChange={(e) => setFormat(e.target.value)} bg={cardBg} borderColor={cardBorder} color={themeFx.textColor}>
-                  <option value="json">JSON</option>
-                  <option value="csv">CSV</option>
-                  <option value="excel">Excel</option>
-                  <option value="pdf">PDF</option>
+                  <option value="json">{t("exp.fmt_json")}</option>
+                  <option value="csv">{t("exp.fmt_csv")}</option>
+                  <option value="excel">{t("exp.fmt_excel")}</option>
+                  <option value="pdf">{t("exp.fmt_pdf")}</option>
                 </Select>
               </Box>
               <HStack justify="space-between">
                 <HStack>
                   <Icon as={Archive} color={themeFx.brandColor} />
-                  <Text fontSize="sm" color={themeFx.textColor}>Compactar em ZIP</Text>
+                  <Text fontSize="sm" color={themeFx.textColor}>{t("exp.zip_label")}</Text>
                 </HStack>
-                <Switch colorScheme="orange" isChecked={zipOutput} onChange={(e) => setZipOutput(e.target.checked)} />
+                <Switch colorScheme="orange" isChecked={zipOutput} onChange={(e) => setZipOutput(e.target.checked)} sx={{
+                  ".chakra-switch__track[data-checked]": { bg: "brand !important" },
+                  ".chakra-switch__thumb[data-checked]": { bg: "white !important" },
+                }} />
               </HStack>
             </VStack>
           </Box>
