@@ -45,6 +45,12 @@ class TrainingLog(Document):
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     progress_steps: list = Field(default_factory=list)
+    model_name: str = ""
+    train_images_count: int = 0
+    val_images_count: int = 0
+    classes_count: int = 0
+    trained_filenames: list = Field(default_factory=list)
+    is_base_model: bool = False
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     class Settings:

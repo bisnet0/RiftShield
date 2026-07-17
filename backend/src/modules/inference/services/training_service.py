@@ -18,22 +18,30 @@ async def fine_tune(
     user_id: str,
     epochs: int = 10,
 ) -> TrainingLog:
+    import tempfile, yaml
+    from modules.inference.dataset.dataset_model import DatasetEntry
+
+    entries = await DatasetEntry.find({"split": "train"}).to_list()
+    val_entries = await DatasetEntry.find({"split": "val"}).to_list()
+
+    train_filenames = [e.filename for e in entries + val_entries]
+
     log = TrainingLog(
         model_type="yolov8n",
+        model_name=f"Fine-tune {len(entries) + len(val_entries)} imagens",
         dataset_version="user_upload",
         hyperparameters={"epochs": epochs, "fine_tune": True},
+        train_images_count=len(entries),
+        val_images_count=len(val_entries),
+        classes_count=34,
+        trained_filenames=train_filenames,
         status="running",
         started_at=datetime.utcnow(),
     )
     await log.insert()
 
     try:
-        import tempfile, yaml
         from ultralytics import YOLO
-        from modules.inference.dataset.dataset_model import DatasetEntry
-
-        entries = await DatasetEntry.find({"split": "train"}).to_list()
-        val_entries = await DatasetEntry.find({"split": "val"}).to_list()
 
         if not entries:
             raise ValueError("Nenhuma imagem no split Treino. Adicione imagens no Dataset primeiro.")

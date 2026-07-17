@@ -40,6 +40,40 @@ async def lifespan(_app: FastAPI):
     seeded = await seed_knowledge_base()
     if seeded:
         print(f"\U0001f4da Knowledge base seeded: {seeded} entries")
+
+    from modules.inference.models.inference_model import TrainingLog
+    from pathlib import Path
+    from datetime import datetime
+    best_pt = Path(__file__).resolve().parent / "modules" / "inference" / "train_results" / "best.pt"
+    existing_log = await TrainingLog.find_one({"is_base_model": True})
+    if best_pt.exists() and not existing_log:
+        import yaml
+        try:
+            args_yaml = Path(__file__).resolve().parent.parent / "models" / "architecture_yolo" / "args.yaml"
+            epochs_done = 0
+            if args_yaml.exists():
+                with open(args_yaml) as f:
+                    meta = yaml.safe_load(f)
+                epochs_done = meta.get("epochs", 9)
+            await TrainingLog(
+                model_type="yolov8n",
+                model_name=f"Pré-treinado architecture_merged (9 épocas)",
+                dataset_version="architecture_merged_roboflow",
+                hyperparameters={"epochs": 9, "imgsz": 640, "batch": 16, "fine_tune": False},
+                metrics={"mAP50": 0.579, "mAP50_95": 0.411, "precision": 0.731, "recall": 0.554},
+                model_path=str(best_pt),
+                status="completed",
+                started_at=datetime.utcnow(),
+                completed_at=datetime.utcnow(),
+                train_images_count=4740,
+                val_images_count=279,
+                classes_count=34,
+                trained_filenames=[],
+                is_base_model=True,
+            ).insert()
+            print(f"✅ Modelo pré-treinado registrado: {best_pt}")
+        except Exception as e:
+            print(f"⚠️ Erro ao registrar modelo base: {e}")
     yield
 
 
