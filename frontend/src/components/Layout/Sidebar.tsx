@@ -2,6 +2,7 @@ import { Box, Flex, Text, Icon, VStack, Drawer, DrawerBody, DrawerHeader, Drawer
 import { useNavigate, useLocation } from "react-router-dom";
 import { NAV_ITEMS } from "./nav-config";
 import { useAppThemeFx } from "../../styles/app-theme-fx";
+import { useT } from "../../hooks/useT";
 
 interface Props {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface Props {
 
 export function Sidebar({ isOpen, onClose }: Props) {
   const themeFx = useAppThemeFx();
+  const t = useT();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -37,7 +39,7 @@ export function Sidebar({ isOpen, onClose }: Props) {
             }}
           >
             <Icon as={item.icon} boxSize={5} mr={4} />
-            <Text fontSize="sm">{item.label}</Text>
+            <Text fontSize="sm">{t(`nav.${item.id}`)}</Text>
           </Flex>
         );
       })}

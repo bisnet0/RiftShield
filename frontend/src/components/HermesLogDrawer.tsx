@@ -181,7 +181,7 @@ export function HermesLogDrawer({ onHeightChange }: { onHeightChange?: (h: numbe
             color={autoScroll ? ac : mc}
             _hover={{ color: ac }}
             onClick={(e) => { e.stopPropagation(); setAutoScroll(!autoScroll); }}
-            aria-label={autoScroll ? "Auto-scroll ativo" : "Auto-scroll desativado"}
+            aria-label={autoScroll ? t("hlog.auto_scroll_on") : t("hlog.auto_scroll_off")}
           />
           <IconButton icon={<Trash2 size={12} />} size="xs" variant="ghost" color={mc}
             _hover={{ color: "red.400" }} onClick={(e) => { e.stopPropagation(); setLogs([]); }} aria-label="" />
@@ -210,7 +210,7 @@ export function HermesLogDrawer({ onHeightChange }: { onHeightChange?: (h: numbe
                     color={displayColor}
                     fontStyle={isSystem ? "italic" : "normal"}
                   >
-                    {isNavigation ? "NAV" : isSystem ? "SYS" : e.role === "agent" ? "HERMES" : userName.toUpperCase()}
+                    {isNavigation ? t("hlog.nav") : isSystem ? t("hlog.sys") : e.role === "agent" ? t("hlog.hermes") : userName.toUpperCase()}
                   </Text>
                   <Text fontSize="9px" color={isSystem ? timeSysColor : e.role === "agent" ? ac : timeUserColor}>
                     {fmtTime(e.created_at)}
@@ -224,7 +224,7 @@ export function HermesLogDrawer({ onHeightChange }: { onHeightChange?: (h: numbe
                     sx={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
                   >
                     {isSystem && Icon && <Icon size={10} style={{ display: "inline", marginRight: 4, opacity: 0.7 }} />}
-                    {i === 4 && clean.length > 5 ? `  \u2514\u2514\u2500 and ${clean.length - 4} more lines...` : `  ${l}`}
+                    {i === 4 && clean.length > 5 ? `  ${t("hlog.mais_linhas", { n: clean.length - 4 })}` : `  ${l}`}
                   </Text>
                 ))}
               </Box>

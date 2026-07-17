@@ -5,6 +5,7 @@ import {
   ColorModeScript,
 } from "@chakra-ui/react";
 import theme from "./theme";
+import "./styles/scrollbar.css";
 import App from "./components/App";
 import { ToastProvider } from "./components/Toast/components/ToastContext";
 

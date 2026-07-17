@@ -7,6 +7,7 @@ import { useInferenceThemeFx } from "../styles/inference-theme-fx";
 import { getDashboardStats, type DashboardStats } from "../services/dashboard-service";
 import { ROUTES } from "../router/paths";
 import { useT } from "../hooks/useT";
+import { useApiTranslator } from "../hooks/useApiTranslator";
 
 const STRIDE_LABELS: Record<string, string> = {
   spoofing: "Spoofing",
@@ -21,6 +22,7 @@ export default function Dashboard() {
   const fx = useInferenceThemeFx();
   const appFx = useAppThemeFx();
   const t = useT();
+  const at = useApiTranslator();
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -100,7 +102,7 @@ export default function Dashboard() {
                   return (
                     <Box key={cat}>
                       <Flex justify="space-between" mb={1}>
-                        <Text fontSize="sm" color={appFx.textMuted}>{STRIDE_LABELS[cat] || cat}</Text>
+                        <Text fontSize="sm" color={appFx.textMuted}>{at.threatCategory(cat)}</Text>
                         <Text fontSize="sm" fontWeight="bold" color={appFx.textColor}>{count}</Text>
                       </Flex>
                       <Progress value={pct} size="sm" colorScheme={cat === "elevation_of_privilege" || cat === "spoofing" ? "red" : cat === "denial_of_service" ? "orange" : "blue"} borderRadius="full" />
@@ -123,7 +125,7 @@ export default function Dashboard() {
                   return (
                     <Box key={c.label}>
                       <Flex justify="space-between" mb={1}>
-                        <Text fontSize="sm" color={appFx.textColor}>{c.label}</Text>
+                        <Text fontSize="sm" color={appFx.textColor}>{at.component(c.label)}</Text>
                         <Text fontSize="sm" fontWeight="bold" color={appFx.textColor}>{c.count}</Text>
                       </Flex>
                       <Progress value={pct} size="sm" colorScheme="orange" borderRadius="full" />
@@ -138,7 +140,7 @@ export default function Dashboard() {
         </SimpleGrid>
 
         <Box bg={fx.cardBg} p={6} borderRadius="xl" border="1px solid" borderColor={fx.cardBorder} boxShadow={fx.cardShadow}>
-          <Heading size="sm" mb={4} color={appFx.textColor}>Análises Recentes</Heading>
+          <Heading size="sm" mb={4} color={appFx.textColor}>{t("inf.title")}</Heading>
           {stats && stats.recent_analyses.length > 0 ? (
             <VStack spacing={3} align="stretch">
               {stats.recent_analyses.map((r) => (
@@ -147,10 +149,10 @@ export default function Dashboard() {
                     <Icon as={FileImage} color={appFx.textMuted} />
                     <VStack align="start" spacing={0}>
                       <Text fontWeight="bold" color={appFx.textColor} fontSize="sm">{r.filename}</Text>
-                      <Text fontSize="xs" color={appFx.textMuted}>{r.components_count} componentes</Text>
+                      <Text fontSize="xs" color={appFx.textMuted}>{r.components_count} {r.components_count === 1 ? "componente" : "componentes"}</Text>
                     </VStack>
                   </HStack>
-                  <Badge colorScheme={r.status === "completed" ? "green" : r.status === "failed" ? "red" : "yellow"}>{r.status}</Badge>
+                  <Badge colorScheme={r.status === "completed" ? "green" : r.status === "failed" ? "red" : "yellow"}>{at.status(r.status)}</Badge>
                 </Flex>
               ))}
             </VStack>

@@ -126,7 +126,7 @@ export default function DatasetPage() {
 
             {preview && <Image src={preview} alt="Preview" maxH="200px" borderRadius="md" />}
 
-            <HStack w="full">
+            <HStack w="full" spacing={4}>
               <FormControl>
                 <FormLabel color={appFx.textMuted} fontSize="sm">
                   {t("ds.split")}
@@ -139,12 +139,12 @@ export default function DatasetPage() {
                     <option key={k} value={k}>{v}</option>
                   ))}
                 </Select>
-                <Text fontSize="xs" color={appFx.textMuted} mt={1}>{SPLIT_DESC[split]}</Text>
               </FormControl>
-              <Button leftIcon={<Icon as={Upload} />} colorScheme="orange" mt="auto" isLoading={uploading} isDisabled={!file} onClick={handleUpload}>
+              <Button leftIcon={<Icon as={Upload} />} colorScheme="orange" isLoading={uploading} isDisabled={!file} onClick={handleUpload} mt="auto" alignSelf="flex-end">
                 {t("ds.upload_btn")}
               </Button>
             </HStack>
+            {file && <Text fontSize="xs" color={appFx.textMuted}>{file.name} — {((file.size / 1024).toFixed(1))} KB</Text>}
           </VStack>
         </Box>
 

@@ -4,7 +4,11 @@ export interface KBVulnerability {
   id: string;
   cve_id: string | null;
   title: string;
+  title_en: string | null;
+  title_pt: string | null;
   description: string;
+  description_en: string | null;
+  description_pt: string | null;
   cvss_score: number | null;
   cwe: string | null;
   affected_components: string[];
@@ -15,9 +19,15 @@ export interface KBVulnerability {
 export interface KBCountermeasure {
   id: string;
   title: string;
+  title_en: string | null;
+  title_pt: string | null;
   description: string;
-  priority: string;
+  description_en: string | null;
+  description_pt: string | null;
   implementation_guide: string | null;
+  implementation_guide_en: string | null;
+  implementation_guide_pt: string | null;
+  priority: string;
   references: string[];
   vulnerability_cwe_ids: string[];
   created_at: string;

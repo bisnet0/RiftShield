@@ -5,6 +5,8 @@ import { useAppThemeFx } from "../styles/app-theme-fx";
 import { useInferenceThemeFx } from "../styles/inference-theme-fx";
 import { listCountermeasures, type KBCountermeasure } from "../services/kb-service";
 import { useT } from "../hooks/useT";
+import { useApiTranslator } from "../hooks/useApiTranslator";
+import { pickByLang } from "../i18n/bilingual";
 
 const PRIORITY_COLORS: Record<string, string> = {
   critical: "red",
@@ -20,6 +22,8 @@ export default function CountermeasuresPage() {
   const [loading, setLoading] = useState(true);
   const [cweFilter, setCweFilter] = useState("");
   const t = useT();
+  const at = useApiTranslator();
+  const { lang } = at;
 
   const load = async () => {
     setLoading(true);
@@ -70,30 +74,30 @@ export default function CountermeasuresPage() {
                   <HStack flex={1} spacing={4}>
                     <Icon as={ShieldCheck} color={PRIORITY_COLORS[cm.priority] === "red" ? "red.400" : PRIORITY_COLORS[cm.priority] === "orange" ? "orange.400" : "green.400"} boxSize={5} />
                     <VStack align="start" spacing={0}>
-                      <Text fontWeight="bold" color={appFx.textColor} textAlign="left">{cm.title}</Text>
-                      <Text fontSize="xs" color={appFx.textMuted} textAlign="left">{cm.description.substring(0, 80)}...</Text>
+                      <Text fontWeight="bold" color={appFx.textColor} textAlign="left">{pickByLang(cm.title_pt, cm.title_en, lang, cm.title)}</Text>
+                      <Text fontSize="xs" color={appFx.textMuted} textAlign="left">{pickByLang(cm.description_pt, cm.description_en, lang, cm.description).substring(0, 80)}...</Text>
                     </VStack>
                     <Badge colorScheme={PRIORITY_COLORS[cm.priority] || "gray"} fontSize="sm" px={3}>
-                      {cm.priority}
+                      {at.priority(cm.priority)}
                     </Badge>
                   </HStack>
                   <AccordionIcon />
                 </AccordionButton>
               </h2>
               <AccordionPanel pb={6} bg={appFx.navHoverBg}>
-                <Text color={appFx.textColor} mb={4}>{cm.description}</Text>
+                <Text color={appFx.textColor} mb={4}>{pickByLang(cm.description_pt, cm.description_en, lang, cm.description)}</Text>
 
-                {cm.implementation_guide && (
-                  <Box mb={4} p={4} bg={fx.cardBg} borderRadius="md" border="1px solid" borderColor={fx.cardBorder}>
+                {(cm.implementation_guide || cm.implementation_guide_pt || cm.implementation_guide_en) && (
+                  <Box mb={4}>
                     <Text fontWeight="bold" color={appFx.textColor} mb={2}>{t("cm.guia_implementacao")}</Text>
-                    <Text color={appFx.textColor} fontSize="sm">{cm.implementation_guide}</Text>
+                    <Text color={appFx.textColor} fontSize="sm">{pickByLang(cm.implementation_guide_pt, cm.implementation_guide_en, lang, cm.implementation_guide || "")}</Text>
                   </Box>
                 )}
 
                 <HStack wrap="wrap" mb={3}>
                   {cm.vulnerability_cwe_ids.map((cwe) => (
                     <Tag key={cwe} size="sm" colorScheme="purple" variant="subtle">
-                      <TagLabel>{cwe}</TagLabel>
+                      <TagLabel>{at.t(cwe)}</TagLabel>
                     </Tag>
                   ))}
                 </HStack>

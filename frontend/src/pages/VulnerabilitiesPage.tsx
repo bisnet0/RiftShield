@@ -5,6 +5,8 @@ import { useAppThemeFx } from "../styles/app-theme-fx";
 import { useInferenceThemeFx } from "../styles/inference-theme-fx";
 import { listVulnerabilities, type KBVulnerability } from "../services/kb-service";
 import { useT } from "../hooks/useT";
+import { useApiTranslator } from "../hooks/useApiTranslator";
+import { pickByLang } from "../i18n/bilingual";
 
 const STRIDE_COLORS: Record<string, string> = {
   authentication: "red",
@@ -37,6 +39,8 @@ export default function VulnerabilitiesPage() {
   const [search, setSearch] = useState("");
   const [componentFilter, setComponentFilter] = useState("");
   const t = useT();
+  const at = useApiTranslator();
+  const { lang } = at;
 
   const load = async () => {
     setLoading(true);
@@ -98,7 +102,7 @@ export default function VulnerabilitiesPage() {
             <Box key={v.id} p={5} bg={fx.cardBg} borderRadius="xl" border="1px solid" borderColor={fx.cardBorder} boxShadow={fx.cardShadow}>
               <Flex justify="space-between" align="start" mb={2}>
                 <VStack align="start" spacing={1} flex={1}>
-                  <Text fontWeight="bold" color={appFx.textColor} fontSize="sm">{v.title}</Text>
+                  <Text fontWeight="bold" color={appFx.textColor} fontSize="sm">{pickByLang(v.title_pt, v.title_en, lang, v.title)}</Text>
                   {v.cve_id && <Badge colorScheme="purple" fontSize="xs">{v.cve_id}</Badge>}
                 </VStack>
                 {v.cvss_score && (
@@ -108,12 +112,12 @@ export default function VulnerabilitiesPage() {
                 )}
               </Flex>
 
-              <Text fontSize="sm" color={appFx.textColor} mb={3} noOfLines={3}>{v.description}</Text>
+              <Text fontSize="sm" color={appFx.textColor} mb={3} noOfLines={3}>{pickByLang(v.description_pt, v.description_en, lang, v.description)}</Text>
 
               <HStack wrap="wrap" mb={2}>
                 {v.affected_components.map((c) => (
                   <Tag key={c} size="sm" variant="subtle" colorScheme="orange">
-                    <TagLabel>{c}</TagLabel>
+                    <TagLabel>{at.component(c)}</TagLabel>
                   </Tag>
                 ))}
               </HStack>
@@ -121,7 +125,7 @@ export default function VulnerabilitiesPage() {
               <HStack wrap="wrap">
                 {v.tags.map((t) => (
                   <Tag key={t} size="sm" variant="solid" colorScheme={STRIDE_COLORS[t] || "gray"}>
-                    <TagLabel>{t}</TagLabel>
+                    <TagLabel>{at.threatCategory(t)}</TagLabel>
                   </Tag>
                 ))}
               </HStack>

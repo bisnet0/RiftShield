@@ -8,12 +8,14 @@ import { useToast } from "../components/Toast/components/ToastContext";
 import { listThreatReports, getThreatReport, type ThreatReport } from "../services/inference-service";
 import { ROUTES } from "../router/paths";
 import { useT } from "../hooks/useT";
+import { useApiTranslator } from "../hooks/useApiTranslator";
 
 export default function ThreatsPage() {
   const fx = useInferenceThemeFx();
   const appFx = useAppThemeFx();
   const { showToast } = useToast();
   const t = useT();
+  const at = useApiTranslator();
   const navigate = useNavigate();
   const [reports, setReports] = useState<ThreatReport[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,7 +67,7 @@ export default function ThreatsPage() {
                 <Text fontSize="sm" color={appFx.textMuted}>{new Date(tr.created_at).toLocaleString("pt-BR")}</Text>
                 <HStack wrap="wrap" gap={1}>
                   {Object.entries(tr.stride_summary).filter(([, c]) => c > 0).map(([cat, count]) => (
-                    <Badge key={cat} colorScheme="orange" variant="subtle">{cat} ({count})</Badge>
+                    <Badge key={cat} colorScheme="orange" variant="subtle">{at.threatCategory(cat)} ({count})</Badge>
                   ))}
                 </HStack>
               </VStack>
@@ -82,15 +84,15 @@ export default function ThreatsPage() {
                 <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                   {tr.component_analyses.map((ca, ci) => (
                     <Box key={ci} p={4} bg={appFx.navHoverBg} borderRadius="md">
-                      <Text fontWeight="bold" color={appFx.textColor} mb={2}>{ca.component_label}</Text>
+                      <Text fontWeight="bold" color={appFx.textColor} mb={2}>{at.component(ca.component_label)}</Text>
 
                       {ca.stride_threats.length > 0 && (
                         <>
                           <Text fontSize="xs" fontWeight="bold" color={appFx.textMuted} mb={1}>{t("thr.ameacas")}</Text>
                           <HStack wrap="wrap" mb={2}>
-                            {ca.stride_threats.map((t, ti) => (
-                              <Tag key={ti} size="sm" variant="subtle" colorScheme={t.risk_level === "critical" ? "red" : t.risk_level === "high" ? "orange" : t.risk_level === "medium" ? "yellow" : "green"}>
-                                <TagLabel>{t.category}</TagLabel>
+                            {ca.stride_threats.map((th, ti) => (
+                              <Tag key={ti} size="sm" variant="subtle" colorScheme={th.risk_level === "critical" ? "red" : th.risk_level === "high" ? "orange" : th.risk_level === "medium" ? "yellow" : "green"}>
+                                <TagLabel>{at.threatCategory(th.category)}</TagLabel>
                               </Tag>
                             ))}
                           </HStack>
@@ -103,7 +105,7 @@ export default function ThreatsPage() {
                             <Icon as={Bug} boxSize={3} mr={1} />{t("thr.vulnerabilidades")} ({ca.vulnerabilities.length})
                           </Text>
                           {ca.vulnerabilities.slice(0, 4).map((v, vi) => (
-                            <Text key={vi} fontSize="sm" color={appFx.textColor}>• {v.title} {v.cvss_score && <Badge fontSize="xs" colorScheme={v.cvss_score >= 7 ? "red" : "orange"}>{v.cvss_score}</Badge>}</Text>
+                            <Text key={vi} fontSize="sm" color={appFx.textColor}>• {at.vulnTitle(v.title)} {v.cvss_score && <Badge fontSize="xs" colorScheme={v.cvss_score >= 7 ? "red" : "orange"}>{v.cvss_score}</Badge>}</Text>
                           ))}
                         </>
                       )}

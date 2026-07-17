@@ -2,11 +2,12 @@ import { useState } from "react";
 import {
   Box, VStack, HStack, Text, Button, Divider, Heading, useColorModeValue,
   Flex, Icon, Checkbox, CheckboxGroup, Select, Switch, SimpleGrid, Stat, StatLabel, StatNumber,
-  useToast,
 } from "@chakra-ui/react";
 import { Download, FileJson, FileSpreadsheet, FileText, Archive, Shield, Database, BarChart3, GraduationCap, Bug, Swords, User, Settings } from "lucide-react";
 import { useAppThemeFx } from "../styles/app-theme-fx";
 import { useT } from "../hooks/useT";
+import { useApiTranslator } from "../hooks/useApiTranslator";
+import { useToast } from "../components/Toast/components/ToastContext";
 import api from "../middleware/api";
 
 const SECTIONS = [
@@ -24,6 +25,7 @@ export default function ExportPage() {
   const cardBorder = useColorModeValue("rgba(230, 92, 0, 0.15)", "#333333");
   const { showToast } = useToast();
   const t = useT();
+  const at = useApiTranslator();
 
   const [selectedSections, setSelectedSections] = useState<string[]>(["inferences", "threats", "vulnerabilities"]);
   const [format, setFormat] = useState("json");

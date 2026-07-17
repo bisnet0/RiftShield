@@ -6,7 +6,7 @@ type Lang = "pt-BR" | "en-US";
 interface LanguageContextData {
   lang: Lang;
   setLang: (lang: Lang) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string | number>) => string;
   loading: boolean;
 }
 
@@ -42,8 +42,14 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     } catch {}
   }, []);
 
-  const t = useCallback((key: string): string => {
-    return dict[key] || key;
+  const t = useCallback((key: string, params?: Record<string, string | number>): string => {
+    let text = dict[key] || key;
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        text = text.replace(`{${k}}`, String(v));
+      });
+    }
+    return text;
   }, [dict]);
 
   return (

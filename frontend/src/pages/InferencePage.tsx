@@ -7,6 +7,7 @@ import { logSystemEvent } from "../utils/logger";
 import { useAppThemeFx } from "../styles/app-theme-fx";
 import { useToast } from "../components/Toast/components/ToastContext";
 import { useT } from "../hooks/useT";
+import { useApiTranslator } from "../hooks/useApiTranslator";
 
 import {
   analyzeAndThreat,
@@ -27,6 +28,7 @@ export default function InferencePage() {
   const appFx = useAppThemeFx();
   const { showToast } = useToast();
   const t = useT();
+  const at = useApiTranslator();
   const [tab, setTab] = useState<Tab>("upload");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -132,7 +134,7 @@ export default function InferencePage() {
               <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={3}>
                 {analyzeResult.inference.components.map((c, i) => (
                   <HStack key={i} p={3} bg={appFx.navHoverBg} borderRadius="md" justify="space-between">
-                    <Text fontWeight="bold" color={appFx.textColor}>{c.label}</Text>
+                    <Text fontWeight="bold" color={appFx.textColor}>{at.component(c.label)}</Text>
                     <Badge colorScheme={c.confidence > 0.8 ? "green" : c.confidence > 0.5 ? "yellow" : "red"}>
                       {(c.confidence * 100).toFixed(0)}%
                     </Badge>
@@ -157,9 +159,9 @@ export default function InferencePage() {
 
               <SimpleGrid columns={{ base: 2, md: 3, lg: 6 }} spacing={2} mb={4}>
                 {Object.entries(analyzeResult.threat_report.stride_summary).map(([cat, count]) => (
-                  <Tooltip key={cat} label={cat}>
+                    <Tooltip key={cat} label={at.threatCategory(cat)}>
                     <Badge p={2} textAlign="center" fontSize="sm" colorScheme={count > 0 ? "orange" : "gray"}>
-                      {cat}: {count}
+                      {at.threatCategory(cat)}: {count}
                     </Badge>
                   </Tooltip>
                 ))}
@@ -169,7 +171,7 @@ export default function InferencePage() {
 
               {analyzeResult.threat_report.component_analyses.map((ca, ci) => (
                 <Box key={ci} mb={4} p={4} bg={appFx.navHoverBg} borderRadius="md">
-                  <Heading size="sm" mb={2} color={appFx.textColor}>{ca.component_label}</Heading>
+                  <Heading size="sm" mb={2} color={appFx.textColor}>{at.component(ca.component_label)}</Heading>
 
                   {ca.stride_threats.length > 0 && (
                     <>
@@ -177,7 +179,7 @@ export default function InferencePage() {
                       <HStack wrap="wrap">
                         {ca.stride_threats.map((t, ti) => (
                           <Tag key={ti} size="sm" variant="subtle" colorScheme={t.risk_level === "critical" ? "red" : t.risk_level === "high" ? "orange" : t.risk_level === "medium" ? "yellow" : "green"}>
-                            <TagLabel>{t.category}</TagLabel>
+                            <TagLabel>{at.threatCategory(t.category)}</TagLabel>
                           </Tag>
                         ))}
                       </HStack>
@@ -190,7 +192,7 @@ export default function InferencePage() {
                       {ca.vulnerabilities.slice(0, 3).map((v, vi) => (
                         <HStack key={vi} spacing={2} mb={1}>
                           <Icon as={Bug} boxSize={3} color="red.400" />
-                          <Text fontSize="sm" color={appFx.textColor}>{v.title} {v.cvss_score && <Badge ml={1} fontSize="xs" colorScheme={v.cvss_score >= 7 ? "red" : v.cvss_score >= 4 ? "orange" : "green"}>{v.cvss_score}</Badge>}</Text>
+                          <Text fontSize="sm" color={appFx.textColor}>{at.vulnTitle(v.title)} {v.cvss_score && <Badge ml={1} fontSize="xs" colorScheme={v.cvss_score >= 7 ? "red" : v.cvss_score >= 4 ? "orange" : "green"}>{v.cvss_score}</Badge>}</Text>
                         </HStack>
                       ))}
                     </>
@@ -202,7 +204,7 @@ export default function InferencePage() {
                       {ca.countermeasures.slice(0, 2).map((cm, mi) => (
                         <HStack key={mi} spacing={2} mb={1}>
                           <Icon as={ShieldCheck} boxSize={3} color="green.400" />
-                          <Text fontSize="sm" color={appFx.textColor}>{cm.title}</Text>
+                          <Text fontSize="sm" color={appFx.textColor}>{at.t(cm.title)}</Text>
                         </HStack>
                       ))}
                     </>
@@ -233,7 +235,7 @@ export default function InferencePage() {
                       <Text fontSize="sm" color={appFx.textMuted}>{new Date(tr.created_at).toLocaleString("pt-BR")}</Text>
                       <HStack wrap="wrap" gap={1}>
                         {Object.entries(tr.stride_summary).filter(([, c]) => c > 0).map(([cat]) => (
-                          <Badge key={cat} size="sm" colorScheme="orange">{cat}</Badge>
+                          <Badge key={cat} size="sm" colorScheme="orange">{at.threatCategory(cat)}</Badge>
                         ))}
                       </HStack>
                     </VStack>
@@ -250,11 +252,11 @@ export default function InferencePage() {
                     <Box mt={4} p={4} bg={fx.cardBg} borderRadius="md" border="1px solid" borderColor={fx.cardBorder}>
                       {tr.component_analyses.map((ca, ci) => (
                         <Box key={ci} mb={3}>
-                          <Text fontWeight="bold" color={appFx.textColor}>{ca.component_label}</Text>
+                          <Text fontWeight="bold" color={appFx.textColor}>{at.component(ca.component_label)}</Text>
                           <HStack wrap="wrap" mt={1}>
                             {ca.stride_threats.map((t, ti) => (
                               <Tag key={ti} size="sm" variant="subtle" colorScheme={riskColor(t.risk_level) === fx.riskCritical ? "red" : "orange"}>
-                                <TagLabel>{t.category}</TagLabel>
+                            <TagLabel>{at.threatCategory(t.category)}</TagLabel>
                               </Tag>
                             ))}
                           </HStack>

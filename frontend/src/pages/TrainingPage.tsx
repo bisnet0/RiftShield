@@ -8,12 +8,14 @@ import { logSystemEvent } from "../utils/logger";
 import { fineTuneUpload, listModels, activateModel, type TrainingLog } from "../services/training-service";
 import { listEntries, getDatasetStats, type DatasetEntry, type DatasetStats } from "../services/dataset-service";
 import { useT } from "../hooks/useT";
+import { useApiTranslator } from "../hooks/useApiTranslator";
 
 export default function TrainingPage() {
   const fx = useInferenceThemeFx();
   const appFx = useAppThemeFx();
   const { showToast } = useToast();
   const t = useT();
+  const at = useApiTranslator();
   const [activeModelPath, setActiveModelPath] = useState<string | null>(null);
   const [logs, setLogs] = useState<TrainingLog[]>([]);
   const [entries, setEntries] = useState<DatasetEntry[]>([]);
@@ -200,9 +202,9 @@ export default function TrainingPage() {
                   <HStack spacing={4} mb={3} fontSize="xs" color={appFx.textMuted} wrap="wrap">
                     {log.train_images_count > 0 && <Text>📷 {log.train_images_count} treino</Text>}
                     {log.val_images_count > 0 && <Text>✅ {log.val_images_count} validação</Text>}
-                    {log.hyperparameters?.epochs && <Text>🔄 {log.hyperparameters.epochs} épocas</Text>}
+                    {log.hyperparameters?.epochs && <Text>{at.lang === "pt-BR" ? `🔄 ${log.hyperparameters.epochs} épocas` : `🔄 ${log.hyperparameters.epochs} epochs`}</Text>}
                     {log.hyperparameters?.imgsz && <Text>📐 {log.hyperparameters.imgsz}px</Text>}
-                    {log.hyperparameters?.batch && <Text>📦 batch {log.hyperparameters.batch}</Text>}
+                    {log.hyperparameters?.batch && <Text>{at.lang === "pt-BR" ? `📦 batch ${log.hyperparameters.batch}` : `📦 batch ${log.hyperparameters.batch}`}</Text>}
                   </HStack>
                   {log.trained_filenames && log.trained_filenames.length > 0 && (
                     <Box mb={3}>
