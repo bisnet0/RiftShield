@@ -1,3 +1,5 @@
+<img src="frontend/public/Rift_Shield_github.psd.png" alt="Henrique Bisneto's banner">
+
 # RiftShield — Threat Detection & AI Security Platform
 
 <p align="center">
