@@ -160,10 +160,10 @@ async def suggest_architecture_endpoint(
     from modules.inference.models.comparison_model import ComparisonLog
     result = await suggest_architecture(data_a, data_b, file_a.filename or "arch_a.png", file_b.filename or "arch_b.png", user_id)
     if result and "error" not in result:
-        log = await ComparisonLog.find_one(
+        logs = await ComparisonLog.find(
             {"user_id": user_id, "filename_a": file_a.filename or "arch_a.png", "filename_b": file_b.filename or "arch_b.png"},
-            sort=-ComparisonLog.created_at,
-        )
+        ).sort(-ComparisonLog.created_at).limit(1).to_list()
+        log = logs[0] if logs else None
         if log:
             log.suggestion = result
             await log.save()

@@ -1,8 +1,8 @@
 task: detect
 mode: train
-model: yolov8n.pt
-data: /tmp/tmpgq44o_uf/dataset.yaml
-epochs: 10
+model: /usr/src/app/src/modules/inference/train_results/best.pt
+data: /tmp/tmpvdqb5uq0/dataset.yaml
+epochs: 2
 time: null
 patience: 5
 batch: 8
